@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+D:/gitee/esp32/luatos_esp32/build/CMakeFiles/bootloader
+D:/gitee/esp32/luatos_esp32/build/CMakeFiles/bootloader.rule
+D:/gitee/esp32/luatos_esp32/build/CMakeFiles/bootloader-complete.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+D:/gitee/esp32/luatos_esp32/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule

@@ -1,0 +1,20 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "D:/gitee/esp32/esp-idf/components/bootloader/subproject",
+    "build_dir":          "D:/gitee/esp32/luatos_esp32/build/bootloader",
+    "config_file":        "D:/gitee/esp32/luatos_esp32/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.2-dirty",
+    "target":             "esp32",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "D:/gitee/esp32/esp-idf/components/efuse/Kconfig;D:/gitee/esp32/esp-idf/components/esp32/Kconfig;D:/gitee/esp32/esp-idf/components/esp_common/Kconfig;D:/gitee/esp32/esp-idf/components/log/Kconfig;D:/gitee/esp32/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "D:/gitee/esp32/esp-idf/components/bootloader/Kconfig.projbuild;D:/gitee/esp32/esp-idf/components/esptool_py/Kconfig.projbuild;D:/gitee/esp32/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32", "esp_common", "esp_rom", "esptool_py", "log", "main", "micro-ecc", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "D:/gitee/esp32/esp-idf/components/bootloader", "D:/gitee/esp32/esp-idf/components/bootloader_support", "D:/gitee/esp32/esp-idf/components/efuse", "D:/gitee/esp32/esp-idf/components/esp32", "D:/gitee/esp32/esp-idf/components/esp_common", "D:/gitee/esp32/esp-idf/components/esp_rom", "D:/gitee/esp32/esp-idf/components/esptool_py", "D:/gitee/esp32/esp-idf/components/log", "D:/gitee/esp32/esp-idf/components/bootloader/subproject/main", "D:/gitee/esp32/esp-idf/components/bootloader/subproject/components/micro-ecc", "D:/gitee/esp32/esp-idf/components/partition_table", "D:/gitee/esp32/esp-idf/components/soc", "D:/gitee/esp32/esp-idf/components/spi_flash", "D:/gitee/esp32/esp-idf/components/xtensa", "" ]
+}
