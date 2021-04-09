@@ -8,12 +8,5 @@
     "idf.espMdfPathWin": "",
     "idf.portWin": "COM51",
     "idf.pythonBinPathWin": "C:\\Users\\ichen\\.espressif\\python_env\\idf4.2_py3.8_env\\Scripts\\python.exe",
-    "idf.toolsPathWin": "C:\\Users\\ichen\\.espressif",
-    "files.associations": {
-        "esp_spi_flash.h": "c",
-        "bget.h": "c",
-        "lua.h": "c",
-        "luaconf.h": "c",
-        "luat_conf_bsp.h": "c"
-    }
+    "idf.toolsPathWin": "C:\\Users\\ichen\\.espressif"
 }

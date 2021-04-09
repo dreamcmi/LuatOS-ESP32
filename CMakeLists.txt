@@ -3,7 +3,4 @@
 cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(hello-world)
-add_subdirectory(./lua)
-add_subdirectory(./luat)
-target_link_libraries(${COMPONENT_LIB} lua luat)
+project(luatos_esp32)
