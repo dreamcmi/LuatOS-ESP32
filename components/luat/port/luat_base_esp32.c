@@ -2,6 +2,7 @@
 #include "luat_malloc.h"
 #include "luat_fs.h"
 #include "luat_msgbus.h"
+#include "esp_log.h"
 
 // 文件系统初始化函数, 先做个假
 int luat_fs_init(void) {return 0;}
@@ -70,5 +71,6 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used) {
 }
 
 void luat_nprint(char *s, size_t l) {
-  printf("%s", s);
+  // printf("%s", s);
+  ESP_LOGI("luatos","%s",s);
 }
