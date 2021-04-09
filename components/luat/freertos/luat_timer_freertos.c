@@ -4,9 +4,9 @@
 #include "luat_timer.h"
 #include "luat_msgbus.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/timers.h"
 
 #define LUAT_LOG_TAG "luat.timer"
 #include "luat_log.h"
