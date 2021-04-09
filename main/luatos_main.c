@@ -7,7 +7,7 @@
 #include "bget.h"
 #include "luat_base.h"
 
-#define LUAT_HEAP_SIZE (1024)
+#define LUAT_HEAP_SIZE (1024*100)
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
 void app_main(void)
