@@ -1,0 +1,5 @@
+menu "Lua"
+config Lua_ENABLE
+bool "Enable Lua"
+default "y"
+endmenu
