@@ -8,5 +8,9 @@
     "idf.espMdfPathWin": "",
     "idf.portWin": "COM51",
     "idf.pythonBinPathWin": "C:\\Users\\ichen\\.espressif\\python_env\\idf4.2_py3.8_env\\Scripts\\python.exe",
-    "idf.toolsPathWin": "C:\\Users\\ichen\\.espressif"
+    "idf.toolsPathWin": "C:\\Users\\ichen\\.espressif",
+    "files.associations": {
+        "esp_spiffs.h": "c",
+        "*.inc": "c"
+    }
 }
