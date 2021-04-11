@@ -520,11 +520,11 @@ static int searcher_Lua (lua_State *L) {
     if (readable(filename)) break;
 
     //    /spiffs/main.lua
-    sprintf(filename, "/spiffs/%s.luac", name);
+    sprintf(filename, "/spiffs/%s.lua", name);
     if (readable(filename)) break;
 
     //    /spiffs/main.lua
-    sprintf(filename, "/spiffs/%s.luac", name);
+    sprintf(filename, "/spiffs/%s.lua", name);
     if (readable(filename)) break;
 
     // none found!!
