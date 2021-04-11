@@ -40,7 +40,7 @@ int luat_fs_init(void)
     {
       ESP_LOGE("spiffs init", "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
     }
-    return;
+    return 1;
   }
   size_t total = 0, used = 0;
   ret = esp_spiffs_info(spiffs_conf.partition_label, &total, &used);
@@ -55,24 +55,22 @@ int luat_fs_init(void)
   return 0;
 }
 
-int luat_fs_mkfs(luat_fs_conf_t *conf)
-{
-    return 0;
-}
+// int luat_fs_mkfs(luat_fs_conf_t *conf)
+// {
+//     return 0;
+// }
 
-int luat_fs_mount(luat_fs_conf_t *conf)
-{
-    esp_vfs_spiffs_register(&spiffs_conf);
-    return 0;
-}
+// int luat_fs_mount(luat_fs_conf_t *conf)
+// {
+//     esp_vfs_spiffs_register(&spiffs_conf);
+//     return 0;
+// }
 
-
-int luat_fs_umount(luat_fs_conf_t *conf)
-{
-    esp_vfs_spiffs_unregister(&spiffs_conf);
-    return 0;
-}
-
+// int luat_fs_umount(luat_fs_conf_t *conf)
+// {
+//     esp_vfs_spiffs_unregister(&spiffs_conf);
+//     return 0;
+// }
 
 int luat_fs_info(const char *path, luat_fs_info_t *conf)
 {
@@ -88,3 +86,4 @@ int luat_fs_info(const char *path, luat_fs_info_t *conf)
     }
     return 0;
 }
+
