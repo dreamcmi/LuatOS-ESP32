@@ -11,6 +11,7 @@
     "idf.toolsPathWin": "C:\\Users\\ichen\\.espressif",
     "files.associations": {
         "esp_spiffs.h": "c",
-        "*.inc": "c"
+        "*.inc": "c",
+        "luat_fs.h": "c"
     }
 }
