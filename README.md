@@ -12,6 +12,12 @@
 
 点亮了。。。仅此而已
 
+##### 2020.4.11
+
+1、spiffs文件系统做好了，可以刷入lua脚本
+
+2、似乎idf的freertos有所不同，sys.wait会发生cpu_reset，具体原因还在查找
+
 ### 3、参与方式
 
 1、vscode安装espidf插件
