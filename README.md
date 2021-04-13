@@ -18,12 +18,16 @@
 
 2、似乎idf的freertos有所不同，sys.wait会发生cpu_reset，具体原因还在查找
 
+##### 2020.4.13
+
+还在查bug，这几天先把简单外设做了
+
 ### 3、参与方式
 
 1、vscode安装espidf插件
 
 2、git clone https://gitee.com/dreamcmi/LuatOS-ESP32 
 
-3、用vscode打开文件夹即可
+3、用vscode打开文件夹，添加/修改/删除
 
 4、提个pr呗
