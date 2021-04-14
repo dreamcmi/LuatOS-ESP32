@@ -30,6 +30,7 @@ static const luaL_Reg loadedlibs[] = {
     {"rtos", luaopen_rtos},   // rtos底层库, 核心功能是队列和定时器
     {"log", luaopen_log},     // 日志库
     {"timer", luaopen_timer}, // 延时库
+    {"gpio", luaopen_gpio},   // GPIO脚的操作
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
