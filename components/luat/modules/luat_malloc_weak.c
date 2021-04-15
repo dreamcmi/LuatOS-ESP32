@@ -43,11 +43,11 @@ LUAT_WEAK void* luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
         if (ptr) {
             if (nsize) {
                 // 缩放内存块
-                LLOGD("realloc %p from %d to %d", ptr, osize, nsize);
+                // LLOGD("realloc %p from %d to %d", ptr, osize, nsize);
             }
             else {
                 // 释放内存块
-                LLOGD("free %p ", ptr);
+                // LLOGD("free %p ", ptr);
                 brel(ptr);
                 return NULL;
             }
@@ -55,7 +55,7 @@ LUAT_WEAK void* luat_heap_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
         else {
             // 申请内存块
             ptr = bget(nsize);
-            LLOGD("malloc %p type=%d size=%d", ptr, osize, nsize);
+            // LLOGD("malloc %p type=%d size=%d", ptr, osize, nsize);
             return ptr;
         }
     }
