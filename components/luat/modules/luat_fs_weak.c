@@ -8,11 +8,11 @@
 // fs的默认实现, 指向poisx的stdio.h声明的方法
 
 LUAT_WEAK FILE* luat_fs_fopen(const char *filename, const char *mode) {
-    // LLOGD("fopen %s %s", filename, mode);
+    //LLOGD("fopen %s %s", filename, mode);
     return fopen(filename, mode);
 }
 
-LUAT_WEAK char luat_fs_getc(FILE* stream) {
+LUAT_WEAK int luat_fs_getc(FILE* stream) {
     return getc(stream);
 }
 

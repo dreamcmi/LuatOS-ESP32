@@ -31,6 +31,7 @@ static const luaL_Reg loadedlibs[] = {
     {"log", luaopen_log},     // 日志库
     {"timer", luaopen_timer}, // 延时库
     {"gpio", luaopen_gpio},   // GPIO脚的操作
+    {"adc", luaopen_adc},     // ADC库
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
