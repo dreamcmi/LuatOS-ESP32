@@ -37,7 +37,7 @@ int luat_fs_umount(luat_fs_conf_t *conf);
 int luat_fs_info(const char* path, luat_fs_info_t *conf);
 
 FILE* luat_fs_fopen(const char *filename, const char *mode);
-char luat_fs_getc(FILE* stream);
+int luat_fs_getc(FILE* stream);
 int luat_fs_fseek(FILE* stream, long int offset, int origin);
 int luat_fs_ftell(FILE* stream);
 int luat_fs_fclose(FILE* stream);
