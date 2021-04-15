@@ -53,15 +53,15 @@ int luat_gpio_setup(luat_gpio_t *gpio)
     //设置上下拉
     if (gpio->pull == Luat_GPIO_DEFAULT)
     {
-        gpio_set_intr_type(gpio->pin, GPIO_FLOATING);
+        gpio_set_pull_mode(gpio->pin, GPIO_FLOATING);
     }
     else if (gpio->pull == Luat_GPIO_PULLUP)
     {
-        gpio_set_intr_type(gpio->pin, GPIO_PULLUP_ONLY);
+        gpio_set_pull_mode(gpio->pin, GPIO_PULLUP_ONLY);
     }
     else if (gpio->pull == Luat_GPIO_PULLDOWN)
     {
-        gpio_set_intr_type(gpio->pin, GPIO_PULLDOWN_ONLY);
+        gpio_set_pull_mode(gpio->pin, GPIO_PULLDOWN_ONLY);
     }
     return 0;
 }
