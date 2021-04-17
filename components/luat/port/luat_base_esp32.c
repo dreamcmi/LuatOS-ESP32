@@ -10,7 +10,7 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_system.h"
-
+#include "esp32/rom/ets_sys.h"
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -52,6 +52,13 @@ void luat_openlibs(lua_State *L)
   }
 }
 
+
+// 微妙硬延时
+void luat_timer_us_delay(size_t us) {
+  if (us > 0)
+    ets_delay_us(us);
+}
+
 //esp32重启函数
 void luat_os_reboot(int code)
 {
@@ -84,6 +91,6 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
 
 void luat_nprint(char *s, size_t l)
 {
-  // printf("%s", s);
-  ESP_LOGI("luatos", "%s", s);
+  printf("%s", s);
+  // ESP_LOGI("luatos", "%s", s);
 }
