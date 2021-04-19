@@ -3,6 +3,8 @@
 
 #include "driver/spi_master.h"
 #include "driver/spi_common.h"
+#define LUAT_LOG_TAG "luat.gpio"
+#include "luat_log.h"
 
 spi_device_handle_t spi_h;
 
@@ -10,7 +12,7 @@ spi_device_handle_t spi_h;
 未验证！
 未验证！
 未验证！
-未验证！
+重要的事情说三遍！
 待我再理解下idf
 */
 
@@ -30,7 +32,21 @@ int luat_spi_setup(luat_spi_t *spi)
             .quadhd_io_num = -1,
             .max_transfer_sz = 0,
         };
-        spi_bus_initialize(spi->id, &spi_config, 0);
+        switch (spi_bus_initialize(spi->id, &spi_config, 0))
+        {
+            case ESP_ERR_INVALID_ARG:
+                LLOGE(LUAT_LOG_TAG,"SPI Init Bus Fail,Invalid Arg");
+                return -1;
+                break;
+            case ESP_ERR_INVALID_STATE:
+                LLOGE(LUAT_LOG_TAG,"SPI Init Bus Fail,Invalid State");
+                return -1;
+                break;
+            case ESP_ERR_NO_MEM:
+                LLOGE(LUAT_LOG_TAG,"SPI Init Bus Fail,No Memory");
+                return -1;
+                break;
+        }
     }
     else if (spi->id == 2)
     {
@@ -42,7 +58,21 @@ int luat_spi_setup(luat_spi_t *spi)
             .quadhd_io_num = -1,
             .max_transfer_sz = 0,
         };
-        spi_bus_initialize(spi->id, &spi_config, 0);
+        switch (spi_bus_initialize(spi->id, &spi_config, 0))
+        {
+            case ESP_ERR_INVALID_ARG:
+                LLOGE(LUAT_LOG_TAG,"SPI Init Bus Fail,Invalid Arg");
+                return -1;
+                break;
+            case ESP_ERR_INVALID_STATE:
+                LLOGE(LUAT_LOG_TAG,"SPI Init Bus Fail,Invalid State");
+                return -1;
+                break;
+            case ESP_ERR_NO_MEM:
+                LLOGE(LUAT_LOG_TAG,"SPI Init Bus Fail,No Memory");
+                return -1;
+                break;
+        }
     }
     else
     {
@@ -86,7 +116,21 @@ int luat_spi_setup(luat_spi_t *spi)
     devcfg.spics_io_num = spi->cs;
     devcfg.input_delay_ns = 0;
 
-    spi_bus_add_device(spi->id, &devcfg, &spi_h);
+    switch (spi_bus_add_device(spi->id, &devcfg, &spi_h))
+    {
+    case ESP_ERR_INVALID_ARG:
+        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail,Invalid Arg");
+        return -1;
+        break;
+    case ESP_ERR_NOT_FOUND:
+        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail,Invalid Arg");
+        return -1;
+        break;
+    case ESP_ERR_NO_MEM:
+        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail,No Memory");
+        return -1;
+        break;
+    }
 
     return 0;
 }
@@ -96,8 +140,28 @@ int luat_spi_close(int spi_id)
 {
     if (spi_id == 1 || spi_id == 2)
     {
-        spi_bus_remove_device(&spi_h);
-        spi_bus_free(spi_id);
+        switch (spi_bus_remove_device(spi_h))
+        {
+        case ESP_ERR_INVALID_ARG:
+            LLOGE(LUAT_LOG_TAG,"SPI Bus Remove Device Fail,Invalid Arg");
+            return -1;
+            break;
+        case ESP_ERR_INVALID_STATE:
+            return 0;
+            break;
+        }
+        switch (spi_bus_free(spi_id))
+        {
+        case ESP_ERR_INVALID_ARG:
+            LLOGE(LUAT_LOG_TAG,"SPI Bus Free Fail,Invalid Arg");
+            return -1;
+            break;
+
+        case ESP_ERR_INVALID_STATE:
+            LLOGE(LUAT_LOG_TAG,"SPI Bus Free Device Fail,Invalid State");
+            return -1;
+            break;
+        }
         return 0;
     }
     return -1;
@@ -109,10 +173,20 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
     if (spi_id == 1 || spi_id == 2)
     {
         spi_transaction_t send_spi;
-        send_spi.length = length;
+        // send_spi.length = length;
         send_spi.tx_buffer = send_buf;
         send_spi.rx_buffer = recv_buf;
-        spi_device_transmit(&spi_h, &send_spi);
+        send_spi.rxlength = length;
+        switch (spi_device_transmit(spi_h, &send_spi))
+        {
+        case ESP_OK:
+            return 0;
+            break;
+        case ESP_ERR_INVALID_ARG:
+            LLOGE(LUAT_LOG_TAG,"SPI Recv Fail,Invalid Arg");
+            return -1;
+            break;
+        }
         return 0;
     }
     return -1;
@@ -121,11 +195,45 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
 //收SPI数据，返回接收字节数
 int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
 {
-    return 0;
+    if (spi_id == 1 || spi_id == 2)
+    {
+        spi_transaction_t send_spi;
+        send_spi.rxlength = length;
+        send_spi.rx_buffer = recv_buf;
+        send_spi.tx_buffer = NULL;
+        switch (spi_device_transmit(spi_h, &send_spi))
+        {
+        case ESP_OK:
+            return 0;
+            break;
+        case ESP_ERR_INVALID_ARG:
+            LLOGE(LUAT_LOG_TAG,"SPI Recv Fail,Invalid Arg");
+            return -1;
+            break;
+        }
+    }
+    return -1;
 }
 
 //发SPI数据，返回发送字节数
 int luat_spi_send(int spi_id, const char *send_buf, size_t length)
 {
-    return 0;
+    if (spi_id == 1 || spi_id == 2)
+    {
+        spi_transaction_t send_spi;
+        send_spi.length = length;
+        send_spi.tx_buffer = send_buf;
+        send_spi.rx_buffer = NULL;
+        switch (spi_device_transmit(spi_h, &send_spi))
+        {
+        case ESP_OK:
+            return 0;
+            break;
+        case ESP_ERR_INVALID_ARG:
+            LLOGE(LUAT_LOG_TAG,"SPI Recv Fail,Invalid Arg");
+            return -1;
+            break;
+        }
+    }
+    return -1;
 }
