@@ -36,7 +36,7 @@
 
 ##### 2020.4.19
 
-1、spi修了
+1、spi修了下
 
 2、准备搞一下其他外设
 
@@ -44,7 +44,7 @@
 
 1、vscode安装espidf插件
 
-2、git clone https://gitee.com/dreamcmi/LuatOS-ESP32 
+2、git clone https://gitee.com/dreamcmi/LuatOS-ESP32
 
 3、用vscode打开文件夹，添加/修改/删除
 
