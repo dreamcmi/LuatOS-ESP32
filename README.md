@@ -40,6 +40,14 @@
 
 2、准备搞一下其他外设
 
+##### 2020.4.20
+
+1、iic spi加了错误判断
+
+2、Attention：i2c.setup()要传入频率
+
+3、spi还在修（fantasy）
+
 ### 3、参与方式
 
 1、vscode安装espidf插件
