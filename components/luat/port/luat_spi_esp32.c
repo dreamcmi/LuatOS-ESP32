@@ -140,7 +140,8 @@ int luat_spi_close(int spi_id)
             return -1;
             break;
         case ESP_ERR_INVALID_STATE:
-            return 0;
+            LLOGE(LUAT_LOG_TAG,"SPI Bus Remove Device Fail,Invalid State");
+            return -1;
             break;
         }
         switch (spi_bus_free(spi_id))
