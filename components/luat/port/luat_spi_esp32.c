@@ -1,10 +1,10 @@
 #include "luat_base.h"
 #include "luat_spi.h"
+#define LUAT_LOG_TAG "luat.gpio"
+#include "luat_log.h"
 
 #include "driver/spi_master.h"
 #include "driver/spi_common.h"
-#define LUAT_LOG_TAG "luat.gpio"
-#include "luat_log.h"
 
 spi_device_handle_t spi_h;
 
