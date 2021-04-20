@@ -1,6 +1,6 @@
 #include "luat_base.h"
 #include "luat_spi.h"
-#define LUAT_LOG_TAG "luat.gpio"
+#define LUAT_LOG_TAG "luat.spi"
 #include "luat_log.h"
 
 #include "driver/spi_master.h"
@@ -8,13 +8,6 @@
 
 spi_device_handle_t spi_h;
 
-/*
-未验证！
-未验证！
-未验证！
-重要的事情说三遍！
-待我再理解下idf
-*/
 
 //初始化配置SPI各项参数，并打开SPI
 //成功返回0
