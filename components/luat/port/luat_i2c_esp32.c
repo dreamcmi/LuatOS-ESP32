@@ -1,7 +1,7 @@
 #include "luat_base.h"
 #include "luat_i2c.h"
 
-#define LUAT_LOG_TAG "luat.gpio"
+#define LUAT_LOG_TAG "luat.i2c"
 #include "luat_log.h"
 
 #include "driver/i2c.h"
