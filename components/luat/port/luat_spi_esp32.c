@@ -106,7 +106,7 @@ int luat_spi_setup(luat_spi_t *spi)
     devcfg.address_bits = 8;
     devcfg.duty_cycle_pos = 0;
     devcfg.clock_speed_hz = spi->bandrate;
-    devcfg.spics_io_num = spi->cs;
+    devcfg.spics_io_num = spi->id==1?15:5;
     devcfg.input_delay_ns = 0;
 
     switch (spi_bus_add_device(spi->id, &devcfg, &spi_h))
@@ -116,11 +116,11 @@ int luat_spi_setup(luat_spi_t *spi)
         return -1;
         break;
     case ESP_ERR_NOT_FOUND:
-        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail,Invalid Arg");
+        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail, Host doesn’t have Free CS Slots");
         return -1;
         break;
     case ESP_ERR_NO_MEM:
-        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail,No Memory");
+        LLOGE(LUAT_LOG_TAG,"SPI Bus Add Device Fail,Out Of Memory");
         return -1;
         break;
     }
