@@ -1,30 +1,23 @@
-# 制作脚本刷写文件
-
-1、生成个bin
-
-```
-mkspiffs -c [src_folder] -b 4096 -p 256 -s 0xF0000 demo.bin
-```
-
-2、刷入
-
-```
-esptool.py --chip esp32 --port [port] --baud [baud] write_flash -z 0x310000 demo.bin
-```
-
-
-
 # ESP32_LuatOS_Flashtool
 
-## 1、rominfo
+## 简介：
+
+本工具是Luatos For ESP32 项目的配套工具，用于固件的生成，下载，量产
+
+Author:梦程MI(Darren)
+
+Version:V1.1
+
+
+## 1、鉴别格式：rominfo.json
 
 ```json
 {
 	"type": "esp32",
 	"bootloader_offset": "0x1000",
-    "bootloader_file": "bootloader.bin",
-    "partition_table_offset": "0x8000",
-    "partition_table_file": "partition-table.bin",
+	"bootloader_file": "bootloader.bin",
+	"partition_table_offset": "0x8000",
+	"partition_table_file": "partition-table.bin",
     "otadata_offset": "0xe000",
     "otadata_file": "ota_data_initial.bin",
     "app_offset": "0x10000",
@@ -36,13 +29,33 @@ esptool.py --chip esp32 --port [port] --baud [baud] write_flash -z 0x310000 demo
 
 ## 2、使用说明
 
-lfs [lua_path]
+local.ini是配置文件，程序会先读取local.ini里面的配置
 
-生成脚本刷入文件
+程序依赖esptool工具，请先使用pip安装
 
-flash [COM] [baud] [firmware_path]
+安装命令：pip install esptool
 
-下载固件
+操作命令
 
-pkg [build_path]
-生成固件包
+```
+-------------------------------------
+pkg   - 生成标准固件（不包括fs分区）
+pack  - 生成量产固件（暂未支持）
+dlrom - 刷写固件
+dlfs  - 刷写脚本
+lfs   - 生成脚本刷写文件
+--------------------------------------
+用例1, 生成文件系统
+python esp32.py lfs
+
+用例2, 生成文件系统并下载到开发板
+python esp32.py lfs dlfs
+
+用例3, 仅下载底层固件
+python esp32.py dlrom
+
+用例4, 生成标准固件
+python esp32.py pkg
+--------------------------------------
+```
+
