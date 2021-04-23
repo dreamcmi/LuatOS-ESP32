@@ -46,7 +46,6 @@ int luat_spi_setup(luat_spi_t *spi)
     {
         return -1;
     }
-
     spi_device_interface_config_t devcfg;
 
     if (spi->CPHA == 0)
@@ -60,7 +59,7 @@ int luat_spi_setup(luat_spi_t *spi)
             devcfg.mode = 1;
         }
     }
-    if (spi->CPHA == 1)
+    if (spi->CPHA)
     {
         if (spi->CPOL == 0)
         {
@@ -77,12 +76,9 @@ int luat_spi_setup(luat_spi_t *spi)
         devcfg.flags = SPI_DEVICE_BIT_LSBFIRST;
     }
     devcfg.cs_ena_pretrans = 1;
-    devcfg.command_bits = 0;
-    devcfg.address_bits = 0;
-    devcfg.duty_cycle_pos = 0;
     devcfg.clock_speed_hz = spi->bandrate;
     devcfg.spics_io_num = spi->id==1?15:5;
-    devcfg.input_delay_ns = 0;
+    devcfg.queue_size=7;
     ESP_ERROR_CHECK(spi_bus_add_device(spi->id, &devcfg, &spi_h));
     return 0;
 }
@@ -104,10 +100,12 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
 {
     if (spi_id == 1 || spi_id == 2)
     {
-        spi_transaction_t send_spi;
-        send_spi.tx_buffer = send_buf;
-        send_spi.rx_buffer = recv_buf;
-        send_spi.rxlength = length;
+        spi_transaction_t send_spi = {
+            .length = length*2,
+            .tx_buffer = send_buf,
+            .rx_buffer = recv_buf,
+            .rxlength = length,
+        };
         ESP_ERROR_CHECK(spi_device_transmit(spi_h, &send_spi));
         return 0;
     }
@@ -137,6 +135,7 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
         send_spi.length = length;
         send_spi.tx_buffer = send_buf;
         send_spi.rx_buffer = NULL;
+        send_spi.rxlength = 0;
         ESP_ERROR_CHECK(spi_device_transmit(spi_h, &send_spi));
     }
     return -1;
