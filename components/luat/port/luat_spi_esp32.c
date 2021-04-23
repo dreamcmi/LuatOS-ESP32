@@ -59,7 +59,7 @@ int luat_spi_setup(luat_spi_t *spi)
             devcfg.mode = 1;
         }
     }
-    if (spi->CPHA)
+    if (spi->CPHA == 1)
     {
         if (spi->CPOL == 0)
         {
