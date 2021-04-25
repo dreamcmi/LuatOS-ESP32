@@ -10,8 +10,7 @@
 spi_device_handle_t spi_h;
 
 
-//初始化配置SPI各项参数，并打开SPI
-//成功返回0
+//初始化配置SPI各项参数，并打开SPI,向SPI总线添加设备
 int luat_spi_setup(luat_spi_t *spi)
 {
     // SPI2_HOST = 1
@@ -46,7 +45,7 @@ int luat_spi_setup(luat_spi_t *spi)
     {
         return -1;
     }
-    spi_device_interface_config_t devcfg;
+    spi_device_interface_config_t devcfg = {};
 
     if (spi->CPHA == 0)
     {
