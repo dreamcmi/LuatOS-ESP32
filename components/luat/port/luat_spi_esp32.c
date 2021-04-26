@@ -76,6 +76,7 @@ int luat_spi_setup(luat_spi_t *spi)
     }
     devcfg.cs_ena_pretrans = 1;
     devcfg.clock_speed_hz = spi->bandrate;
+    //TODO:自选CS引脚
     devcfg.spics_io_num = spi->id==1?15:5;
     devcfg.queue_size=7;
     ESP_ERROR_CHECK(spi_bus_add_device(spi->id, &devcfg, &spi_h));
