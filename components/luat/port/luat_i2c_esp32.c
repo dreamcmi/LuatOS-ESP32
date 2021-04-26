@@ -26,7 +26,7 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
 {
     if (luat_i2c_exist(id))
     {
-        i2c_config_t conf;
+        i2c_config_t conf = {};
         conf.mode = I2C_MODE_MASTER;
         conf.sda_io_num = 18;
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
