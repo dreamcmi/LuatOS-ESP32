@@ -34,6 +34,7 @@ static const luaL_Reg loadedlibs[] = {
     {"adc", luaopen_adc},     // ADC库
     {"i2c", luaopen_i2c},     // I2C操作
     {"spi", luaopen_spi},     // SPI操作
+    {"uart",luaopen_uart},    // UART操作
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
