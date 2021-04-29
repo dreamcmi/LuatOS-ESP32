@@ -30,8 +30,10 @@ lua_State * luat_get_state() {
   return L;
 }
 
+int luat_search_module(const char* name, char* filename);
+
 static int pmain(lua_State *L) {
-    int re = 0;
+    int re = -2;
 
     #ifdef LUA_32BITS
     //LLOGD("Lua complied with LUA_32BITS");
@@ -40,11 +42,7 @@ static int pmain(lua_State *L) {
     // 加载内置库
     luat_openlibs(L);
 
-    size_t total; size_t used; size_t max_used;
-    luat_meminfo_luavm(&total, &used, &max_used);
-    LLOGD("luavm %ld %ld %ld", total, used, max_used);
-    luat_meminfo_sys(&total, &used, &max_used);
-    LLOGD("sys   %ld %ld %ld", total, used, max_used);
+    luat_os_print_heapinfo("boot");
 
     lua_gc(L, LUA_GCSETPAUSE, 90); // 设置`垃圾收集器间歇率`要低于100%
 
@@ -55,16 +53,20 @@ static int pmain(lua_State *L) {
       if (slen > 4 && !strcmp(".lua", win32_argv[1] + (slen - 4)))
         re = luaL_dofile(L, win32_argv[1]);
     }
-    else
-        re = luaL_dostring(L, "require(\"main\")");
+    #endif
+    if (re == -2) {
+      char filename[32] = {0};
+      if (luat_search_module("main", filename) == 0) {
+        re = luaL_dofile(L, filename);
+      }
+      else {
+        re = -1;
+        luaL_error(L, "module '%s' not found", "main");
+      }
+    }
+        
     report(L, re);
     lua_pushboolean(L, re == LUA_OK);  /* signal no errors */
-    #else
-    re = luaL_dostring(L, "require(\"main\")");
-
-    report(L, re);
-    lua_pushboolean(L, 1);  /* signal no errors */
-    #endif
     return 1;
 }
 
@@ -261,4 +263,12 @@ void luat_newlib(lua_State* l, const rotable_Reg* reg) {
   #else
   rotable_newlib(l, reg);
   #endif
+}
+
+void luat_os_print_heapinfo(const char* tag) {
+    size_t total; size_t used; size_t max_used;
+    luat_meminfo_luavm(&total, &used, &max_used);
+    LLOGD("%s luavm %ld %ld %ld", tag, total, used, max_used);
+    luat_meminfo_sys(&total, &used, &max_used);
+    LLOGD("%s sys   %ld %ld %ld", tag, total, used, max_used);
 }
