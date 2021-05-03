@@ -65,7 +65,7 @@
 ** unique key for table in the registry that keeps handles
 ** for all loaded C libraries
 */
-static const int CLIBS = 0;
+// static const int CLIBS = 0;
 
 #define LIB_FAIL	"open"
 

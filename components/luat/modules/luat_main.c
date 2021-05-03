@@ -32,6 +32,14 @@ lua_State * luat_get_state() {
 
 int luat_search_module(const char* name, char* filename);
 
+void luat_os_print_heapinfo(const char* tag) {
+    size_t total; size_t used; size_t max_used;
+    luat_meminfo_luavm(&total, &used, &max_used);
+    LLOGD("%s luavm %ld %ld %ld", tag, total, used, max_used);
+    luat_meminfo_sys(&total, &used, &max_used);
+    LLOGD("%s sys   %ld %ld %ld", tag, total, used, max_used);
+}
+
 static int pmain(lua_State *L) {
     int re = -2;
 
@@ -265,10 +273,10 @@ void luat_newlib(lua_State* l, const rotable_Reg* reg) {
   #endif
 }
 
-void luat_os_print_heapinfo(const char* tag) {
-    size_t total; size_t used; size_t max_used;
-    luat_meminfo_luavm(&total, &used, &max_used);
-    LLOGD("%s luavm %ld %ld %ld", tag, total, used, max_used);
-    luat_meminfo_sys(&total, &used, &max_used);
-    LLOGD("%s sys   %ld %ld %ld", tag, total, used, max_used);
-}
+// void luat_os_print_heapinfo(const char* tag) {
+//     size_t total; size_t used; size_t max_used;
+//     luat_meminfo_luavm(&total, &used, &max_used);
+//     LLOGD("%s luavm %ld %ld %ld", tag, total, used, max_used);
+//     luat_meminfo_sys(&total, &used, &max_used);
+//     LLOGD("%s sys   %ld %ld %ld", tag, total, used, max_used);
+// }
