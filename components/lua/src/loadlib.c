@@ -499,9 +499,9 @@ static int checkload (lua_State *L, int stat, const char *filename) {
 
 
 static const char* search_paths[] = {
-  "/%s.luac", "/%s.lua",
-  "/lua/%s.luac", "/lua/%s.lua",
-  "/luadb/%s.luac", "/luadb/%s.lua",
+  "/spiffs/%s.luac", "/spiffs/%s.lua",
+  "/spiffs/lua/%s.luac", "/spiffs/lua/%s.lua",
+  "/spiffs/luadb/%s.luac", "/spiffs/luadb/%s.lua",
   "",
 };
 
