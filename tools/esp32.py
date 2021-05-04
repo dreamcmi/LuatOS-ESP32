@@ -272,7 +272,7 @@ if __name__ == '__main__':
     #  ============================================================
     #  ============================================================
     if os.path.exists("local.ini"):
-        config.read("local.ini")
+        config.read("local.ini",encoding='utf-8')
         esp_idf_path = os.path.abspath(config['esp32']['ESP_IDF_PATH']) + os.sep
         user_project_path = os.path.abspath(config['esp32']['USER_PROJECT_PATH']) + os.sep
         firmware_path = os.path.abspath(config['esp32']['FIRMWARE_PATH'])
