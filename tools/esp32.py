@@ -52,7 +52,9 @@ def genera_firmware_pkg():
             'otadata_offset': otadata_offset,
             'otadata_file': otadata_file,
             'app_offset': app_offset,
-            'app_file': app_file
+            'app_file': app_file,
+            "spiffs_offset": "",
+            "spiffs_file": ""
         }
         info_j = json.dumps(info)
         with open('./tmp/rominfo.json', 'w') as f:
@@ -83,6 +85,9 @@ def genera_firmware_pkg():
         # tmp没用了，删了
         shutil.rmtree("tmp")
         print("rm ./tmp")
+        config.set("esp32", "FIRMWARE_PATH", zip_name)
+        with open("local.ini", "w+") as f:
+            config.write(f)
     else:
         print("未发现build目录，请执行‘idf.py build’编译")
 
@@ -159,6 +164,9 @@ def genera_batch_pkg():
         # tmp没用了，删了
         shutil.rmtree("tmp")
         print("rm ./tmp")
+        config.set("esp32", "FIRMWARE_PATH", zip_name)
+        with open("local.ini", "w+") as f:
+            config.write(f)
     else:
         print("未发现build目录，请执行‘idf.py build’编译")
 
@@ -193,7 +201,7 @@ def flash_target():
             app_offset = rom_info_data['app_offset']
             app_file = './tmp/' + rom_info_data['app_file']
 
-            if rom_info_data['spiffs_offset'] != None:
+            if rom_info_data['spiffs_offset'] != "":
                 print("found fs_bin")
                 spiffs_offset = rom_info_data['spiffs_offset']
                 spiffs_file = './tmp/' + rom_info_data['spiffs_file']
@@ -230,7 +238,7 @@ def make_luat_fs():
 
 # 下载LuatOS脚本
 def dl_fs():
-    command = ['--port', user_com, '--baud', user_baud, 'write_flash', user_baud, fs_bin]
+    command = ['--port', user_com, '--baud', user_baud, 'write_flash', fs_offset, fs_bin]
     esptool.main(command)
 
 
@@ -272,7 +280,7 @@ if __name__ == '__main__':
     #  ============================================================
     #  ============================================================
     if os.path.exists("local.ini"):
-        config.read("local.ini",encoding='utf-8')
+        config.read("local.ini", encoding='utf-8')
         esp_idf_path = os.path.abspath(config['esp32']['ESP_IDF_PATH']) + os.sep
         user_project_path = os.path.abspath(config['esp32']['USER_PROJECT_PATH']) + os.sep
         firmware_path = os.path.abspath(config['esp32']['FIRMWARE_PATH'])
@@ -292,7 +300,7 @@ if __name__ == '__main__':
         print('''
         欢迎使用Luatos For ESP32 Flash Tool
         Author:梦程MI(Darren)
-        Version:V1.1.1
+        Version:V1.1.2
         下面是使用说明
         -------------------------------------
         pkg   - 生成标准固件（不包括fs分区）
