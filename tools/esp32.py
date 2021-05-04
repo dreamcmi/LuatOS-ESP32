@@ -173,7 +173,13 @@ def genera_batch_pkg():
 
 # 解压固件
 def unzip_firmware():
-    zfile = zipfile.ZipFile(firmware_path, "r")
+    if os.path.exists("local.ini"):
+        config.read("local.ini", encoding='utf-8')
+        now_firmware_path = os.path.abspath(config['esp32']['FIRMWARE_PATH'])
+        print("读取local.ini成功")
+    else:
+        print("没找到local.ini,请创建一个")
+    zfile = zipfile.ZipFile(now_firmware_path, "r")
     for f in zfile.namelist():
         print(f)
     zfile.extractall('./tmp')
