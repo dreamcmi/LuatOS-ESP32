@@ -14,13 +14,9 @@ ESP32C3 等idf 4.3release后会计划上的
 
 ## 2、参与方式
 
-1、vscode安装espidf插件
+[UserGuide](.\userguide.md)
 
-2、git clone https://gitee.com/dreamcmi/LuatOS-ESP32
-
-3、用vscode打开文件夹，添加/修改/删除
-
-4、提个pr呗
+欢迎提issue和pr帮助项目进步
 
 ## 3、鸣谢
 
@@ -34,3 +30,4 @@ ESP32C3 等idf 4.3release后会计划上的
 
   
 
+## 
