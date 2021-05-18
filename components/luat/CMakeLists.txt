@@ -7,4 +7,4 @@
 # aux_source_directory(./modules LUA_SRCS)
 # add_library(lua ${LUA_SRCS})
 
-idf_component_register(SRC_DIRS modules freertos port INCLUDE_DIRS include ../lua/include  REQUIRES lua freertos spiffs )
+idf_component_register(SRC_DIRS modules freertos port packages INCLUDE_DIRS include ../lua/include  REQUIRES lua freertos spiffs )
