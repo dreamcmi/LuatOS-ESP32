@@ -10,6 +10,59 @@
 #include "esp_event.h"
 #include "esp_netif.h"
 #include <string.h>
+#include "esp_event.h"
+#include "luat_msgbus.h"
+//回调事件处理
+static int l_wlan_handler(lua_State *L, void *ptr)
+{
+    rtos_msg_t *msg = (rtos_msg_t *)lua_topointer(L, -1);
+    int event = msg->arg1;
+
+    lua_getglobal(L, "sys_pub");
+    if (lua_isnil(L, -1))
+    {
+        lua_pushinteger(L, 0);
+        return 1;
+    }
+    ESP_LOGI("wlan","event：%d",event);
+    switch (event)
+    {
+    case WIFI_EVENT_WIFI_READY: // 网络就绪
+        lua_pushstring(L, "WLAN_READY");
+        lua_call(L, 1, 0);
+        // 额外发送一个通用事件 NET_READY
+        lua_getglobal(L, "sys_pub");
+        lua_pushstring(L, "NET_READY");
+        lua_call(L, 1, 0);
+        break;
+    case WIFI_EVENT_STA_START: // 连上wifi路由器/热点,但还没拿到ip
+        esp_wifi_connect();
+        lua_pushstring(L, "WLAN_STA_CONNECTED");
+        lua_pushinteger(L, 1);
+        lua_call(L, 2, 0);
+        break;
+    case WIFI_EVENT_STA_DISCONNECTED: // 从wifi路由器/热点断开了
+        lua_pushstring(L, "WLAN_STA_DISCONNECTED");
+        lua_call(L, 1, 0);
+        break;
+    default:
+        break;
+    }
+    lua_pushinteger(L, 0);
+    return 1;
+}
+
+// 注册回调
+static void event_handler(void *arg, esp_event_base_t event_base,
+                          int32_t event_id, void *event_data)
+{
+    rtos_msg_t msg;
+    msg.handler = l_wlan_handler;
+    msg.ptr = NULL;
+    msg.arg1 = event_id;
+    msg.arg2 = 0;
+    luat_msgbus_put(&msg, 1);
+}
 
 /*
 获取wifi模式
@@ -66,8 +119,9 @@ static int l_wlan_init(lua_State *L)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     esp_err_t err = esp_wifi_init(&cfg);
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, NULL));
     return (err == ESP_OK) ? 0 : luaL_error(L, "failed to init wifi, code %d", err);
 }
 /*
@@ -96,9 +150,21 @@ static int l_wlan_connect(lua_State *L)
         len = sizeof(cfg.sta.password);
     strncpy((char *)cfg.sta.password, Lpasswd, len);
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
-    ESP_ERROR_CHECK(esp_wifi_start());
-    esp_err_t err = esp_wifi_connect();
+    esp_err_t err = (esp_wifi_start());
     return (err == ESP_OK) ? 0 : luaL_error(L, "failed to begin connect, code %d", err);
+}
+/*
+断开wifi
+@api wlan.disconnect()
+@return boolean 成功返回true,否则返回false
+@usage
+-- 断开wifi连接 
+wlan.disconnect()
+*/
+static int l_wlan_disconnect(lua_State *L)
+{
+    esp_err_t err = esp_wifi_disconnect();
+    return (err == ESP_OK) ? 0 : luaL_error(L, "disconnect failed, code %d", err);
 }
 
 #include "rotable.h"
@@ -108,6 +174,7 @@ static const rotable_Reg reg_wlan[] =
         {"getMode", l_wlan_get_mode, 0},
         {"setMode", l_wlan_set_mode, 0},
         {"connect", l_wlan_connect, 0},
+        {"disconnect", l_wlan_disconnect, 0},
         {"NONE", NULL, WIFI_MODE_NULL},
         {"STATION", NULL, WIFI_MODE_STA},
         {"AP", NULL, WIFI_MODE_AP},

@@ -5,7 +5,12 @@ VERSION = "1.0.0"
 
 -- 一定要添加sys.lua !!!!
 local sys = require "sys"
-
+sys.subscribe("WLAN_READY", function ()
+    print("!!! wlan ready event !!!")
+end)
+sys.subscribe("WLAN_STA_DISCONNECTED", function ()
+    print("!!! WLAN_STA_DISCONNECTED event !!!")
+end)
 
 sys.taskInit(function()
     gpio.setup(18,1)
@@ -17,11 +22,11 @@ sys.taskInit(function()
         log.info("wifimode",wlan.getMode())     
         gpio.set(18,0)
         log.info("18", "0")
-        sys.wait(1000)
-   
+        sys.wait(1000)   
         gpio.set(18,1)
         log.info("18", "1")
         sys.wait(1000)
+        wlan.disconnect()
     end
 end)
 
