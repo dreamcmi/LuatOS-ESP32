@@ -10,12 +10,15 @@ local sys = require "sys"
 sys.taskInit(function()
     gpio.setup(18,1)
     log.info("18", "start")
-    sys.wait(1000)
+    wlan.init()
+    wlan.setMode(wlan.STATION)
+    wlan.connect("MT7628", "1234567890")
     while 1 do
+        log.info("wifimode",wlan.getMode())     
         gpio.set(18,0)
         log.info("18", "0")
         sys.wait(1000)
-
+   
         gpio.set(18,1)
         log.info("18", "1")
         sys.wait(1000)

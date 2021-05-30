@@ -8,7 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/timers.h"
-
+#include "nvs_flash.h"
 #define LUAT_HEAP_SIZE (64*1024)
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
@@ -20,6 +20,13 @@ void timer_callback(void* args){
 void app_main(void)
 {
     //xTimerCreate("luat_timer", 1000 / portTICK_RATE_MS, 1, NULL, timer_callback);
-    bpool(luavm_heap, LUAT_HEAP_SIZE);  // lua vmÐèÒªÒ»¿éÄÚ´æÓÃÓÚÄÚ²¿·ÖÅä, ¸ø³öÊ×µØÖ·¼°´óÐ¡.
-    luat_main();      // luat_mainÊÇLuatOSµÄÖ÷Èë¿Ú, ¸Ã·½·¨Í¨³£²»»á·µ»Ø.
+    bpool(luavm_heap, LUAT_HEAP_SIZE);  // lua vmï¿½ï¿½ÒªÒ»ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ð¡.
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK( ret );
+    luat_main();      // luat_mainï¿½ï¿½LuatOSï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ã·ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½á·µï¿½ï¿½.
 }
