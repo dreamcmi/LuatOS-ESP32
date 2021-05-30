@@ -5,9 +5,11 @@
 @date    2020.03.30
 */
 #include "luat_base.h"
+#include "esp_log.h"
+// #include "esp_err.h"
 
 static int l_wlan_get_mode(lua_State *L) {
-    ESP_LOGI("l_wlan_get_mode");
+    ESP_LOGI("wlan","l_wlan_get_mode");
     return 1;
 }
 
@@ -16,7 +18,6 @@ static int l_wlan_get_mode(lua_State *L) {
 static const rotable_Reg reg_wlan[] =
 {
     { "getMode" ,  l_wlan_get_mode , 0},
-    
 	{ NULL, NULL , 0}
 };
 
