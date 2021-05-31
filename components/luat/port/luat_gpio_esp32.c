@@ -4,7 +4,8 @@
 #include "driver/gpio.h"
 
 //中断回调
-static void gpio_cb(void* ctx) {
+static void gpio_cb(void *ctx)
+{
     int pin = (int)ctx;
     rtos_msg_t msg = {0};
     msg.handler = l_gpio_handler;
@@ -31,37 +32,36 @@ int luat_gpio_setup(luat_gpio_t *gpio)
     else if (gpio->mode == Luat_GPIO_IRQ)
     {
         // //设置中断
-        if (gpio->irq == Luat_GPIO_RISING)
+        switch (gpio->irq)
         {
+        case Luat_GPIO_RISING:
             gpio_set_intr_type(gpio->pin, GPIO_INTR_POSEDGE);
-        }
-        else if (gpio->irq == Luat_GPIO_FALLING)
-        {
+            break;
+        case Luat_GPIO_FALLING:
             gpio_set_intr_type(gpio->pin, GPIO_INTR_NEGEDGE);
-        }
-        else if (gpio->irq == Luat_GPIO_BOTH)
-        {
+            break;
+        case Luat_GPIO_BOTH:
             gpio_set_intr_type(gpio->pin, GPIO_INTR_ANYEDGE);
-        }
-        else
-        {
+        default:
             gpio_intr_disable(gpio->pin);
+            break;
         }
-        gpio_isr_register(gpio_cb,(void*)(gpio->pin),ESP_INTR_FLAG_LEVEL1,NULL);
+        gpio_isr_register(gpio_cb, (void *)(gpio->pin), ESP_INTR_FLAG_LEVEL1, NULL);
     }
 
     //设置上下拉
-    if (gpio->pull == Luat_GPIO_DEFAULT)
+    switch (gpio->pull)
     {
+    case Luat_GPIO_DEFAULT:
         gpio_set_pull_mode(gpio->pin, GPIO_FLOATING);
-    }
-    else if (gpio->pull == Luat_GPIO_PULLUP)
-    {
+        break;
+    case Luat_GPIO_PULLUP:
         gpio_set_pull_mode(gpio->pin, GPIO_PULLUP_ONLY);
-    }
-    else if (gpio->pull == Luat_GPIO_PULLDOWN)
-    {
+        break;
+    case Luat_GPIO_PULLDOWN:
         gpio_set_pull_mode(gpio->pin, GPIO_PULLDOWN_ONLY);
+    default:
+        break;
     }
     return 0;
 }
@@ -82,4 +82,3 @@ void luat_gpio_close(int pin)
 {
     gpio_reset_pin(pin);
 }
-
