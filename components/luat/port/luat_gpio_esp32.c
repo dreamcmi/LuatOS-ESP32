@@ -61,8 +61,9 @@ int luat_gpio_setup(luat_gpio_t *gpio)
         break;
     case Luat_GPIO_PULLDOWN:
         gpio_set_pull_mode(gpio->pin, GPIO_PULLDOWN_ONLY);
-        // default:
-        //     break;
+        break;
+    default:
+            break;
     }
     return 0;
 }
