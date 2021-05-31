@@ -42,6 +42,7 @@ int luat_gpio_setup(luat_gpio_t *gpio)
             break;
         case Luat_GPIO_BOTH:
             gpio_set_intr_type(gpio->pin, GPIO_INTR_ANYEDGE);
+            break;
         default:
             gpio_intr_disable(gpio->pin);
             break;
@@ -60,8 +61,8 @@ int luat_gpio_setup(luat_gpio_t *gpio)
         break;
     case Luat_GPIO_PULLDOWN:
         gpio_set_pull_mode(gpio->pin, GPIO_PULLDOWN_ONLY);
-    default:
-        break;
+        // default:
+        //     break;
     }
     return 0;
 }
