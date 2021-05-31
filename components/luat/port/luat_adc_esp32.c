@@ -2,45 +2,57 @@
 #include "luat_adc.h"
 
 #include "driver/adc.h"
+// #include "esp_adc_cal.h"
+#include "sdkconfig.h"
 
-int luat_adc_open(int pin, void* args)
+#if CONFIG_IDF_TARGET_ESP32
+static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
+#elif CONFIG_IDF_TARGET_ESP32S2
+static const adc_bits_width_t width = ADC_WIDTH_BIT_13;
+#endif
+
+
+static const adc_atten_t atten = ADC_ATTEN_DB_0;
+
+int luat_adc_open(int pin, void *args)
 {
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    if(pin>=32 && pin<=39)
+    adc1_config_width(width);
+
+    if (pin >= 32 && pin <= 39)
     {
         switch (pin)
         {
         case 32:
-            adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO32_CHANNEL,ADC_ATTEN_DB_0); /*idf两种设置模式，随便吧*/
+            adc1_config_channel_atten(ADC1_CHANNEL_4, atten);
+            // adc1_config_channel_atten(ADC1_GPIO32_CHANNEL,atten); /*idf两种设置模式，随便吧*/
             break;
         case 33:
-            adc1_config_channel_atten(ADC1_CHANNEL_5,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO33_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_5, atten);
+            // adc1_config_channel_atten(ADC1_GPIO33_CHANNEL,atten);
             break;
         case 34:
-            adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO34_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_6, atten);
+            // adc1_config_channel_atten(ADC1_GPIO34_CHANNEL,atten);
             break;
         case 35:
-            adc1_config_channel_atten(ADC1_CHANNEL_7,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO35_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_7, atten);
+            // adc1_config_channel_atten(ADC1_GPIO35_CHANNEL,atten);
             break;
         case 36:
-            adc1_config_channel_atten(ADC1_CHANNEL_0,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO36_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_0, atten);
+            // adc1_config_channel_atten(ADC1_GPIO36_CHANNEL,atten);
             break;
         case 37:
-            adc1_config_channel_atten(ADC1_CHANNEL_1,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO37_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_1, atten);
+            // adc1_config_channel_atten(ADC1_GPIO37_CHANNEL,atten);
             break;
         case 38:
-            adc1_config_channel_atten(ADC1_CHANNEL_2,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO38_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_2, atten);
+            // adc1_config_channel_atten(ADC1_GPIO38_CHANNEL,atten);
             break;
         case 39:
-            adc1_config_channel_atten(ADC1_CHANNEL_3,ADC_ATTEN_DB_0);
-            // adc1_config_channel_atten(ADC1_GPIO39_CHANNEL,ADC_ATTEN_DB_0);
+            adc1_config_channel_atten(ADC1_CHANNEL_3, atten);
+            // adc1_config_channel_atten(ADC1_GPIO39_CHANNEL,atten);
             break;
         default:
             break;
@@ -53,9 +65,9 @@ int luat_adc_open(int pin, void* args)
     return 0;
 }
 
-int luat_adc_read(int pin, int* val, int* val2)
+int luat_adc_read(int pin, int *val, int *val2)
 {
-    if(pin>=32 && pin<=39)
+    if (pin >= 32 && pin <= 39)
     {
         switch (pin)
         {
