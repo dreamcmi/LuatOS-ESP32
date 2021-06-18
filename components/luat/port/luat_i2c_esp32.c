@@ -13,6 +13,45 @@
 #define WRITE_BIT I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT I2C_MASTER_READ   /*!< I2C master read */
 
+//写IIC寄存器
+//SensorAdd 从机地址
+//addr 寄存器地址
+//val 要写入的值
+void IIC_WR_Reg(int SensorAdd, uint8_t addr, uint8_t val)
+{
+    esp_err_t ret = 0;
+    // uint8_t data = 0;
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, SensorAdd << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, addr, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, val, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+}
+
+//读IIC寄存器
+//SensorAdd 从机地址
+//addr 寄存器地址
+//return 读到的值
+uint8_t IIC_RD_Reg(int SensorAdd, uint8_t addr)
+{
+    esp_err_t ret = 0;
+    uint8_t data = 0;
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, SensorAdd << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, addr, ACK_CHECK_EN);
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, SensorAdd << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
+    i2c_master_read_byte(cmd, &data, NACK_VAL);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+    return data;
+}
+
 int luat_i2c_exist(int id)
 {
     if (id == 1)
@@ -98,3 +137,28 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len)
     }
 }
 
+int luat_i2c_write_reg(int id, int addr, int reg, uint16_t value)
+{
+    if (luat_i2c_exist(id))
+    {
+        IIC_WR_Reg(addr, reg, value);
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+int luat_i2c_read_reg(int id, int addr, int reg, uint16_t *value)
+{
+    if (luat_i2c_exist(id))
+    {
+        *value = IIC_RD_Reg(addr,reg);
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
+}
