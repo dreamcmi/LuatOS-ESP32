@@ -22,13 +22,13 @@
 
 ##### （1）选择`express`
 
-![config](./img/01configesp.png)
+![config](../img/01configesp.png)
 
 
 
 ##### （2）选择本地的espidf文件夹
 
-![config](./img/02configesp.png)
+![config](../img/02configesp.png)
 
 （3）点击install进行自动配置
 
@@ -58,7 +58,7 @@
 
 1、推荐使用乐鑫官方工具创建的快捷方式进行编译和下载（VSCode经常莫名bug）
 
-![config](./img/03configesp.png)
+![config](../img/03configesp.png)
 
 2、sdkconfig文件非必要不要修改，已经给出default文件作为默认
 

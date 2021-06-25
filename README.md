@@ -29,5 +29,3 @@ ESP32C3 等idf 4.3release后会计划上的
 - [Wendal](https://gitee.com/wendal) ：技术大佬，LuatOS领头人
 
   
-
-## 
