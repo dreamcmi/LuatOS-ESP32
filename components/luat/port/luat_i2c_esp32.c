@@ -19,7 +19,6 @@
 //val 要写入的值
 void IIC_WR_Reg(int SensorAdd, uint8_t addr, uint8_t val)
 {
-    esp_err_t ret = 0;
     // uint8_t data = 0;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -27,7 +26,7 @@ void IIC_WR_Reg(int SensorAdd, uint8_t addr, uint8_t val)
     i2c_master_write_byte(cmd, addr, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, val, ACK_CHECK_EN);
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
+    i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
 }
 
@@ -37,7 +36,6 @@ void IIC_WR_Reg(int SensorAdd, uint8_t addr, uint8_t val)
 //return 读到的值
 uint8_t IIC_RD_Reg(int SensorAdd, uint8_t addr)
 {
-    esp_err_t ret = 0;
     uint8_t data = 0;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -47,7 +45,7 @@ uint8_t IIC_RD_Reg(int SensorAdd, uint8_t addr)
     i2c_master_write_byte(cmd, SensorAdd << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
     i2c_master_read_byte(cmd, &data, NACK_VAL);
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
+    i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
     return data;
 }
