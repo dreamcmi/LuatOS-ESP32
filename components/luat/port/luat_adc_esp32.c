@@ -39,7 +39,7 @@ uint32_t l_adc1_get_voltage(adc1_channel_t channel)
 int luat_adc_open(int pin, void *args)
 {
     adc1_config_width(width);
-
+    #if CONFIG_IDF_TARGET_ESP32
     if (pin >= 32 && pin <= 39)
     {
         switch (pin)
@@ -84,11 +84,13 @@ int luat_adc_open(int pin, void *args)
     {
         return -1;
     }
+    #endif
     return 0;
 }
 
 int luat_adc_read(int pin, int *val, int *val2)
 {
+    #if CONFIG_IDF_TARGET_ESP32
     if (pin >= 32 && pin <= 39)
     {
         switch (pin)
@@ -141,6 +143,7 @@ int luat_adc_read(int pin, int *val, int *val2)
     {
         return -1;
     }
+    #endif
     return 0;
 }
 
