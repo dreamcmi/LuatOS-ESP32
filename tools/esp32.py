@@ -226,7 +226,10 @@ def flash_target():
                            partition_table_offset, partition_table_file,
                            otadata_offset, otadata_file,
                            app_offset, app_file]
-
+            print("erase flash")
+            command_erase = ['--port', user_com, '--baud', user_baud, 'erase_flash']
+            esptool.main(command_erase)
+            print("start flash firmware")
             esptool.main(command)
 
         else:
@@ -234,6 +237,12 @@ def flash_target():
     # tmp没用了，删了
     shutil.rmtree("tmp")
     print("rm ./tmp")
+
+
+def erase_nvs():
+    print("erase nvs")
+    command_nvs = ['--port', user_com, 'erase_region', '0x9000', '0x5000']
+    esptool.main(command_nvs)
 
 
 # 生成LuatOS脚本刷写文件
@@ -269,6 +278,9 @@ def main():
             print("Action batch_pkg 打包固件------------------------------")
             make_luat_fs()
             genera_batch_pkg()
+        elif sys.argv[argc] == "envs":
+            print("擦除nvs-----------------------------------------------")
+            erase_nvs()
         else:
             print("输入指令有错误诶，检查一下吧")
         argc += 1
@@ -306,7 +318,7 @@ if __name__ == '__main__':
         print('''
         欢迎使用Luatos For ESP32 Flash Tool
         Author:梦程MI(Darren)
-        Version:V1.1.2
+        Version:V1.1.3
         下面是使用说明
         -------------------------------------
         pkg   - 生成标准固件（不包括fs分区）
