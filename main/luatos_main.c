@@ -20,7 +20,7 @@ void timer_callback(void* args){
 void app_main(void)
 {
     //xTimerCreate("luat_timer", 1000 / portTICK_RATE_MS, 1, NULL, timer_callback);
-    bpool(luavm_heap, LUAT_HEAP_SIZE);  // lua vm��Ҫһ���ڴ������ڲ�����, �����׵�ַ����С.
+    bpool(luavm_heap, LUAT_HEAP_SIZE);  
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -28,5 +28,5 @@ void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
-    luat_main();      // luat_main��LuatOS�������, �÷���ͨ�����᷵��.
+    luat_main();     
 }
