@@ -37,6 +37,7 @@ static const luaL_Reg loadedlibs[] = {
     {"uart",luaopen_uart},    // UART操作
     {"pwm",luaopen_pwm},      // PWM操作
     {"wlan", luaopen_wlan},   // wlan/wifi联网操作
+    {"lwip",luaopen_lwip},    // lwip操作
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
