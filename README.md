@@ -16,9 +16,15 @@ ESP32S2,ESP32C3正在加紧适配中
 
 [UserGuide](./doc/userguide.md)
 
-欢迎提issue和pr帮助项目进步
+欢迎提issue和pr帮助项目进步。
 
-## 3、鸣谢
+## 3、进度
+
+[Support](./doc/SUPPORT.md)
+
+进度更新中，欢迎提需求。
+
+## 4、鸣谢
 
 排名不分前后
 
