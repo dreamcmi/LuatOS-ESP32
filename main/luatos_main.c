@@ -13,13 +13,8 @@
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
 
-void timer_callback(void* args){
-    printf("from LuatOS main timer\n");
-}
-
 void app_main(void)
 {
-    //xTimerCreate("luat_timer", 1000 / portTICK_RATE_MS, 1, NULL, timer_callback);
     bpool(luavm_heap, LUAT_HEAP_SIZE);  
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
