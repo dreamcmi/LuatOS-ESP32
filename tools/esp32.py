@@ -253,6 +253,9 @@ def make_luat_fs():
 
 # 下载LuatOS脚本
 def dl_fs():
+    print("erase fs")
+    command_fs = ['--port', user_com, 'erase_region', fs_offset, fs_size]
+    esptool.main(command_fs)
     command = ['--port', user_com, '--baud', user_baud, 'write_flash', fs_offset, fs_bin]
     esptool.main(command)
 
@@ -318,7 +321,7 @@ if __name__ == '__main__':
         print('''
         欢迎使用Luatos For ESP32 Flash Tool
         Author:梦程MI(Darren)
-        Version:V1.1.3
+        Version:V1.1.4
         下面是使用说明
         -------------------------------------
         pkg   - 生成标准固件（不包括fs分区）
@@ -326,22 +329,18 @@ if __name__ == '__main__':
         dlrom - 刷写固件
         dlfs  - 刷写脚本
         lfs   - 生成脚本刷写文件
+        envs  - 擦除nvs
         --------------------------------------
         用例1, 生成文件系统
         python esp32.py lfs
-
         用例2, 生成文件系统并下载到开发板
         python esp32.py lfs dlfs
-
         用例3, 仅下载底层固件
         python esp32.py dlrom
-
         用例4, 生成标准固件
         python esp32.py pkg
-        
         用例5, 生成量产固件
         python esp32.py pack
-        
         注：参数可以添加多个，依次往后加就行
         --------------------------------------
         ''')
