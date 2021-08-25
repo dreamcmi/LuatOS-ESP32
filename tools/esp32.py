@@ -13,7 +13,6 @@ try:
     print("import esptool")
 except:
     print("Please install esptool")
-    print("请执行pip install esptool")
 
 
 # 生成标准固件（不包括fs分区）
@@ -31,7 +30,6 @@ def genera_firmware_pkg():
         # 检索build里面的分区表
         with open(user_project_path + '/build/flasher_args.json', 'r', encoding='utf-8') as f:
             firmware_json = json.load(f)
-            # print(firmware_json)
             bootloader_offset = firmware_json['bootloader']['offset']
             bootloader_file = firmware_json['bootloader']['file']
             partition_table_offset = firmware_json['partition_table']['offset']
@@ -79,7 +77,7 @@ def genera_firmware_pkg():
         if os.path.isdir("tmp"):
             for d in os.listdir("tmp"):
                 z.write("tmp/" + d, arcname=d)
-                print("ziping:" + d)
+                print("zipping:" + d)
         z.close()
         print("pkg done")
         # tmp没用了，删了
@@ -146,7 +144,7 @@ def genera_batch_pkg():
         shutil.copy(user_project_path + '/build/' + otadata_file, "tmp/")
         shutil.copy(user_project_path + '/build/' + app_file, "tmp/")
         shutil.copy(fs_bin, "tmp/")
-        print("copy batch_pkg down")
+        print("copy batch_pkg done")
 
         # 打包batch_pkg
         git_sha1 = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
@@ -158,7 +156,7 @@ def genera_batch_pkg():
         if os.path.isdir("tmp"):
             for d in os.listdir("tmp"):
                 z.write("tmp/" + d, arcname=d)
-                print("ziping:" + d)
+                print("zipping:" + d)
         z.close()
         print("pkg done")
         # tmp没用了，删了
@@ -189,7 +187,7 @@ def unzip_firmware():
 # 刷写固件
 def flash_target():
     # 先把固件说明读出来
-    with open('./tmp/rominfo.json', 'r', encoding='utf8')as fp:
+    with open('./tmp/rominfo.json', 'r', encoding='utf8') as fp:
         rom_info_data = json.load(fp)
         # 判断下固件是不是给esp32的
         if rom_info_data["type"] == "esp32":
@@ -221,13 +219,13 @@ def flash_target():
                            spiffs_offset, spiffs_file]
             else:
                 print("not found fs_bin")
-                command = ['--port', user_com, '--baud', user_baud, 'write_flash',
+                command = ['--port', user_com, '--baud', '--chip', 'esp32', user_baud, 'write_flash',
                            bootloader_offset, bootloader_file,
                            partition_table_offset, partition_table_file,
                            otadata_offset, otadata_file,
                            app_offset, app_file]
             print("erase flash")
-            command_erase = ['--port', user_com, '--baud', user_baud, 'erase_flash']
+            command_erase = ['--port', user_com, '--baud', '--chip', 'esp32', user_baud, 'erase_flash']
             esptool.main(command_erase)
             print("start flash firmware")
             esptool.main(command)
@@ -241,7 +239,7 @@ def flash_target():
 
 def erase_nvs():
     print("erase nvs")
-    command_nvs = ['--port', user_com, 'erase_region', '0x9000', '0x5000']
+    command_nvs = ['--port', user_com, '--chip', 'esp32', 'erase_region', '0x9000', '0x5000']
     esptool.main(command_nvs)
 
 
@@ -254,9 +252,9 @@ def make_luat_fs():
 # 下载LuatOS脚本
 def dl_fs():
     print("erase fs")
-    command_fs = ['--port', user_com, 'erase_region', fs_offset, fs_size]
+    command_fs = ['--port', user_com, '--chip', 'esp32', 'erase_region', fs_offset, fs_size]
     esptool.main(command_fs)
-    command = ['--port', user_com, '--baud', user_baud, 'write_flash', fs_offset, fs_bin]
+    command = ['--port', user_com, '--baud', user_baud, '--chip', 'esp32', 'write_flash', fs_offset, fs_bin]
     esptool.main(command)
 
 
@@ -312,7 +310,6 @@ if __name__ == '__main__':
         user_baud = config['esp32']['COM_BAUD']
         user_com = config['esp32']['COM_PORT']
         print("读取local.ini成功")
-        # print(user_project_path+" "+firmware_path+" "+fs_path+" "+fs_offset+" "+fs_size+" "+fs_bin+" "+user_baud+" "+user_com)
     else:
         print("没找到local.ini,请创建一个")
 
