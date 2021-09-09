@@ -78,7 +78,8 @@ int luat_spi_setup(luat_spi_t *spi)
 	devcfg.cs_ena_pretrans = 1;
 	devcfg.clock_speed_hz = spi->bandrate;
 	luat_log_log(1, LUAT_LOG_TAG, "CS:%d\n", spi->cs);
-	if (spi->cs <= 0)
+	//默认无 值255
+	if (spi->cs == 255)
 		spi->cs = spi->id == 1 ? 15 : 5;
 	devcfg.spics_io_num = spi->cs;
 	devcfg.input_delay_ns = 0;
