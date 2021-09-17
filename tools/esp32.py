@@ -219,13 +219,13 @@ def flash_target():
                            spiffs_offset, spiffs_file]
             else:
                 print("not found fs_bin")
-                command = ['--port', user_com, '--baud', '--chip', 'esp32', user_baud, 'write_flash',
+                command = ['--port', user_com, '--baud', '--chip', 'esp32c3', user_baud, 'write_flash',
                            bootloader_offset, bootloader_file,
                            partition_table_offset, partition_table_file,
                            otadata_offset, otadata_file,
                            app_offset, app_file]
             print("erase flash")
-            command_erase = ['--port', user_com, '--baud', '--chip', 'esp32', user_baud, 'erase_flash']
+            command_erase = ['--port', user_com, '--baud', '--chip', 'esp32c3', user_baud, 'erase_flash']
             esptool.main(command_erase)
             print("start flash firmware")
             esptool.main(command)
@@ -239,7 +239,7 @@ def flash_target():
 
 def erase_nvs():
     print("erase nvs")
-    command_nvs = ['--port', user_com, '--chip', 'esp32', 'erase_region', '0x9000', '0x5000']
+    command_nvs = ['--port', user_com, '--chip', 'esp32c3', 'erase_region', '0x9000', '0x5000']
     esptool.main(command_nvs)
 
 
@@ -252,9 +252,9 @@ def make_luat_fs():
 # 下载LuatOS脚本
 def dl_fs():
     print("erase fs")
-    command_fs = ['--port', user_com, '--chip', 'esp32', 'erase_region', fs_offset, fs_size]
+    command_fs = ['--port', user_com, '--chip', 'esp32c3', 'erase_region', fs_offset, fs_size]
     esptool.main(command_fs)
-    command = ['--port', user_com, '--baud', user_baud, '--chip', 'esp32', 'write_flash', fs_offset, fs_bin]
+    command = ['--port', user_com, '--baud', user_baud, '--chip', 'esp32c3', 'write_flash', fs_offset, fs_bin]
     esptool.main(command)
 
 

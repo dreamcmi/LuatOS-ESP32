@@ -52,7 +52,7 @@ uint8_t IIC_RD_Reg(int SensorAdd, uint8_t addr)
 
 int luat_i2c_exist(int id)
 {
-    if (id == 1)
+    if (id == 0)
     {
         return 1;
     }
@@ -65,13 +65,13 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
     {
         i2c_config_t conf = {};
         conf.mode = I2C_MODE_MASTER;
-        conf.sda_io_num = 18;
+        conf.sda_io_num = 6;
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-        conf.scl_io_num = 19;
+        conf.scl_io_num = 7;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
         conf.master.clk_speed = speed;
-        ESP_ERROR_CHECK(i2c_param_config(I2C_NUM_1, &conf));
-        ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_1, conf.mode, 0, 0, 0));
+        ESP_ERROR_CHECK(i2c_param_config(I2C_NUM_0, &conf));
+        ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_0, conf.mode, 0, 0, 0));
         return 0;
     }
     else
@@ -84,7 +84,7 @@ int luat_ic2_close(int id)
 {
     if (luat_i2c_exist(id))
     {
-        ESP_ERROR_CHECK(i2c_driver_delete(I2C_NUM_1));
+        ESP_ERROR_CHECK(i2c_driver_delete(I2C_NUM_0));
         return 0;
     }
     else
@@ -98,11 +98,11 @@ int luat_i2c_send(int id, int addr, void *buff, size_t len)
     if (luat_i2c_exist(id))
     {
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-        ESP_ERROR_CHECK(i2c_master_start(cmd));
-        ESP_ERROR_CHECK(i2c_master_write_byte(cmd, (addr << 1) | WRITE_BIT, ACK_CHECK_EN));
-        ESP_ERROR_CHECK(i2c_master_write(cmd, buff, len, ACK_CHECK_EN));
-        ESP_ERROR_CHECK(i2c_master_stop(cmd));
-        ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS));
+        i2c_master_start(cmd);
+        i2c_master_write_byte(cmd, (addr << 1) | WRITE_BIT, ACK_CHECK_EN);
+        i2c_master_write(cmd, buff, len, ACK_CHECK_EN);
+        i2c_master_stop(cmd);
+        i2c_master_cmd_begin(I2C_NUM_0, cmd, 1000 / portTICK_RATE_MS);
         i2c_cmd_link_delete(cmd);
         return 0;
     }
@@ -117,15 +117,15 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len)
     if (luat_i2c_exist(id))
     {
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-        ESP_ERROR_CHECK(i2c_master_start(cmd));
-        ESP_ERROR_CHECK(i2c_master_write_byte(cmd, (addr << 1) | READ_BIT, ACK_CHECK_EN));
+        i2c_master_start(cmd);
+        i2c_master_write_byte(cmd, (addr << 1) | READ_BIT, ACK_CHECK_EN);
         if (len > 1)
         {
-            ESP_ERROR_CHECK(i2c_master_read(cmd, buff, len - 1, ACK_VAL));
+            i2c_master_read(cmd, buff, len - 1, ACK_VAL);
         }
-        ESP_ERROR_CHECK(i2c_master_read_byte(cmd, buff, NACK_VAL));
-        ESP_ERROR_CHECK(i2c_master_stop(cmd));
-        ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS));
+        i2c_master_read_byte(cmd, buff, NACK_VAL);
+        i2c_master_stop(cmd);
+        i2c_master_cmd_begin(I2C_NUM_0, cmd, 1000 / portTICK_RATE_MS);
         i2c_cmd_link_delete(cmd);
         return 0;
     }

@@ -5,31 +5,30 @@ VERSION = "1.0.0"
 
 -- 一定要添加sys.lua !!!!
 local sys = require "sys"
-sys.subscribe("WLAN_READY", function ()
-    print("!!! wlan ready event !!!")
-end)
-sys.subscribe("WLAN_STA_DISCONNECTED", function ()
-    print("!!! WLAN_STA_DISCONNECTED event !!!")
-end)
+
 
 sys.taskInit(function()
-    gpio.setup(18,1)
-    log.info("18", "start")
-    wlan.init()
-    wlan.setMode(wlan.STATION)
-    wlan.connect("MT7628", "1234567890")
-    while 1 do
-        log.info("wifimode",wlan.getMode())     
-        gpio.set(18,0)
-        log.info("18", "0")
-        sys.wait(1000)   
-        gpio.set(18,1)
-        log.info("18", "1")
+    if i2c.setup(0, i2c.FAST, 0x38) == 1 then
+        log.info("存在 i2c0")
+    else
+        i2c.close(0) -- 关掉
+        log.info("i2c0打开失败")
+    end
+    while true do
+        log.info("esp32c3", "Go Go Go ~")
         sys.wait(1000)
-        wlan.disconnect()
     end
 end)
 
+sys.taskInit(function()
+    local G8 = gpio.setup(8, 0) -- 输出模式
+    while 1 do
+        G8(0)
+        sys.wait(1000)
+        G8(1)
+        sys.wait(1000)
+    end
+end)
 
 -- 用户代码已结束---------------------------------------------
 -- 结尾总是这一句
