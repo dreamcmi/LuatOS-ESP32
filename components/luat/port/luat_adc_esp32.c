@@ -8,7 +8,7 @@
 int luat_adc_open(int pin, void *args)
 {
     adc1_config_width(ADC_WIDTH_12Bit);
-    esp_err_t err = adc1_config_channel_atten(pin, ADC_ATTEN_DB_0);
+    esp_err_t err = adc1_config_channel_atten(pin, ADC_ATTEN_MAX);
     if (err == ESP_OK)
     {
         return 0;
