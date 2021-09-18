@@ -31,7 +31,7 @@ static const luaL_Reg loadedlibs[] = {
     {"log", luaopen_log},     // 日志库
     {"timer", luaopen_timer}, // 延时库
     {"gpio", luaopen_gpio},   // GPIO脚的操作
-    // {"adc", luaopen_adc},     // ADC库
+    {"adc", luaopen_adc},     // ADC库
     {"i2c", luaopen_i2c},     // I2C操作
     // {"spi", luaopen_spi},     // SPI操作
     // {"uart",luaopen_uart},    // UART操作

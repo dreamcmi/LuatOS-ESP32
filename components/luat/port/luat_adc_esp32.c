@@ -7,11 +7,18 @@
 
 int luat_adc_open(int pin, void *args)
 {
-    return 0;
+    adc1_config_width(ADC_WIDTH_12Bit);
+    esp_err_t err = adc1_config_channel_atten(pin, ADC_ATTEN_DB_0);
+    if (err == ESP_OK)
+    {
+        return 0;
+    }
+    return -1;
 }
 
 int luat_adc_read(int pin, int *val, int *val2)
-{
+{   
+    *val = adc1_get_raw(pin);
     return 0;
 }
 

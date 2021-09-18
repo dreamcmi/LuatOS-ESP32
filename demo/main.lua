@@ -30,6 +30,19 @@ sys.taskInit(function()
     end
 end)
 
+sys.taskInit(function ()
+    for i=0,4 do
+        adc.open(i)
+    end
+
+    while 1 do
+        for i=0,4 do
+            log.info("adc"..i,adc.read(i))
+        end
+        sys.wait(1000)
+    end
+end)
+
 -- 用户代码已结束---------------------------------------------
 -- 结尾总是这一句
 sys.run()
