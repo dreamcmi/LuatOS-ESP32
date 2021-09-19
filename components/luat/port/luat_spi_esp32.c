@@ -152,7 +152,7 @@ int luat_spi_close(int spi_id)
 //收发SPI数据，通过recv_buf返回接收字符串
 int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t length)
 {
-	if(length*8 >= 32)
+	if(length*8 > 32)
 	{
 		luat_log_error(LUAT_LOG_TAG,"Data exceeds 32 bits");
 		return -1;
@@ -183,7 +183,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
 			luat_log_debug(LUAT_LOG_TAG,"AsciiToHex16 %x\n",hex_send_buf);
 			t.tx_buffer = &hex_send_buf;
 		}
-		else if (length == 3)
+		else if (length == 4)
 		{
 			uint32_t hex_send_buf = AsciiToHex32(send_buf);
 			luat_log_debug(LUAT_LOG_TAG,"AsciiToHex32 %x\n",hex_send_buf);
@@ -204,7 +204,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
 			luat_log_debug(LUAT_LOG_TAG,"Recv Hex16\n");
 			t.rx_buffer = hex_recv16_buf;
 		}
-		else if (length == 3)
+		else if (length == 4)
 		{
 			luat_log_debug(LUAT_LOG_TAG,"Recv Hex32\n");
 			t.rx_buffer = hex_recv32_buf;
