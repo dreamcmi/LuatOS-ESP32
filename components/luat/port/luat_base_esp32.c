@@ -35,7 +35,7 @@ static const luaL_Reg loadedlibs[] = {
     {"i2c", luaopen_i2c},     // I2C操作
     // {"spi", luaopen_spi},     // SPI操作
     // {"uart",luaopen_uart},    // UART操作
-    // {"pwm",luaopen_pwm},      // PWM操作
+    {"pwm",luaopen_pwm},      // PWM操作
     // {"wlan", luaopen_wlan},   // wlan/wifi联网操作
     // {"lwip",luaopen_lwip},    // lwip操作
     // {"ble",luaopen_ble},      // ble操作
@@ -99,5 +99,4 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
 void luat_nprint(char *s, size_t l)
 {
   printf("%s", s);
-  // ESP_LOGI("luatos", "%s", s);
 }
