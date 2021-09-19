@@ -11,6 +11,7 @@
 #include "esp_spiffs.h"
 #include "esp_system.h"
 #include "esp32/rom/ets_sys.h"
+#include "esp_heap_caps.h"
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -91,9 +92,9 @@ void luat_os_exit_cri(void)
 
 void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
 {
-  *used = 0;
-  *max_used = 0;
-  *total = 0;
+  *used = esp_get_free_heap_size();
+  *max_used = esp_get_free_heap_size();
+  *total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
 }
 
 void luat_nprint(char *s, size_t l)
