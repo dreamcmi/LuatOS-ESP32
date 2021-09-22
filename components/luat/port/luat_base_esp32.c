@@ -10,7 +10,7 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_system.h"
-#include "esp32/rom/ets_sys.h"
+#include "esp32c3/rom/ets_sys.h"
 #include "esp_heap_caps.h"
 
 static const luaL_Reg loadedlibs[] = {
