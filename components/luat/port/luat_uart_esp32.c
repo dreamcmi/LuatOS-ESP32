@@ -7,7 +7,7 @@
 
 int luat_uart_setup(luat_uart_t *uart)
 {
-    uart_config_t uart_config = {};
+    uart_config_t uart_config = {0};
     uart_config.baud_rate = uart->baud_rate;
     switch (uart->data_bits)
     {
@@ -20,7 +20,7 @@ int luat_uart_setup(luat_uart_t *uart)
     default:
         LLOGE("error uart.data_bits");
         return -1;
-        break;
+        //break;
     }
 
     switch (uart->parity)
@@ -37,7 +37,7 @@ int luat_uart_setup(luat_uart_t *uart)
     default:
         LLOGE("error uart.parity");
         return -1;
-        break;
+        //break;
     }
 
     uart_config.stop_bits = uart->stop_bits;

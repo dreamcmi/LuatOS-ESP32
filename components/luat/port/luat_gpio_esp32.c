@@ -41,10 +41,8 @@ int luat_gpio_setup(luat_gpio_t *gpio)
             gpio_set_intr_type(gpio->pin, GPIO_INTR_NEGEDGE);
             break;
         case Luat_GPIO_BOTH:
-            gpio_set_intr_type(gpio->pin, GPIO_INTR_ANYEDGE);
-            break;
         default:
-            gpio_intr_disable(gpio->pin);
+            gpio_set_intr_type(gpio->pin, GPIO_INTR_ANYEDGE);
             break;
         }
         gpio_isr_register(gpio_cb, (void *)(gpio->pin), ESP_INTR_FLAG_LEVEL1, NULL);
@@ -70,6 +68,7 @@ int luat_gpio_setup(luat_gpio_t *gpio)
 
 int luat_gpio_set(int pin, int level)
 {
+    // TODO 判断一下pin的范围
     gpio_set_level(pin, level);
     return 0;
 }
