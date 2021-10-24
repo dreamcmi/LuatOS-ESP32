@@ -4,100 +4,66 @@
 
 本工具是Luatos For ESP32 项目的配套工具，用于固件的生成，下载，量产
 
-Author:梦程MI(Darren)
+Author : 梦程MI(Darren)
 
-Version:V1.1.1（Date：2020.4.23）
+Version : V2.0.0（Date：2021.10.23）
 
 
-## 1、鉴别格式：rominfo.json
 
-```json
-{
-	"type": "esp32",
-	"bootloader_offset": "0x1000",
-	"bootloader_file": "bootloader.bin",
-	"partition_table_offset": "0x8000",
-	"partition_table_file": "partition-table.bin",
-    "otadata_offset": "0xe000",
-    "otadata_file": "ota_data_initial.bin",
-    "app_offset": "0x10000",
-    "app_file": "luatos_esp32.bin",
-    "spiffs_offset": "0xf0000",
-    "spiffs_file": "demo.bin"
-}
-```
 
-## 2、使用说明
+## 1、使用说明
 
 #### 配置文件
 
-local.ini是配置文件，程序会先读取local.ini里面的配置
+配置文件:`config.toml`   [点击了解TOML](https://github.com/toml-lang/toml)
 
-以下是local.ini示例格式
+```toml
+[pkg]
+Repo = 'D:\gitee\esp32\LuatOS-ESP32\'
 
-```ini
-[esp32]
-ESP_IDF_PATH : D:\gitee\esp32\esp-idf
-;esp-idf安装目录
-USER_PROJECT_PATH : D:\gitee\esp32\LuatOS-ESP32-gitee
-;项目根目录（LuatOS for ESP32仓库根目录）
-FIRMWARE_PATH : Luatos_esp32_batch_d53c5b3_20210423234021.zip
-;固件路径
-DEMO_PATH : demo
-;用户脚本的路径
-FS_OFFSET : 0x310000
-;spiffs分区的偏移地址
-FS_SIZE : 0XF0000
-;spiffs分区大小
-FS_BIN : demo.bin
-;生成刷入脚本文件的名称
-COM_BAUD : 921600
-;刷写波特率
-COM_PORT : COM52
-;刷写端口
+[esp32c3]
+Type = 'uart' #'uart' or 'usb'
+COM = 'COM176'
+Baud = 921600
+Firmware = 'LuatOS-SoC_esp32c3_V0001.soc'
+FsPath = 'demo'
+FsOffset = '0x310000'
+FsSize = '0XF0000'
 ```
 
-#### 依赖关系
+- [pkg]节点用于生成固件包
+- 每种soc都有一个单独的节点，如[esp32]  [esp32c3]
+- 用户可自定义部分为`COM` `Baud`  `Firmware` `FsPath`
+- `FsOffset` `FsSzize`非必要情况请保持默认
 
-程序依赖esptool工具，请先使用pip安装
+#### 上手指南
 
-安装命令：pip install esptool
+1. 安装Python3.8
+2. 切换到仓库文件夹，在命令行执行`pip install -r requirements.txt`
+3. 修改`config.toml`中的`COM` `Baud`  `Firmware` `FsPath`为您自己的参数
+4. 执行`python esp32v2.py -h`查看帮助信息，根据您的需求进行使用
 
-#### 操作命令
+```shell
+usage: esp32v2.py [-h] [-t TARGET] [-f] [-r] [-p]
 
-```
-        -------------------------------------
-        pkg   - 生成标准固件（不包括fs分区）
-        pack  - 生成量产固件（包括fs分区）
-        dlrom - 刷写固件
-        dlfs  - 刷写脚本
-        lfs   - 生成脚本刷写文件
-        --------------------------------------
-        用例1, 生成文件系统
-        python esp32.py lfs
+LuatOS-SoC For ESP32 Flash Tool
 
-        用例2, 生成文件系统并下载到开发板
-        python esp32.py lfs dlfs
-
-        用例3, 仅下载底层固件
-        python esp32.py dlrom
-
-        用例4, 生成标准固件
-        python esp32.py pkg
-        
-        用例5, 生成量产固件
-        python esp32.py pack
-        
-        注：参数可以添加多个，依次往后加就行
+optional arguments:
+  -h, --help            show this help message and exit
+  -t TARGET, --target TARGET
+                        Chip型号:esp32,es32c3,esp32s2,esp32s3
+  -f, --fs              下载脚本
+  -r, --rom             下载底层固件
+  -p, --pkg             打包固件
 ```
 
-## 3、鸣谢
+## 2、鸣谢
 
 排名不分前后
 
 - [LuatOS](https://gitee.com/openLuat/LuatOS) ：合宙LuatOS是运行在嵌入式硬件的实时操作系统,用户编写lua代码就可完成各种功能
 
-- [espressif ](https://www.espressif.com/): 乐鑫科技官网，提供高性价比高可玩性的ESP32系列产品
+- [ESPRESSIF](https://www.espressif.com/): 乐鑫科技，提供高性价比高可玩性的ESP32系列产品
 
 - [Wendal](https://gitee.com/wendal) ：技术大佬，LuatOS领头人
 

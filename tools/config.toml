@@ -1,0 +1,29 @@
+[pkg]
+Repo = 'D:\gitee\esp32\LuatOS-ESP32\'
+Release = 0
+
+[esp32]
+COM = 'COM57'
+Baud = 921600
+Firmware = 'LuatOS-SoC_esp32_V0001.soc'
+FsPath = 'demo'
+FsOffset = '0x310000'
+FsSize = '0XF0000'
+
+[esp32c3]
+Type = 'uart' #'uart' or 'usb'
+COM = 'COM176'
+Baud = 921600
+Firmware = 'LuatOS-SoC_esp32c3_V0001.soc'
+FsPath = 'demo'
+FsOffset = '0x310000'
+FsSize = '0XF0000'
+
+[esp32s3]
+Type = 'uart' #'uart' or 'usb'
+COM = 'COM57'
+Baud = 921600
+Firmware = 'LuatOS-SoC_esp32s3_V0001.soc'
+FsPath = 'demo'
+FsOffset = '0x310000'
+FsSize = '0XF0000'
