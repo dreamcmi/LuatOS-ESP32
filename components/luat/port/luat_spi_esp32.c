@@ -1,11 +1,12 @@
 #include "luat_base.h"
 #include "luat_spi.h"
-#include "luat_log.h"
 #include "esp_log.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 
 #define LUAT_LOG_TAG "luat.spi"
+#include "luat_log.h"
+
 static spi_device_handle_t spi_handle = {0};
 
 int luat_spi_setup(luat_spi_t *spi)
@@ -83,7 +84,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
         t.tx_buffer = send_buf;
         t.rx_buffer = recv_buf;
         esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
-        ESP_ERROR_CHECK(err);
+        //ESP_ERROR_CHECK(err);
         //ESP_LOGI("SPI", "trans-err:%d", err);
         if (err == ESP_OK)
             return 0;
@@ -102,8 +103,9 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
         memset(&t, 0, sizeof(t));
         t.length = length * 8;
         t.rx_buffer = recv_buf;
+        t.flags = SPI_TRANS_USE_RXDATA;
         esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
-        ESP_ERROR_CHECK(err);
+        //ESP_ERROR_CHECK(err);
         //ESP_LOGI("SPI", "recv-err:%d", err);
         if (err == ESP_OK)
             return 0;
@@ -116,16 +118,23 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
 
 int luat_spi_send(int spi_id, const char *send_buf, size_t length)
 {
+    spi_transaction_t t;
+    esp_err_t ret;
     if (spi_id == 2)
     {
-        spi_transaction_t t;
         memset(&t, 0, sizeof(t));
         t.length = length * 8;
         t.tx_buffer = send_buf;
-        esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
-        ESP_ERROR_CHECK(err);
+        
+        LLOGD("GO spi_device_polling_start %p %d %d", send_buf, length, spi_handle);
+        ret = spi_device_polling_start(spi_handle, &t, portMAX_DELAY);
+        if (ret != ESP_OK) return ret;
+        LLOGD("Go spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
+        ret = spi_device_polling_end(spi_handle, portMAX_DELAY);
+        LLOGD("Done spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
+        //ESP_ERROR_CHECK(err);
         //ESP_LOGI("SPI", "send-err:%d", err);
-        if (err == ESP_OK)
+        if (ret == ESP_OK)
             return 0;
         else
             return -1;
