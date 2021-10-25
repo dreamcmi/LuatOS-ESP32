@@ -21,11 +21,14 @@ static int l_ble_init(lua_State *L)
         ESP_LOGE(LOG_TAG, "%s init bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
         lua_pushinteger(L, ret);
     }
-    ret = esp_bluedroid_enable();
-    if (ret)
+    else
     {
-        ESP_LOGE(LOG_TAG, "%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-        lua_pushinteger(L, ret);
+        ret = esp_bluedroid_enable();
+        if (ret)
+        {
+            ESP_LOGE(LOG_TAG, "%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
+            lua_pushinteger(L, ret);
+        }
     }
     lua_pushinteger(L, 1);
     return 1;
