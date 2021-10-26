@@ -18,8 +18,7 @@ int luat_uart_setup(luat_uart_t *uart)
         uart_config.data_bits = UART_DATA_7_BITS;
         break;
     default:
-        LLOGE("error uart.data_bits");
-        return -1;
+        uart_config.data_bits = UART_DATA_8_BITS;
         //break;
     }
 
@@ -35,8 +34,7 @@ int luat_uart_setup(luat_uart_t *uart)
         uart_config.parity = UART_PARITY_EVEN;
         break;
     default:
-        LLOGE("error uart.parity");
-        return -1;
+        uart_config.parity = UART_PARITY_DISABLE;
         //break;
     }
 
