@@ -134,7 +134,7 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
         // ESP_LOGD("LSPI","Done spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
         ret = spi_device_transmit(spi_handle,&t);
         ESP_ERROR_CHECK(ret);
-        ESP_LOGI("SPI", "send-err:%d", err);
+        ESP_LOGE("SPI", "send-err:%d", ret);
         if (ret == ESP_OK)
             return 0;
         else
