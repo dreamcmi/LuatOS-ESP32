@@ -15,28 +15,43 @@
 
 static int l_ble_init(lua_State *L)
 {
-    esp_err_t ret = 0;
+    esp_err_t ret = ESP_FAIL;
 
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    esp_bt_controller_init(&bt_cfg);
-    esp_bt_controller_enable(ESP_BT_MODE_BLE);
+
+    ret = esp_bt_controller_init(&bt_cfg);
+    ESP_ERROR_CHECK(ret);
+
+    ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
+    ESP_ERROR_CHECK(ret);
 
     ret = esp_bluedroid_init();
-    if (ret)
-    {
-        ESP_LOGE("LBLE", "%s init bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-        lua_pushinteger(L, ret);
-    }
-    else
-    {
-        ret = esp_bluedroid_enable();
-        if (ret)
-        {
-            ESP_LOGE("LBLE", "%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-            lua_pushinteger(L, ret);
-        }
-    }
+    ESP_ERROR_CHECK(ret);
+
+    ret = esp_bluedroid_enable();
+    ESP_ERROR_CHECK(ret);
+
+    lua_pushinteger(L, 1);
+    return 1;
+}
+
+static int l_ble_deinit(lua_State *L)
+{
+    esp_err_t ret = ESP_FAIL;
+
+    ret = esp_bluedroid_disable();
+    ESP_ERROR_CHECK(ret);
+
+    ret = esp_bluedroid_deinit();
+    ESP_ERROR_CHECK(ret);
+
+    ret = esp_bt_controller_disable();
+    ESP_ERROR_CHECK(ret);
+
+    ret = esp_bt_controller_deinit();
+    ESP_ERROR_CHECK(ret);
+
     lua_pushinteger(L, 1);
     return 1;
 }
@@ -45,6 +60,7 @@ static int l_ble_init(lua_State *L)
 static const rotable_Reg reg_ble[] =
     {
         {"init", l_ble_init, 0},
+        {"deinit",l_ble_deinit,0},
         {NULL, NULL, 0}};
 LUAMOD_API int luaopen_ble(lua_State *L)
 {
