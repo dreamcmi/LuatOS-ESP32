@@ -109,6 +109,7 @@ static int l_wlan_set_mode(lua_State *L)
         return luaL_error(L, "invalid wifi mode %d", mode);
     }
 }
+
 /*
 初始化wifi
 @api wlan.init()
@@ -127,6 +128,7 @@ static int l_wlan_init(lua_State *L)
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip));
     return (err == ESP_OK) ? 0 : luaL_error(L, "failed to init wifi, code %d", err);
 }
+
 /*
 连接wifi,成功启动联网线程不等于联网成功!!
 @api wlan.connect(ssid,password)
@@ -159,6 +161,7 @@ static int l_wlan_connect(lua_State *L)
     esp_err_t err = (esp_wifi_start());
     return (err == ESP_OK) ? 0 : luaL_error(L, "failed to begin connect, code %d", err);
 }
+
 /*
 断开wifi
 @api wlan.disconnect()
@@ -173,6 +176,23 @@ static int l_wlan_disconnect(lua_State *L)
     return (err == ESP_OK) ? 0 : luaL_error(L, "disconnect failed, code %d", err);
 }
 
+
+/*
+去初始化wifi
+@api wlan.deinit()
+@return boolean 成功返回true,否则返回false
+@usage
+-- 去初始化wifi
+wlan.deinit()
+*/
+static int l_wlan_deinit(lua_State *L)
+{
+    esp_err_t err = esp_wifi_deinit();
+    ESP_ERROR_CHECK(err);
+    return (err == ESP_OK) ? 0 : luaL_error(L, "deinit failed, code %d", err);
+}
+
+
 #include "rotable.h"
 static const rotable_Reg reg_wlan[] =
     {
@@ -181,6 +201,7 @@ static const rotable_Reg reg_wlan[] =
         {"setMode", l_wlan_set_mode, 0},
         {"connect", l_wlan_connect, 0},
         {"disconnect", l_wlan_disconnect, 0},
+        {"deinit",l_wlan_deinit,0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
         {"STATION", NULL, WIFI_MODE_STA},
