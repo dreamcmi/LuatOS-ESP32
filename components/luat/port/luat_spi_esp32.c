@@ -7,7 +7,7 @@
 #define LUAT_LOG_TAG "luat.spi"
 #include "luat_log.h"
 
-static spi_device_handle_t spi_handle = {0};
+spi_device_handle_t spi_handle = {0};
 
 int luat_spi_setup(luat_spi_t *spi)
 {
@@ -125,15 +125,16 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
         memset(&t, 0, sizeof(t));
         t.length = length * 8;
         t.tx_buffer = send_buf;
-        
-        LLOGD("GO spi_device_polling_start %p %d %d", send_buf, length, spi_handle);
-        ret = spi_device_polling_start(spi_handle, &t, portMAX_DELAY);
-        if (ret != ESP_OK) return ret;
-        LLOGD("Go spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
-        ret = spi_device_polling_end(spi_handle, portMAX_DELAY);
-        LLOGD("Done spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
-        //ESP_ERROR_CHECK(err);
-        //ESP_LOGI("SPI", "send-err:%d", err);
+
+        // ESP_LOGD("LSPI","GO spi_device_polling_start %p %d %d", send_buf, length, spi_handle);
+        // ret = spi_device_polling_start(spi_handle, &t, portMAX_DELAY);
+        // if (ret != ESP_OK) return ret;
+        // ESP_LOGD("LSPI","Go spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
+        // ret = spi_device_polling_end(spi_handle, portMAX_DELAY);
+        // ESP_LOGD("LSPI","Done spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
+        ret = spi_device_transmit(spi_handle,&t);
+        ESP_ERROR_CHECK(ret);
+        ESP_LOGI("SPI", "send-err:%d", err);
         if (ret == ESP_OK)
             return 0;
         else
