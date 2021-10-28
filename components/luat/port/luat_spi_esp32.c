@@ -24,10 +24,6 @@ int luat_spi_setup(luat_spi_t *spi)
         err = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
         ESP_ERROR_CHECK(err);
         //ESP_LOGI("SPI", "bus-err:%d", err);
-        if (err == ESP_OK)
-            return 0;
-        else
-            return -1;
         spi_device_interface_config_t dev_config;
         memset(&dev_config, 0, sizeof(dev_config));
         if (spi->CPHA == 0)
