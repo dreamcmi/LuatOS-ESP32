@@ -110,6 +110,10 @@ LUAMOD_API int luaopen_zbuff( lua_State *L );
 LUAMOD_API int luaopen_lwip( lua_State *L );
 /** ble库 esp32平台 **/
 LUAMOD_API int luaopen_ble(lua_State *L);
+/** espnow库 esp32平台 **/
+LUAMOD_API int luaopen_espnow(lua_State *L);
+/** RMT库 esp32平台 **/
+LUAMOD_API int luaopen_rmt(lua_State *L);
 
 /** sprintf需要支持longlong值的打印, 提供平台无关的实现*/
 int l_sprintf(char *buf, size_t size, const char *fmt, ...);
