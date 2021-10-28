@@ -2,7 +2,16 @@
 #include "esp_log.h"
 #include "driver/rmt.h"
 
-
+/*
+初始化rmt
+@api rmt.init()
+@int 配置GPIO
+@int 配置rmt通道 0/1
+@int apb分频参数(APB时钟80Mhz)
+@return int  
+@usage 
+rmt.init(8,0,1)
+*/
 static int l_rmt_init(lua_State *L)
 {
     int rmtio = luaL_checkinteger(L, 1);
@@ -17,7 +26,14 @@ static int l_rmt_init(lua_State *L)
     return 1;
 }
 
-
+/*
+去初始化rmt
+@api rmt.deinit()
+@int 配置rmt通道 0/1
+@return int  
+@usage 
+rmt.deinit(0)
+*/
 static int l_rmt_deinit(lua_State *L)
 {
     int rmtch = luaL_checkinteger(L, 1);

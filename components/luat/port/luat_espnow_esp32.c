@@ -48,6 +48,14 @@ static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len
     }
 }
 
+
+/*
+初始化espnow
+@api espnow.init()
+@return int  
+@usage 
+espnow.init()
+*/
 static int l_espnow_init(lua_State *L)
 {
     ESP_ERROR_CHECK(esp_now_init());
@@ -57,6 +65,14 @@ static int l_espnow_init(lua_State *L)
     return 1;
 }
 
+/*
+增加espnow peer
+@api espnow.addPeer()
+@string mac地址
+@return int  
+@usage 
+espnow.addPeer(string.fromHex("0016EAAE3C40"))
+*/
 static int l_espnow_add_peer(lua_State *L)
 {
     size_t len;
@@ -77,6 +93,15 @@ static int l_espnow_add_peer(lua_State *L)
     return 1;
 }
 
+/*
+espnow发送
+@api espnow.send()
+@string mac地址
+@string 发送的数据
+@return int  
+@usage 
+espnow.send(string.fromHex("0016EAAE3C40"),"espnow")
+*/
 static int l_espnow_send(lua_State *L)
 {   
     size_t len;
@@ -91,6 +116,13 @@ static int l_espnow_send(lua_State *L)
     return 1;
 }
 
+/*
+去初始化espnow
+@api espnow.deinit()
+@return int  
+@usage 
+espnow.deinit()
+*/
 static int l_espnow_deinit(lua_State *L)
 {
     esp_err_t err =  esp_now_deinit();
