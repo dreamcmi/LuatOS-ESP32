@@ -48,7 +48,7 @@ static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len
     }
 }
 
-int l_espnow_init(lua_State *L)
+static int l_espnow_init(lua_State *L)
 {
     ESP_ERROR_CHECK(esp_now_init());
     ESP_ERROR_CHECK(esp_now_register_send_cb(espnow_send_cb));
@@ -57,7 +57,7 @@ int l_espnow_init(lua_State *L)
     return 1;
 }
 
-int l_espnow_add_peer(lua_State *L)
+static int l_espnow_add_peer(lua_State *L)
 {
     size_t len;
     const char *my_broadcast_mac = luaL_checklstring(L,1,&len);
@@ -77,7 +77,7 @@ int l_espnow_add_peer(lua_State *L)
     return 1;
 }
 
-int l_espnow_send(lua_State *L)
+static int l_espnow_send(lua_State *L)
 {   
     size_t len;
     const char *my_broadcast_mac = luaL_checklstring(L,1,&len);
@@ -91,7 +91,7 @@ int l_espnow_send(lua_State *L)
     return 1;
 }
 
-int l_espnow_deinit(lua_State *L)
+static int l_espnow_deinit(lua_State *L)
 {
     esp_err_t err =  esp_now_deinit();
     ESP_ERROR_CHECK(err);
