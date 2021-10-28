@@ -19,7 +19,7 @@ int luat_uart_setup(luat_uart_t *uart)
         break;
     default:
         uart_config.data_bits = UART_DATA_8_BITS;
-        //break;
+        break;
     }
 
     switch (uart->parity)
@@ -35,7 +35,7 @@ int luat_uart_setup(luat_uart_t *uart)
         break;
     default:
         uart_config.parity = UART_PARITY_DISABLE;
-        //break;
+        break;
     }
 
     uart_config.stop_bits = uart->stop_bits;
@@ -51,7 +51,7 @@ int luat_uart_setup(luat_uart_t *uart)
         uart_set_pin(1, 7, 6, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
         break;
     default:
-        LLOGE("error uart.id");
+        ESP_LOGE("UART","UARTID:%d not found",uart->id);
         return -1;
         break;
     }
@@ -63,7 +63,6 @@ int luat_uart_write(int uartid, void *data, size_t length)
     if (luat_uart_exist(uartid))
     {
         int err = uart_write_bytes(uartid, (const char *)data, length);
-        // printf("uart write :%d\r\n",err);
         if (err == -1) return -1;
         else return 0;
     }
@@ -75,7 +74,6 @@ int luat_uart_read(int uartid, void *buffer, size_t length)
     if (luat_uart_exist(uartid))
     {
         int err = uart_read_bytes(uartid, buffer, length, 20 / portTICK_RATE_MS);
-        // printf("uart read :%d\r\n",err);
         if (err == -1) return -1;
         else return 0;
     }
@@ -97,7 +95,7 @@ int luat_uart_exist(int uartid)
     if (uartid == 1) return 1;
     else
     {
-        luat_log_warn("luat.uart", "uart%d not exist", uartid);
+        ESP_LOGE("UART", "uart%d not exist", uartid);
         return 0;
     }
 }

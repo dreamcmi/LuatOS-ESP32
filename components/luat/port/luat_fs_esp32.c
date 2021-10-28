@@ -22,7 +22,7 @@ esp_vfs_spiffs_conf_t spiffs_conf = {
 
 int luat_fs_init(void)
 {
-  ESP_LOGI("spiffs init", "Initializing SPIFFS");
+  ESP_LOGW("spiffs init", "Initializing SPIFFS");
 
   esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
 
