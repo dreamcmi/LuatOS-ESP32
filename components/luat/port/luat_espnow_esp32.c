@@ -63,7 +63,7 @@ static int l_espnow_add_peer(lua_State *L)
     const char *my_broadcast_mac = luaL_checklstring(L,1,&len);
     esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
     if (peer == NULL) {
-        LLOGE("Malloc peer information fail");
+        ESP_LOGE("LENOW","Malloc peer information fail");
         return -1;
     }
     memset(peer, 0, sizeof(esp_now_peer_info_t));
@@ -84,9 +84,9 @@ static int l_espnow_send(lua_State *L)
     const char *send_data = luaL_checklstring(L,2,&len);
     if (esp_now_send((const uint8_t *)my_broadcast_mac, (uint8_t *)send_data, strlen((char *)send_data)) != ESP_OK) 
     {
-        ESP_LOGE("Send error");
+        ESP_LOGE("LENOW","Send error");
     }
-    ESP_LOGD("send ok");
+    ESP_LOGD("LENOW","send ok");
     lua_pushinteger(L, 1);
     return 1;
 }

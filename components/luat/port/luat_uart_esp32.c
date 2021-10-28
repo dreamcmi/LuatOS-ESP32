@@ -4,6 +4,7 @@
 #define LUAT_LOG_TAG "luat.uart"
 
 #include "driver/uart.h"
+#include "esp_log.h"
 
 int luat_uart_setup(luat_uart_t *uart)
 {
