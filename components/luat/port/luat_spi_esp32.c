@@ -23,7 +23,7 @@ int luat_spi_setup(luat_spi_t *spi)
             .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE};
         err = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
         ESP_ERROR_CHECK(err);
-        //ESP_LOGI("SPI", "bus-err:%d", err);
+        ESP_LOGD("SPI", "bus-err:%d", err);
         spi_device_interface_config_t dev_config;
         memset(&dev_config, 0, sizeof(dev_config));
         if (spi->CPHA == 0)
@@ -45,7 +45,7 @@ int luat_spi_setup(luat_spi_t *spi)
         dev_config.queue_size = 7,
         err = spi_bus_add_device(SPI2_HOST, &dev_config, &spi_handle);
         ESP_ERROR_CHECK(err);
-        //ESP_LOGI("SPI", "device-err:%d", err);
+        ESP_LOGD("SPI", "device-err:%d", err);
         if (err == ESP_OK)
             return 0;
         else
@@ -80,8 +80,8 @@ int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t l
         t.tx_buffer = send_buf;
         t.rx_buffer = recv_buf;
         esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
-        //ESP_ERROR_CHECK(err);
-        //ESP_LOGI("SPI", "trans-err:%d", err);
+        ESP_ERROR_CHECK(err);
+        ESP_LOGD("SPI", "trans-err:%d", err);
         if (err == ESP_OK)
             return 0;
         else
@@ -101,8 +101,8 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
         t.rx_buffer = recv_buf;
         t.flags = SPI_TRANS_USE_RXDATA;
         esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
-        //ESP_ERROR_CHECK(err);
-        //ESP_LOGI("SPI", "recv-err:%d", err);
+        ESP_ERROR_CHECK(err);
+        ESP_LOGD("SPI", "recv-err:%d", err);
         if (err == ESP_OK)
             return 0;
         else
@@ -121,16 +121,9 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
         memset(&t, 0, sizeof(t));
         t.length = length * 8;
         t.tx_buffer = send_buf;
-
-        // ESP_LOGD("LSPI","GO spi_device_polling_start %p %d %d", send_buf, length, spi_handle);
-        // ret = spi_device_polling_start(spi_handle, &t, portMAX_DELAY);
-        // if (ret != ESP_OK) return ret;
-        // ESP_LOGD("LSPI","Go spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
-        // ret = spi_device_polling_end(spi_handle, portMAX_DELAY);
-        // ESP_LOGD("LSPI","Done spi_device_polling_end %p %d %d", send_buf, length, spi_handle);
-        ret = spi_device_transmit(spi_handle,&t);
+        ret = spi_device_polling_transmit(spi_handle,&t);
         ESP_ERROR_CHECK(ret);
-        ESP_LOGE("SPI", "send-err:%d", ret);
+        ESP_LOGD("SPI", "send-err:%d", ret);
         if (ret == ESP_OK)
             return 0;
         else
