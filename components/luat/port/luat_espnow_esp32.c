@@ -26,7 +26,7 @@ static void espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status
         ESP_LOGE("LENOW","Send cb arg error");
         return;
     }
-    ESP_LOGI("LENOW","send ok : "MACSTR" :status:%d", MAC2STR(mac_addr),status);
+    ESP_LOGD("LENOW","send ok : "MACSTR" :status:%d", MAC2STR(mac_addr),status);
 }
 
 static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
@@ -53,6 +53,7 @@ int l_espnow_init(lua_State *L)
     ESP_ERROR_CHECK(esp_now_init());
     ESP_ERROR_CHECK(esp_now_register_send_cb(espnow_send_cb));
     ESP_ERROR_CHECK(esp_now_register_recv_cb(espnow_recv_cb));
+    lua_pushinteger(L, 1);
     return 1;
 }
 
@@ -72,6 +73,7 @@ int l_espnow_add_peer(lua_State *L)
     peer->encrypt = false;
     ESP_ERROR_CHECK(esp_now_add_peer(peer));
     free(peer);
+    lua_pushinteger(L, 1);
     return 1;
 }
 
@@ -82,9 +84,10 @@ int l_espnow_send(lua_State *L)
     const char *send_data = luaL_checklstring(L,2,&len);
     if (esp_now_send((const uint8_t *)my_broadcast_mac, (uint8_t *)send_data, strlen((char *)send_data)) != ESP_OK) 
     {
-        LLOGE("Send error");
+        ESP_LOGE("Send error");
     }
-    LLOGI("send ok");
+    ESP_LOGD("send ok");
+    lua_pushinteger(L, 1);
     return 1;
 }
 
@@ -92,6 +95,7 @@ int l_espnow_deinit(lua_State *L)
 {
     esp_err_t err =  esp_now_deinit();
     ESP_ERROR_CHECK(err);
+    lua_pushinteger(L, 1);
     return 1;
 }
 
