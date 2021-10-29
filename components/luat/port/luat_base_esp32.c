@@ -31,6 +31,7 @@ static const luaL_Reg loadedlibs[] = {
     {"timer", luaopen_timer}, // 延时库
     {"crypto", luaopen_crypto},// 加密和hash库
     {"json", luaopen_cjson},   // json的序列化和反序列化
+    {"zbuff",luaopen_zbuff},  // zbuff
     {"gpio", luaopen_gpio},   // GPIO脚的操作
     {"adc", luaopen_adc},     // ADC库
     {"i2c", luaopen_i2c},     // I2C操作
