@@ -31,6 +31,7 @@ static const luaL_Reg loadedlibs[] = {
     {"rtos", luaopen_rtos},   // rtos底层库, 核心功能是队列和定时器
     {"log", luaopen_log},     // 日志库
     {"timer", luaopen_timer}, // 延时库
+    {"crypto", luaopen_crypto},// 加密和hash库
     {"gpio", luaopen_gpio},   // GPIO脚的操作
     {"adc", luaopen_adc},     // ADC库
     {"i2c", luaopen_i2c},     // I2C操作
@@ -40,6 +41,8 @@ static const luaL_Reg loadedlibs[] = {
     {"wlan", luaopen_wlan},   // wlan/wifi联网操作
     {"lwip",luaopen_lwip},    // lwip操作
     // {"ble",luaopen_ble},      // ble操作
+    // {"espnow",luaopen_espnow},// espnow操作
+    // {"rmt",luaopen_rmt},      // rmt操作
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
