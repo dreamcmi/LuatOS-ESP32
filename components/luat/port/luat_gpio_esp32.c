@@ -3,6 +3,14 @@
 
 #include "driver/gpio.h"
 
+int gpio_exist(int pin)
+{
+    if (pin >= 0 && pin < GPIO_NUM_MAX)
+        return 1;
+    else
+        return 0;
+}
+
 //中断回调
 static void gpio_cb(void *ctx)
 {
@@ -17,6 +25,8 @@ static void gpio_cb(void *ctx)
 
 int luat_gpio_setup(luat_gpio_t *gpio)
 {
+    if (!gpio_exist(gpio->pin))
+        return -1;
     //选择io
     gpio_pad_select_gpio(gpio->pin);
 
@@ -61,25 +71,36 @@ int luat_gpio_setup(luat_gpio_t *gpio)
         gpio_set_pull_mode(gpio->pin, GPIO_PULLDOWN_ONLY);
         break;
     default:
-            break;
+        break;
     }
     return 0;
 }
 
 int luat_gpio_set(int pin, int level)
 {
-    // TODO 判断一下pin的范围
-    gpio_set_level(pin, level);
-    return 0;
+    if (gpio_exist(pin))
+    {
+        gpio_set_level(pin, level);
+        return 0;
+    }
+    else
+        return -1;
 }
 
 int luat_gpio_get(int pin)
 {
-    int level = gpio_get_level(pin);
-    return level;
+    if (gpio_exist(pin))
+    {
+        int level = gpio_get_level(pin);
+        return level;
+    }
+    return -1;
 }
 
 void luat_gpio_close(int pin)
 {
-    gpio_reset_pin(pin);
+    if (gpio_exist(pin))
+    {
+        gpio_reset_pin(pin);
+    }
 }
