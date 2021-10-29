@@ -4,7 +4,7 @@
 
 尝试给ESP32适配一个[LuatOS](https://gitee.com/openLuat/LuatOS)，只是为了学习。希望有更多的朋友来一起贡献。
 
-目前基于ESP-IDF 4.3 release版本
+目前基于ESP-IDF 4.3.1 release版本
 
 当前分支ESP32C3，为主力版本。
 
