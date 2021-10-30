@@ -48,6 +48,7 @@ static const luaL_Reg loadedlibs[] = {
     // {"ble",luaopen_ble},      // ble操作
     // {"espnow",luaopen_espnow},// espnow操作
     // {"rmt",luaopen_rmt},      // rmt操作
+    {"esp32",luaopen_esp32},  // esp32专用库
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
