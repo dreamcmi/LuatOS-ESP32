@@ -1,5 +1,5 @@
 #include <stdio.h>
-// #include "sdkconfig.h"
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "bget.h"
@@ -11,7 +11,11 @@
 #include "nvs_flash.h"
 #include "esp_bt.h"
 
+#if CONFIG_IDF_TARGET_ESP32C3
 #define LUAT_HEAP_SIZE (64*1024)
+#elif CONFIG_IDF_TARGET_ESP32S3
+#define LUAT_HEAP_SIZE (100*1024)
+#endif
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
 

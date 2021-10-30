@@ -10,7 +10,12 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 #include "esp_system.h"
+#include "sdkconfig.h"
+#if CONFIG_IDF_TARGET_ESP32C3
 #include "esp32c3/rom/ets_sys.h"
+#elif CONFIG_IDF_TARGET_ESP32S3
+#include "esp32s3/rom/ets_sys.h"
+#endif
 #include "esp_heap_caps.h"
 
 static const luaL_Reg loadedlibs[] = {
