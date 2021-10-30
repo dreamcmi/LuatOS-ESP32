@@ -27,7 +27,7 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         lua_pushinteger(L, 0);
         return 1;
     }
-    ESP_LOGI("wlan","event：%d",event);
+    ESP_LOGI("wlan", "event：%d", event);
     switch (event)
     {
     case WIFI_EVENT_WIFI_READY: // 网络就绪
@@ -89,7 +89,7 @@ static int l_wlan_get_mode(lua_State *L)
 设置wifi模式,通常不需要设置
 @api wlan.setMode(mode)
 @int 模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP
-@return int   设置成功与否,通常不检查
+@return int   成功返回1,否则返回0
 @usage 
 -- 将wlan设置为wifi客户端模式
 wlan.setMode(wlan.STATION) 
@@ -104,7 +104,9 @@ static int l_wlan_set_mode(lua_State *L)
     case WIFI_MODE_STA:
     case WIFI_MODE_AP:
     case WIFI_MODE_APSTA:
-        return ((err = esp_wifi_set_mode(mode)) == ESP_OK) ? 0 : luaL_error(L, "failed to set mode, code %d", err);
+        err = esp_wifi_set_mode(mode);
+        lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+        return 1;
     default:
         return luaL_error(L, "invalid wifi mode %d", mode);
     }
@@ -113,7 +115,7 @@ static int l_wlan_set_mode(lua_State *L)
 /*
 初始化wifi
 @api wlan.init()
-@return int   是否初始化成功，失败会有原因返回
+@return int   成功返回1,否则返回0
 @usage 
 -- 在使用wifi前初始化一下
 wlan.init()
@@ -126,7 +128,8 @@ static int l_wlan_init(lua_State *L)
     esp_err_t err = esp_wifi_init(&cfg);
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip));
-    return (err == ESP_OK) ? 0 : luaL_error(L, "failed to init wifi, code %d", err);
+    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    return 1;
 }
 
 /*
@@ -134,7 +137,7 @@ static int l_wlan_init(lua_State *L)
 @api wlan.connect(ssid,password)
 @string  ssid  wifi的SSID
 @string password wifi的密码,可选
-@return boolean   如果正常启动联网线程,无返回值,否则返回出错信息. 
+@return int 成功返回1,否则返回0
 @usage 
 -- 连接到uiot,密码1234567890
 wlan.connect("uiot", "1234567890")
@@ -146,7 +149,7 @@ static int l_wlan_connect(lua_State *L)
     wifi_config_t cfg;
     memset(&cfg, 0, sizeof(cfg));
     size_t len;
-    
+
     const char *Lssid = luaL_checklstring(L, 1, &len);
     if (len > sizeof(cfg.sta.ssid))
         len = sizeof(cfg.sta.ssid);
@@ -159,13 +162,14 @@ static int l_wlan_connect(lua_State *L)
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
     esp_err_t err = (esp_wifi_start());
-    return (err == ESP_OK) ? 0 : luaL_error(L, "failed to begin connect, code %d", err);
+    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    return 1;
 }
 
 /*
 断开wifi
 @api wlan.disconnect()
-@return boolean 成功返回true,否则返回false
+@return int 成功返回1,否则返回0
 @usage
 -- 断开wifi连接 
 wlan.disconnect()
@@ -173,14 +177,14 @@ wlan.disconnect()
 static int l_wlan_disconnect(lua_State *L)
 {
     esp_err_t err = esp_wifi_disconnect();
-    return (err == ESP_OK) ? 0 : luaL_error(L, "disconnect failed, code %d", err);
+    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    return 1;
 }
-
 
 /*
 去初始化wifi
 @api wlan.deinit()
-@return boolean 成功返回true,否则返回false
+@return int 成功返回1,否则返回0
 @usage
 -- 去初始化wifi
 wlan.deinit()
@@ -188,8 +192,24 @@ wlan.deinit()
 static int l_wlan_deinit(lua_State *L)
 {
     esp_err_t err = esp_wifi_deinit();
-    ESP_ERROR_CHECK(err);
-    return (err == ESP_OK) ? 0 : luaL_error(L, "deinit failed, code %d", err);
+    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    return 1;
+}
+
+static int l_wlan_set_ps(lua_State *L)
+{
+    int ps = luaL_checkinteger(L, 1);
+    esp_err_t err = esp_wifi_set_ps(ps);
+    lua_pushinteger(L, (int)err);
+    return 1;
+}
+
+static int l_wlan_get_ps(lua_State *L)
+{
+    wifi_ps_type_t type;
+    esp_wifi_get_ps(&type);
+    lua_pushinteger(L, (int)type);
+    return 1;
 }
 
 
@@ -201,7 +221,9 @@ static const rotable_Reg reg_wlan[] =
         {"setMode", l_wlan_set_mode, 0},
         {"connect", l_wlan_connect, 0},
         {"disconnect", l_wlan_disconnect, 0},
-        {"deinit",l_wlan_deinit,0},
+        {"deinit", l_wlan_deinit, 0},
+        {"setps", l_wlan_set_ps, 0},
+        {"getps", l_wlan_get_ps, 0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
         {"STATION", NULL, WIFI_MODE_STA},
