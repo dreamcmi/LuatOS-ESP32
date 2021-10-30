@@ -83,7 +83,11 @@ void luat_os_reboot(int code)
 
 const char *luat_os_bsp(void)
 {
+#if CONFIG_IDF_TARGET_ESP32C3
   return "ESP32C3";
+#elif CONFIG_IDF_TARGET_ESP32S3
+  return "ESP32S3";
+#endif
 }
 
 void luat_os_standy(int timeout)
