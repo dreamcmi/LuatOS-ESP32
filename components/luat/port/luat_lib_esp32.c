@@ -3,6 +3,14 @@
 #include "esp_system.h"
 #include <string.h>
 
+/*
+获取mac
+@api esp32.getmac()
+@int mac地址来源 0:ESP_MAC_WIFI_STA 1:ESP_MAC_WIFI_SOFTAP 2:ESP_MAC_BT 3:ESP_MAC_ETH
+@return string mac地址
+@usage
+esp32.getmac(0)
+*/
 static int l_esp32_getmac(lua_State *L)
 {
     int type = luaL_optinteger(L,1,0);

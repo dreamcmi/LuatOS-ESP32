@@ -196,6 +196,14 @@ static int l_wlan_deinit(lua_State *L)
     return 1;
 }
 
+/*
+设置wifi省电
+@api wlan.setps()
+@int 省电等级 0:WIFI_PS_NONE  1:WIFI_PS_MIN_MODEM 2:WIFI_PS_MAX_MODEM
+@return int 成功返回1,否则返回err
+@usage
+wlan.setps(1)
+*/
 static int l_wlan_set_ps(lua_State *L)
 {
     int ps = luaL_checkinteger(L, 1);
@@ -204,6 +212,13 @@ static int l_wlan_set_ps(lua_State *L)
     return 1;
 }
 
+/*
+获取wifi省电模式
+@api wlan.getps()
+@return int 
+@usage  省电等级 0:WIFI_PS_NONE  1:WIFI_PS_MIN_MODEM 2:WIFI_PS_MAX_MODEM
+wlan.getps()
+*/
 static int l_wlan_get_ps(lua_State *L)
 {
     wifi_ps_type_t type;
