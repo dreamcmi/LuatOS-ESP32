@@ -5,6 +5,7 @@
 #include "luat_log.h"
 
 #include "driver/i2c.h"
+#include "sdkconfig.h"
 
 #define ACK_VAL 0x0                /*!< I2C ack value */
 #define NACK_VAL 0x1               /*!< I2C nack value */
@@ -65,9 +66,14 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
     {
         i2c_config_t conf = {};
         conf.mode = I2C_MODE_MASTER;
-        conf.sda_io_num = 6;
+#if CONFIG_IDF_TARGET_ESP32C3
+        conf.sda_io_num = 3;
+        conf.scl_io_num = 2;
+#elif CONFIG_IDF_TARGET_ESP32S3
+        conf.sda_io_num = 18;
+        conf.scl_io_num = 19;
+#endif
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-        conf.scl_io_num = 7;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
         conf.master.clk_speed = speed;
         ESP_ERROR_CHECK(i2c_param_config(I2C_NUM_0, &conf));
@@ -152,7 +158,7 @@ int luat_i2c_read_reg(int id, int addr, int reg, uint16_t *value)
 {
     if (luat_i2c_exist(id))
     {
-        *value = IIC_RD_Reg(addr,reg);
+        *value = IIC_RD_Reg(addr, reg);
         return 0;
     }
     else

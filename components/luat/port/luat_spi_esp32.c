@@ -15,12 +15,19 @@ int luat_spi_setup(luat_spi_t *spi)
     if (spi->id == 2)
     {
         spi_bus_config_t buscfg = {
+#if CONFIG_IDF_TARGET_ESP32C3
             .miso_io_num = 6,
             .mosi_io_num = 7,
             .sclk_io_num = 8,
+#elif CONFIG_IDF_TARGET_ESP32S3
+            .miso_io_num = 13,
+            .mosi_io_num = 11,
+            .sclk_io_num = 12,
+#endif
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE};
+            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
+        };
         err = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
         ESP_ERROR_CHECK(err);
         ESP_LOGD("SPI", "bus-err:%d", err);
@@ -121,7 +128,7 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
         memset(&t, 0, sizeof(t));
         t.length = length * 8;
         t.tx_buffer = send_buf;
-        ret = spi_device_polling_transmit(spi_handle,&t);
+        ret = spi_device_polling_transmit(spi_handle, &t);
         ESP_ERROR_CHECK(ret);
         ESP_LOGD("SPI", "send-err:%d", ret);
         if (ret == ESP_OK)
