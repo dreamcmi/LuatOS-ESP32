@@ -247,7 +247,8 @@ def pkgRom():
                 z.write("tmp/" + d, arcname=d)
         z.close()
         shutil.rmtree("tmp")
-
+def get_version():
+    return '2.0.1'
 
 if __name__ == '__main__':
     if not os.path.exists("config.toml"):
@@ -255,6 +256,7 @@ if __name__ == '__main__':
         sys.exit(-1)
     config = toml.load("config.toml")
     parser = argparse.ArgumentParser(description="LuatOS-SoC For ESP32 Flash Tool")
+    parser.add_argument('-v', '--version', action='version', version=get_version(), help='Show version')
     parser.add_argument('-t', '--target', help='Chip型号:esp32,es32c3,esp32s2,esp32s3')
     parser.add_argument('-f', '--fs', action="store_true", help='下载脚本')
     parser.add_argument('-r', '--rom', action="store_true", help='下载底层固件')
