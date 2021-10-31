@@ -22,7 +22,7 @@ esp_vfs_spiffs_conf_t spiffs_conf = {
 
 int luat_fs_init(void)
 {
-  ESP_LOGW("spiffs init", "Initializing SPIFFS");
+  printf("Initializing SPIFFS\n");
 
   esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
 
@@ -30,15 +30,15 @@ int luat_fs_init(void)
   {
     if (ret == ESP_FAIL)
     {
-      ESP_LOGE("spiffs init", "Failed to mount or format filesystem");
+      printf("Failed to mount or format filesystem\n");
     }
     else if (ret == ESP_ERR_NOT_FOUND)
     {
-      ESP_LOGE("spiffs init", "Failed to find SPIFFS partition");
+      printf("Failed to find SPIFFS partition\n");
     }
     else
     {
-      ESP_LOGE("spiffs init", "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+      printf("Failed to initialize SPIFFS (%s)\n", esp_err_to_name(ret));
     }
     return 1;
   }
@@ -46,11 +46,11 @@ int luat_fs_init(void)
   ret = esp_spiffs_info(spiffs_conf.partition_label, &total, &used);
   if (ret != ESP_OK)
   {
-    ESP_LOGE("spiffs init", "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+    printf("Failed to get SPIFFS partition information (%s)\n", esp_err_to_name(ret));
   }
   else
   {
-    ESP_LOGI("spiffs init", "Partition size: total: %d, used: %d", total, used);
+    printf("Partition size: total: %d, used: %d\n", total, used);
   }
   return 0;
 }
@@ -78,11 +78,11 @@ int luat_fs_info(const char *path, luat_fs_info_t *conf)
     esp_err_t ret = esp_spiffs_info(spiffs_conf.partition_label, &total, &used);
     if (ret != ESP_OK)
     {
-        ESP_LOGE("spiffs init", "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+        printf("Failed to get SPIFFS partition information (%s)\n", esp_err_to_name(ret));
     }
     else
     {
-        ESP_LOGI("spiffs init", "Partition size: total: %d, used: %d", total, used);
+        printf("Partition size: total: %d, used: %d\n", total, used);
     }
     return 0;
 }
