@@ -49,10 +49,13 @@ int luat_uart_setup(luat_uart_t *uart)
     switch (uart->id)
     {
     case 1:
-        uart_set_pin(1, 7, 6, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+        uart_set_pin(1, 4, 5, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+#if CONFIG_IDF_TARGET_ESP32S3
+        uart_set_pin(1, 17, 18, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+#endif
         break;
     default:
-        ESP_LOGE("UART","UARTID:%d not found",uart->id);
+        ESP_LOGE("UART", "UARTID:%d not found", uart->id);
         return -1;
         break;
     }
@@ -64,10 +67,13 @@ int luat_uart_write(int uartid, void *data, size_t length)
     if (luat_uart_exist(uartid))
     {
         int err = uart_write_bytes(uartid, (const char *)data, length);
-        if (err == -1) return -1;
-        else return 0;
+        if (err == -1)
+            return -1;
+        else
+            return 0;
     }
-    else return -1;
+    else
+        return -1;
 }
 
 int luat_uart_read(int uartid, void *buffer, size_t length)
@@ -75,10 +81,13 @@ int luat_uart_read(int uartid, void *buffer, size_t length)
     if (luat_uart_exist(uartid))
     {
         int err = uart_read_bytes(uartid, buffer, length, 20 / portTICK_RATE_MS);
-        if (err == -1) return -1;
-        else return 0;
+        if (err == -1)
+            return -1;
+        else
+            return 0;
     }
-    else return -1;
+    else
+        return -1;
 }
 
 int luat_uart_close(int uartid)
@@ -88,12 +97,19 @@ int luat_uart_close(int uartid)
         uart_driver_delete(uartid);
         return 0;
     }
-    else return -1;
+    else
+        return -1;
 }
 
 int luat_uart_exist(int uartid)
 {
-    if (uartid == 1) return 1;
+#if CONFIG_IDF_TARGET_ESP32C3
+    if (uartid == 1)
+        return 1;
+#elif CONFIG_IDF_TARGET_ESP32S3
+    if (uartid >= 1 && uartid<=2)
+        return 1;
+#endif
     else
     {
         ESP_LOGE("UART", "uart%d not exist", uartid);
