@@ -53,11 +53,19 @@ uint8_t IIC_RD_Reg(int SensorAdd, uint8_t addr)
 
 int luat_i2c_exist(int id)
 {
+#if CONFIG_IDF_TARGET_ESP32C3
     if (id == 0)
     {
         return 1;
     }
     return 0;
+#elif CONFIG_IDF_TARGET_ESP32S3
+    if (id >= 0 && id <= 1)
+    {
+        return 1;
+    }
+    return 0;
+#endif
 }
 
 int luat_i2c_setup(int id, int speed, int slaveaddr)
@@ -70,8 +78,16 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
         conf.sda_io_num = 3;
         conf.scl_io_num = 2;
 #elif CONFIG_IDF_TARGET_ESP32S3
-        conf.sda_io_num = 18;
-        conf.scl_io_num = 19;
+        if (id == 0)
+        {
+            conf.sda_io_num = 4;
+            conf.scl_io_num = 5;
+        }
+        else
+        {
+            conf.sda_io_num = 6;
+            conf.scl_io_num = 7;
+        }
 #endif
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
