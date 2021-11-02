@@ -23,12 +23,13 @@ jobs:
           idf.py build
       - name: pack firmware
         run: |
-          pip3 install -r requirements.txt
+          pip3 install -r tools/requirements.txt
+          cd tools/
           python3 esp32v2.py -t esp32c3 -p
           mkdir firmware
-          mv *.soc firmware
+          mv *.soc firmware/
       - name: Upload bin directory
         uses: actions/upload-artifact@main
         with:
           name: c3-master
-          path: firmware/
+          path: tools/firmware/

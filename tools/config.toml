@@ -1,5 +1,5 @@
 [pkg]
-Repo = 'D:\gitee\esp32\LuatOS-ESP32\'
+Repo = '../'
 Release = 0
 
 [esp32]
