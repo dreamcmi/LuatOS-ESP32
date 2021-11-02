@@ -3,13 +3,12 @@ on:
   push:
     branches: [ master ]
     paths:
-      - '.github/workflows/commit-build.yml'
+      - '.github/workflows/commit-build-c3.yml'
       - 'components/**'
       - 'main/**'
       - 'tools/**'
       - 'sdkconfig.defaults'
       - 'sdkconfig.defaults.esp32c3'
-      - 'sdkconfig.defaults.esp32s3'
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -36,7 +35,7 @@ jobs:
           python3 esp32v2.py -t esp32c3 -p
           mkdir firmware
           mv *.soc firmware/
-      - name: Upload bin directory
+      - name: Upload firmware
         uses: actions/upload-artifact@main
         with:
           name: c3-master
