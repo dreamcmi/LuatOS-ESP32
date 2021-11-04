@@ -1,4 +1,4 @@
-name: commit-build
+name: esp32c3
 on:
   push:
     branches: [ master ]
