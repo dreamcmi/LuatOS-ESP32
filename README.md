@@ -1,12 +1,14 @@
 # LuatOS For ESP32
 
+[![esp32c3](https://github.com/dreamcmi/LuatOS-ESP32/actions/workflows/commit-build-c3.yml/badge.svg?branch=master)](https://github.com/dreamcmi/LuatOS-ESP32/actions/workflows/commit-build-c3.yml)[![esp32s3](https://github.com/dreamcmi/LuatOS-ESP32/actions/workflows/commit-build-s3.yml/badge.svg?branch=master)](https://github.com/dreamcmi/LuatOS-ESP32/actions/workflows/commit-build-s3.yml)
+
 ## 1、简介
 
 尝试给ESP32适配一个[LuatOS](https://gitee.com/openLuat/LuatOS)，只是为了学习。希望有更多的朋友来一起贡献。
 
 目前基于ESP-IDF 4.3.1 release版本
 
-当前分支ESP32C3，为主力版本。
+当前分支ESP32C3/ESP32S3，为主力版本。
 
 ## 2、参与方式
 
