@@ -34,7 +34,7 @@ int luat_pwm_open(int channel, size_t period, size_t pulse,int pnum)
 
     ledc_fade_func_install(0);
     ledc_set_fade_with_time(LEDC_LOW_SPEED_MODE,ledc_channel.channel, map(pulse,0,100,0,8191),10);
-
+    ledc_fade_start(LEDC_LOW_SPEED_MODE, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
     return 0;
 }
 int luat_pwm_close(int channel)
