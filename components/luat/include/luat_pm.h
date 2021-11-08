@@ -18,7 +18,7 @@ int luat_pm_dtimer_stop(int id);
 
 int luat_pm_dtimer_check(int id);
 
-void luat_pm_cb(int event, int arg, void* args);
+// void luat_pm_cb(int event, int arg, void* args);
 
 int luat_pm_last_state(int *lastState, int *rtcOrPad);
 
@@ -28,5 +28,5 @@ int luat_pm_check(void);
 
 int luat_pm_dtimer_list(size_t* count, size_t* list);
 
-int uat_pm_dtimer_wakeup_id(int id);
+int luat_pm_dtimer_wakeup_id(int* id);
 

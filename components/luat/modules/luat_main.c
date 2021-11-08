@@ -7,13 +7,24 @@
 #include "luat_msgbus.h"
 #include "luat_timer.h"
 
+#include "luat_ota.h"
+
 #define LUAT_LOG_TAG "luat.main"
 #include "luat_log.h"
 
+#ifndef LUAT_USE_CMDLINE_ARGS
 #ifdef LUA_USE_WINDOWS
+#define LUAT_USE_CMDLINE_ARGS 1
+#endif
+#ifdef LUA_USE_LINUX
+#define LUAT_USE_CMDLINE_ARGS 1
+#endif
+#endif
+
+#ifdef LUAT_USE_CMDLINE_ARGS
 #include <stdlib.h>
-extern int win32_argc;
-extern char** win32_argv;
+extern int cmdline_argc;
+extern char** cmdline_argv;
 #endif
 
 static int report (lua_State *L, int status);
@@ -26,37 +37,55 @@ void stopboot(void) {
   boot_mode = 0;
 }
 
-lua_State * luat_get_state() {
-  return L;
-}
+// lua_State * luat_get_state() {
+//   return L;
+// }
 
 int luat_search_module(const char* name, char* filename);
-
 void luat_os_print_heapinfo(const char* tag);
+
+int luat_main_demo() { // 这是验证LuatVM最基础的消息/定时器/Task机制是否正常
+  return luaL_dostring(L, "local sys = require \"sys\"\n"
+                          "log.info(\"main\", os.date())\n"
+                          "led = gpio.setup(19, 0)"
+                          "sys.taskInit(function ()\n"
+                          "  while true do\n"
+                          "    log.info(\"hi\", rtos.meminfo())\n"
+                          "    sys.wait(500)\n"
+                          "    led(1)\n"
+                          "    sys.wait(500)\n"
+                          "    led(0)\n"
+                          "  end\n"
+                          "end)\n"
+                          "sys.run()\n");
+}
 
 static int pmain(lua_State *L) {
     int re = -2;
 
-    #ifdef LUA_32BITS
-    //LLOGD("Lua complied with LUA_32BITS");
-    #endif
+    //luat_os_print_heapinfo("boot");
 
     // 加载内置库
     luat_openlibs(L);
 
-    luat_os_print_heapinfo("boot");
+    luat_os_print_heapinfo("loadlibs");
 
     lua_gc(L, LUA_GCSETPAUSE, 90); // 设置`垃圾收集器间歇率`要低于100%
 
+#ifdef LUAT_HAS_CUSTOM_LIB_INIT
+    luat_custom_init(lua_State *L);
+#endif
+
     // 加载main.lua
-    #ifdef LUA_USE_WINDOWS
-    if (win32_argc > 1) {
-      int slen = strlen(win32_argv[1]);
-      if (slen > 4 && !strcmp(".lua", win32_argv[1] + (slen - 4)))
-        re = luaL_dofile(L, win32_argv[1]);
+    #ifdef LUAT_USE_CMDLINE_ARGS
+    if (cmdline_argc > 1) {
+      int slen = strlen(cmdline_argv[1]);
+      if (slen > 4 && !strcmp(".lua", cmdline_argv[1] + (slen - 4)))
+        re = luaL_dofile(L, cmdline_argv[1]);
     }
     #endif
     if (re == -2) {
+      #ifndef LUAT_MAIN_DEMO
       char filename[32] = {0};
       if (luat_search_module("main", filename) == 0) {
         re = luaL_dofile(L, filename);
@@ -65,6 +94,9 @@ static int pmain(lua_State *L) {
         re = -1;
         luaL_error(L, "module '%s' not found", "main");
       }
+      #else
+      re = luat_main_demo();
+      #endif
     }
         
     report(L, re);
@@ -77,8 +109,8 @@ static int pmain(lua_State *L) {
 ** (if present)
 */
 static void l_message (const char *pname, const char *msg) {
-  if (pname) lua_writestringerror("%s: ", pname);
-  lua_writestringerror("%s\n", msg);
+  if (pname) LLOGE("%s: ", pname);
+  LLOGE("%s\n", msg);
 }
 
 
@@ -97,115 +129,19 @@ static int report (lua_State *L, int status) {
 }
 
 static int panic (lua_State *L) {
-  lua_writestringerror("PANIC: unprotected error in call to Lua API (%s)\n",
+  LLOGE("PANIC: unprotected error in call to Lua API (%s)\n",
                         lua_tostring(L, -1));
   return 0;  /* return to Lua to abort */
 }
 
-#define UPDATE_BIN_PATH "/update.bin"
-#define ROLLBACK_MARK_PATH "/rollback_mark"
-#define UPDATE_MARK "/update_mark"
-#define FLASHX_PATH "/flashx.bin"
 
-int luat_bin_unpack(const char* path, int writeOut);
-
-static void check_update(void) {
-  // 首先, 升级文件是否存在呢?
-  if (!luat_fs_fexist(UPDATE_BIN_PATH)) {
-    // 不存在, 正常启动
-    return;
-  }
-  // 找到了, 检查一下大小
-  LLOGI("found " UPDATE_BIN_PATH " ...");
-  size_t fsize = luat_fs_fsize(UPDATE_BIN_PATH);
-  if (fsize < 256) {
-    // 太小了, 肯定不合法, 直接移除, 正常启动
-    LLOGW(UPDATE_BIN_PATH " is too small, delete it");
-    luat_fs_remove(UPDATE_BIN_PATH);
-    return;
-  }
-  // 写入标志文件.
-  // 必须提前写入, 即使解包失败, 仍标记为升级过,这样报错就能回滚
-  LLOGI("write " UPDATE_MARK  " first");
-  FILE* fd = luat_fs_fopen(UPDATE_MARK, "wb");
-  if (fd) {
-    luat_fs_fclose(fd);
-    // TODO 连标志文件都写入失败,怎么办?
-  }
-  // 检测升级包合法性
-  if (luat_bin_unpack(UPDATE_BIN_PATH, 0) != LUA_OK) {
-    LLOGE("%s is invaild!!", UPDATE_BIN_PATH);
-  }
-  else {
-    // 开始解包升级文件
-    if (luat_bin_unpack(UPDATE_BIN_PATH, 1) == LUA_OK) {
-      LLOGI("update OK, remove " UPDATE_BIN_PATH);
-    }
-    else {
-      LLOGW("update FAIL, remove " UPDATE_BIN_PATH);
-    }
-  }
-  // 无论是否成功,都一定要删除升级文件, 防止升级死循环
-  luat_fs_remove(UPDATE_BIN_PATH);
-  // 延迟5秒,重启
-  LLOGW("update: reboot at 5 secs");
-  luat_timer_mdelay(5*1000);
-  luat_os_reboot(0); // 重启
-}
-
-static void check_rollback(void) {
-  // 首先, 查一下是否有回滚文件
-  if (!luat_fs_fexist(ROLLBACK_MARK_PATH)) {
-    return; // 没有回滚标志文件, 正常启动
-  }
-  // 回滚文件存在,
-  LLOGW("Found " ROLLBACK_MARK_PATH  ", check rollback");
-  // 首先,移除回滚标志, 防止重复N次的回滚
-  luat_fs_remove("/rollback_mark"); // TODO 如果删除也失败呢?
-  // 然后检查原始文件, flashx.bin
-  if (!luat_fs_fexist(FLASHX_PATH)) {
-    LLOGW("NOT " FLASHX_PATH " , can't rollback");
-    return;
-  }
-  // 存在原始flashx.bin
-  LLOGD("found " FLASHX_PATH  ", unpack it");
-  // 开始回滚操作
-  if (luat_bin_unpack(FLASHX_PATH, 1) == LUA_OK) {
-    LLOGI("rollback complete!");
-  }
-  else {
-    LLOGE("rollback FAIL");
-  }
-  // 执行完成, 准备重启
-  LLOGW("rollback: reboot at 5 secs");
-  // 延迟5秒后,重启
-  luat_timer_mdelay(5*1000);
-  luat_os_reboot(0); // 重启
-}
-
-int luat_main (void) {
-  if (boot_mode == 0) {
-    return 0; // just nop
-  }
-  LLOGI("LuatOS@%s %s, Build: " __DATE__ " " __TIME__, luat_os_bsp(), LUAT_VERSION);
-  #if LUAT_VERSION_BETA
-  LLOGD("This is a beta version, for testing");
-  #endif
-  // 1. 初始化文件系统
-  luat_fs_init();
-
-  // 2. 是否需要升级?
-  check_update();
-
-  // 3. 是否需要回滚呢?
-  check_rollback();
-
+int luat_main_call(void) {
   // 4. init Lua State
   int status = 0;
   int result = 0;
   L = lua_newstate(luat_heap_alloc, NULL);
   if (L == NULL) {
-    l_message("LUAVM", "cannot create state: not enough memory\n");
+    l_message("lua", "cannot create state: not enough memory\n");
     goto _exit;
   }
   if (L) lua_atpanic(L, &panic);
@@ -218,31 +154,51 @@ int luat_main (void) {
   report(L, status);
   //lua_close(L);
 _exit:
-  #ifdef LUA_USE_WINDOWS
+  #ifdef LUAT_USE_CMDLINE_ARGS
     result = !result;
     LLOGE("Lua VM exit!! result:%d",result);
     exit(result);
   #endif
-  LLOGE("Lua VM exit!! reboot in 30s");
-  // 既然是异常退出,那肯定出错了!!!
-  // 如果升级过, 那么就写入标志文件
-  {
-    if (luat_fs_fexist(UPDATE_MARK)) {
-      FILE* fd = luat_fs_fopen("/rollback_mark", "wb");
-      if (fd) {
-        luat_fs_fclose(fd);
-      }
-    }
-    else {
-      // 没升级过, 那就是线刷, 不存在回滚
-    }
-  }
-  // 等30秒,就重启吧
-  luat_timer_mdelay(30*1000);
-  luat_os_reboot(result);
-  // 往下是肯定不会被执行的
-  return (result && status == LUA_OK) ? 0 : 2;
+  return result;
 }
+
+/**
+ * 常规流程, 单一入口, 执行脚本.
+ * require "sys"
+ * 
+ * ... 用户代码 ....
+ * 
+ * sys.run() 
+*/
+int luat_main (void) {
+  if (boot_mode == 0) {
+    return 0; // just nop
+  }
+  #ifdef LUAT_BSP_VERSION
+  LLOGI("LuatOS@%s core %s bsp %s", luat_os_bsp(), LUAT_VERSION, LUAT_BSP_VERSION);
+  LLOGI("ROM Build: " __DATE__ " " __TIME__);
+  #else
+  LLOGI("LuatOS@%s %s, Build: " __DATE__ " " __TIME__, luat_os_bsp(), LUAT_VERSION);
+  #if LUAT_VERSION_BETA
+  LLOGD("This is a beta version, for testing");
+  #endif
+  #endif
+  
+
+  // 1. 初始化文件系统
+  luat_fs_init();
+
+  // 是否需要升级或者回滚
+  luat_ota_update_or_rollback();
+
+  int result = luat_main_call();
+  LLOGE("Lua VM exit!! reboot in %dms", LUAT_EXIT_REBOOT_DELAY);
+  luat_ota_reboot(LUAT_EXIT_REBOOT_DELAY);
+  // 往下是肯定不会被执行的
+  return 0;
+}
+
+
 
 #include "rotable.h"
 void luat_newlib(lua_State* l, const rotable_Reg* reg) {

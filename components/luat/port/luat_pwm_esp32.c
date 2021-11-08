@@ -11,7 +11,7 @@ uint32_t map(int x, int in_min, int in_max, int out_min, int out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-int luat_pwm_open(int channel, size_t period, size_t pulse)
+int luat_pwm_open(int channel, size_t period, size_t pulse,int pnum)
 {
     ledc_timer_config_t ledc_timer = {
         .speed_mode = LEDC_LOW_SPEED_MODE,

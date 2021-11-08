@@ -29,6 +29,8 @@
 #define fopen luat_fs_fopen
 #define fclose luat_fs_fclose
 
+#define LUAT_LOG_TAG "luat.loadlib"
+#include "luat_log.h"
 
 /*
 ** LUA_IGMARK is a mark to ignore all before it when building the
@@ -80,7 +82,7 @@
 /*
 ** unload library 'lib'
 */
-static void lsys_unloadlib (void *lib);
+// static void lsys_unloadlib (void *lib);
 
 /*
 ** load C library in file 'path'. If 'seeglb', load with all names in
@@ -88,172 +90,172 @@ static void lsys_unloadlib (void *lib);
 ** Returns the library; in case of error, returns NULL plus an
 ** error string in the stack.
 */
-static void *lsys_load (lua_State *L, const char *path, int seeglb);
+// static void *lsys_load (lua_State *L, const char *path, int seeglb);
 
 /*
 ** Try to find a function named 'sym' in library 'lib'.
 ** Returns the function; in case of error, returns NULL plus an
 ** error string in the stack.
 */
-static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym);
+// static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym);
 
 
 
 
-#if defined(LUA_USE_DLOPEN)	/* { */
-/*
-** {========================================================================
-** This is an implementation of loadlib based on the dlfcn interface.
-** The dlfcn interface is available in Linux, SunOS, Solaris, IRIX, FreeBSD,
-** NetBSD, AIX 4.2, HPUX 11, and  probably most other Unix flavors, at least
-** as an emulation layer on top of native functions.
-** =========================================================================
-*/
+// #if defined(LUA_USE_DLOPEN)	/* { */
+// /*
+// ** {========================================================================
+// ** This is an implementation of loadlib based on the dlfcn interface.
+// ** The dlfcn interface is available in Linux, SunOS, Solaris, IRIX, FreeBSD,
+// ** NetBSD, AIX 4.2, HPUX 11, and  probably most other Unix flavors, at least
+// ** as an emulation layer on top of native functions.
+// ** =========================================================================
+// */
 
-#include <dlfcn.h>
+// #include <dlfcn.h>
 
-/*
-** Macro to convert pointer-to-void* to pointer-to-function. This cast
-** is undefined according to ISO C, but POSIX assumes that it works.
-** (The '__extension__' in gnu compilers is only to avoid warnings.)
-*/
-#if defined(__GNUC__)
-#define cast_func(p) (__extension__ (lua_CFunction)(p))
-#else
-#define cast_func(p) ((lua_CFunction)(p))
-#endif
-
-
-static void lsys_unloadlib (void *lib) {
-  dlclose(lib);
-}
+// /*
+// ** Macro to convert pointer-to-void* to pointer-to-function. This cast
+// ** is undefined according to ISO C, but POSIX assumes that it works.
+// ** (The '__extension__' in gnu compilers is only to avoid warnings.)
+// */
+// #if defined(__GNUC__)
+// #define cast_func(p) (__extension__ (lua_CFunction)(p))
+// #else
+// #define cast_func(p) ((lua_CFunction)(p))
+// #endif
 
 
-static void *lsys_load (lua_State *L, const char *path, int seeglb) {
-  void *lib = dlopen(path, RTLD_NOW | (seeglb ? RTLD_GLOBAL : RTLD_LOCAL));
-  if (lib == NULL) lua_pushstring(L, dlerror());
-  return lib;
-}
+// static void lsys_unloadlib (void *lib) {
+//   dlclose(lib);
+// }
 
 
-static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
-  lua_CFunction f = cast_func(dlsym(lib, sym));
-  if (f == NULL) lua_pushstring(L, dlerror());
-  return f;
-}
-
-/* }====================================================== */
+// static void *lsys_load (lua_State *L, const char *path, int seeglb) {
+//   void *lib = dlopen(path, RTLD_NOW | (seeglb ? RTLD_GLOBAL : RTLD_LOCAL));
+//   if (lib == NULL) lua_pushstring(L, dlerror());
+//   return lib;
+// }
 
 
+// static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
+//   lua_CFunction f = cast_func(dlsym(lib, sym));
+//   if (f == NULL) lua_pushstring(L, dlerror());
+//   return f;
+// }
 
-#elif defined(LUA_DL_DLL)	/* }{ */
-/*
-** {======================================================================
-** This is an implementation of loadlib for Windows using native functions.
-** =======================================================================
-*/
-
-#include <windows.h>
-
-
-/*
-** optional flags for LoadLibraryEx
-*/
-#if !defined(LUA_LLE_FLAGS)
-#define LUA_LLE_FLAGS	0
-#endif
-
-
-#undef setprogdir
-
-
-/*
-** Replace in the path (on the top of the stack) any occurrence
-** of LUA_EXEC_DIR with the executable's path.
-*/
-static void setprogdir (lua_State *L) {
-  char buff[MAX_PATH + 1];
-  char *lb;
-  DWORD nsize = sizeof(buff)/sizeof(char);
-  DWORD n = GetModuleFileNameA(NULL, buff, nsize);  /* get exec. name */
-  if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
-    luaL_error(L, "unable to get ModuleFileName");
-  else {
-    *lb = '\0';  /* cut name on the last '\\' to get the path */
-    luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
-    lua_remove(L, -2);  /* remove original string */
-  }
-}
+// /* }====================================================== */
 
 
 
+// #elif defined(LUA_DL_DLL)	/* }{ */
+// /*
+// ** {======================================================================
+// ** This is an implementation of loadlib for Windows using native functions.
+// ** =======================================================================
+// */
 
-static void pusherror (lua_State *L) {
-  int error = GetLastError();
-  char buffer[128];
-  if (FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-      NULL, error, 0, buffer, sizeof(buffer)/sizeof(char), NULL))
-    lua_pushstring(L, buffer);
-  else
-    lua_pushfstring(L, "system error %d\n", error);
-}
-
-static void lsys_unloadlib (void *lib) {
-  FreeLibrary((HMODULE)lib);
-}
+// #include <windows.h>
 
 
-static void *lsys_load (lua_State *L, const char *path, int seeglb) {
-  HMODULE lib = LoadLibraryExA(path, NULL, LUA_LLE_FLAGS);
-  (void)(seeglb);  /* not used: symbols are 'global' by default */
-  if (lib == NULL) pusherror(L);
-  return lib;
-}
+// /*
+// ** optional flags for LoadLibraryEx
+// */
+// #if !defined(LUA_LLE_FLAGS)
+// #define LUA_LLE_FLAGS	0
+// #endif
 
 
-static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
-  lua_CFunction f = (lua_CFunction)GetProcAddress((HMODULE)lib, sym);
-  if (f == NULL) pusherror(L);
-  return f;
-}
-
-/* }====================================================== */
+// #undef setprogdir
 
 
-#else				/* }{ */
-/*
-** {======================================================
-** Fallback for other systems
-** =======================================================
-*/
-
-#undef LIB_FAIL
-#define LIB_FAIL	"absent"
-
-
-#define DLMSG	"dynamic libraries not enabled; check your Lua installation"
-
-
-static void lsys_unloadlib (void *lib) {
-  (void)(lib);  /* not used */
-}
-
-
-static void *lsys_load (lua_State *L, const char *path, int seeglb) {
-  (void)(path); (void)(seeglb);  /* not used */
-  lua_pushliteral(L, DLMSG);
-  return NULL;
-}
+// /*
+// ** Replace in the path (on the top of the stack) any occurrence
+// ** of LUA_EXEC_DIR with the executable's path.
+// */
+// static void setprogdir (lua_State *L) {
+//   char buff[MAX_PATH + 1];
+//   char *lb;
+//   DWORD nsize = sizeof(buff)/sizeof(char);
+//   DWORD n = GetModuleFileNameA(NULL, buff, nsize);  /* get exec. name */
+//   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+//     luaL_error(L, "unable to get ModuleFileName");
+//   else {
+//     *lb = '\0';  /* cut name on the last '\\' to get the path */
+//     luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
+//     lua_remove(L, -2);  /* remove original string */
+//   }
+// }
 
 
-static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
-  (void)(lib); (void)(sym);  /* not used */
-  lua_pushliteral(L, DLMSG);
-  return NULL;
-}
 
-/* }====================================================== */
-#endif				/* } */
+
+// static void pusherror (lua_State *L) {
+//   int error = GetLastError();
+//   char buffer[128];
+//   if (FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+//       NULL, error, 0, buffer, sizeof(buffer)/sizeof(char), NULL))
+//     lua_pushstring(L, buffer);
+//   else
+//     lua_pushfstring(L, "system error %d\n", error);
+// }
+
+// static void lsys_unloadlib (void *lib) {
+//   FreeLibrary((HMODULE)lib);
+// }
+
+
+// static void *lsys_load (lua_State *L, const char *path, int seeglb) {
+//   HMODULE lib = LoadLibraryExA(path, NULL, LUA_LLE_FLAGS);
+//   (void)(seeglb);  /* not used: symbols are 'global' by default */
+//   if (lib == NULL) pusherror(L);
+//   return lib;
+// }
+
+
+// static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
+//   lua_CFunction f = (lua_CFunction)GetProcAddress((HMODULE)lib, sym);
+//   if (f == NULL) pusherror(L);
+//   return f;
+// }
+
+// /* }====================================================== */
+
+
+// #else				/* }{ */
+// /*
+// ** {======================================================
+// ** Fallback for other systems
+// ** =======================================================
+// */
+
+// #undef LIB_FAIL
+// #define LIB_FAIL	"absent"
+
+
+// #define DLMSG	"dynamic libraries not enabled; check your Lua installation"
+
+
+// static void lsys_unloadlib (void *lib) {
+//   (void)(lib);  /* not used */
+// }
+
+
+// static void *lsys_load (lua_State *L, const char *path, int seeglb) {
+//   (void)(path); (void)(seeglb);  /* not used */
+//   lua_pushliteral(L, DLMSG);
+//   return NULL;
+// }
+
+
+// static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
+//   (void)(lib); (void)(sym);  /* not used */
+//   lua_pushliteral(L, DLMSG);
+//   return NULL;
+// }
+
+// /* }====================================================== */
+// #endif				/* } */
 
 
 /*
@@ -497,28 +499,36 @@ static int checkload (lua_State *L, int stat, const char *filename) {
                           lua_tostring(L, 1), filename, lua_tostring(L, -1));
 }
 
-
+/*esp32*/
 static const char* search_paths[] = {
   "/spiffs/%s.luac", "/spiffs/%s.lua",
   "/spiffs/lua/%s.luac", "/spiffs/lua/%s.lua",
   "/spiffs/luadb/%s.luac", "/spiffs/luadb/%s.lua",
   "",
 };
+/*esp32*/
+
+char custom_search_paths[4][24] = {0};
 
 int luat_search_module(const char* name, char* filename) {
   int index = 0;
+  for (size_t i = 0; i < 4; i++)
+  {
+    if (strlen(custom_search_paths[i]) == 0)
+      continue;
+    sprintf(filename, custom_search_paths[i], name);
+    if (readable(filename)) return 0;
+    filename[0] = 0x00;
+  }
   while (1) {
     if (strlen(search_paths[index]) == 0)
       break;
     sprintf(filename, search_paths[index], name);
-    if (readable(filename)) break;
+    if (readable(filename)) return 0;
     index ++;
     filename[0] = 0x00;
   }
-  if (filename[0] == 0x00) {
-    return -1;
-  }
-  return 0;
+  return -1;
 }
 
 static int searcher_Lua (lua_State *L) {
@@ -626,7 +636,7 @@ static int searcher_Lua (lua_State *L) {
 // }
 
 
-static int ll_require (lua_State *L) {
+int ll_require (lua_State *L) {
   const char *name = luaL_checkstring(L, 1);
   lua_settop(L, 1);  /* LOADED table will be at index 2 */
   lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
@@ -639,12 +649,14 @@ static int ll_require (lua_State *L) {
   //lua_pushstring(L, name);  /* pass name as argument to module loader */
   //lua_insert(L, -2);  /* name is 1st argument (before search data) */
   //lua_call(L, 2, 1);  /* run loader to load module */
-  
+
   // add by wendal, 替换原有的逻辑
   lua_pushstring(L, name);
   //luat_os_print_heapinfo("go-loadfile");
+  LLOGD("module %s , searching......",name);
   if (searcher_Lua(L) == 2) {
     //luat_os_print_heapinfo("go-call");
+    LLOGD("module %s , found OK!!!",name);
     lua_pushstring(L, name);
     lua_call(L, 2, 1);
     //luat_os_print_heapinfo("after-call");
@@ -809,9 +821,12 @@ static int ll_seeall (lua_State *L) {
 // }
 
 LUAMOD_API int luaopen_package (lua_State *L) {
+  #ifndef LUAT_MEMORY_OPT_G_FUNCS
   lua_pushcfunction(L, ll_require);
   lua_setglobal(L, "require");
-  return 0;
+  #endif
+  lua_pushnil(L);
+  return 1;
 }
 
 #if 0

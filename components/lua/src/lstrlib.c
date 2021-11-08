@@ -1,4 +1,8 @@
 /*
+@module  string
+@summary 额外添加了一些字符串操作函数
+*/
+/*
 ** $Id: lstrlib.c,v 1.254.1.1 2017/04/19 17:29:57 roberto Exp $
 ** Standard library for string operations and pattern-matching
 ** See Copyright Notice in lua.h
@@ -179,24 +183,24 @@ static int str_char (lua_State *L) {
 }
 
 
-static int writer (lua_State *L, const void *b, size_t size, void *B) {
-  (void)L;
-  luaL_addlstring((luaL_Buffer *) B, (const char *)b, size);
-  return 0;
-}
+// static int writer (lua_State *L, const void *b, size_t size, void *B) {
+//   (void)L;
+//   luaL_addlstring((luaL_Buffer *) B, (const char *)b, size);
+//   return 0;
+// }
 
 
-static int str_dump (lua_State *L) {
-  luaL_Buffer b;
-  int strip = lua_toboolean(L, 2);
-  luaL_checktype(L, 1, LUA_TFUNCTION);
-  lua_settop(L, 1);
-  luaL_buffinit(L,&b);
-  if (lua_dump(L, writer, &b, strip) != 0)
-    return luaL_error(L, "unable to dump given function");
-  luaL_pushresult(&b);
-  return 1;
-}
+// static int str_dump (lua_State *L) {
+//   luaL_Buffer b;
+//   int strip = lua_toboolean(L, 2);
+//   luaL_checktype(L, 1, LUA_TFUNCTION);
+//   lua_settop(L, 1);
+//   luaL_buffinit(L,&b);
+//   if (lua_dump(L, writer, &b, strip) != 0)
+//     return luaL_error(L, "unable to dump given function");
+//   luaL_pushresult(&b);
+//   return 1;
+// }
 
 
 
@@ -1537,44 +1541,79 @@ static int str_unpack (lua_State *L) {
 }
 
 /* }====================================================== */
+
 static unsigned char hexchars[] = "0123456789ABCDEF";
+void luat_str_tohex(char* str, size_t len, char* buff) {
+  for (size_t i = 0; i < len; i++)
+  {
+    char ch = *(str+i);
+    buff[i*2] = hexchars[(unsigned char)ch >> 4];
+    buff[i*2+1] = hexchars[(unsigned char)ch & 0xF];
+  }
+}
+void luat_str_fromhex(char* str, size_t len, char* buff) {
+  for (size_t i = 0; i < len/2; i++)
+  {
+    char a = *(str + i*2);
+    char b = *(str + i*2 + 1);
+    //printf("%d %c %c\r\n", i, a, b);
+    a = (a <= '9') ? a - '0' : (a & 0x7) + 9;
+    b = (b <= '9') ? b - '0' : (b & 0x7) + 9;
+    if (a >=0 && b >= 0)
+      buff[i] = (a << 4) + b;
+  }
+}
+/*
+将字符串转成HEX
+@api string.toHex(str)
+@string 需要转换的字符串
+@return string HEX字符串
+@return number HEX字符串的长度
+@usage
+string.toHex("\1\2\3") --> "010203" 3
+string.toHex("123abc") --> "313233616263" 6
+string.toHex("123abc"," ") --> "31 32 33 61 62 63 " 6
+*/
 static int str_toHex (lua_State *L) {
   size_t len;
   const char *str = luaL_checklstring(L, 1, &len);
   luaL_Buffer buff;
   luaL_buffinitsize(L, &buff, 2*len);
-  for (size_t i = 0; i < len; i++)
-  {
-    char ch = *(str+i);
-    luaL_addchar(&buff, hexchars[(unsigned char)ch >> 4]);
-    luaL_addchar(&buff, hexchars[(unsigned char)ch & 0xF]);
-  }
+  luat_str_tohex((char*)str, len, buff.b);
+  buff.n = len * 2;
   luaL_pushresult(&buff);
   lua_pushinteger(L, len*2);
   return 2;
 }
+/*
+将HEX转成字符串
+@api string.fromHex(hex)
+@string hex,16进制组成的串
+@return string 字符串
+@usage
+string.fromHex("010203")       -->  "\1\2\3"
+string.fromHex("313233616263") -->  "123abc"
+*/
 static int str_fromHex (lua_State *L) {
   size_t len;
   const char *str = luaL_checklstring(L, 1, &len);
   luaL_Buffer buff;
   luaL_buffinitsize(L, &buff, len / 2);
-  for (size_t i = 0; i < len / 2; i++)
-  {
-    char a = *(str + i*2);
-    char b = *(str + i*2 + 1);
-    a = (a <= '9') ? a - '0' : (a & 0x7) + 9;
-    b = (b <= '9') ? b - '0' : (b & 0x7) + 9;
-    if (a >= 0 && b >= 0) {
-      luaL_addchar(&buff, (a << 4) + b);
-    }
-    else {
-      // 非法字符串直接跳过
-      // luaL_addchar(&buff, 0);
-    }
-  }
+  luat_str_fromhex((char*)str, len, buff.b);
+  buff.n = len / 2;
   luaL_pushresult(&buff);
   return 1;
 }
+
+/*
+按照指定分隔符分割字符串
+@api string.split(str, delimiter)
+@string 输入字符串
+@string 分隔符
+@return table 分割后的字符串表
+@usage
+("123,456,789"):split(',') --> {'123','456','789'}
+*/
 static int str_split (lua_State *L) {
   size_t len = 0;
   const char *str = luaL_checkstring(L, 1);
@@ -1585,15 +1624,28 @@ static int str_split (lua_State *L) {
   char *token;
   size_t count = 0;
   token = strtok((char *)str, delimiters);
+  lua_newtable(L);
   while( token != NULL ) {
+    lua_pushnumber(L,count+1);
     lua_pushstring(L, token);
-    //printf("%s - %ld\n", token, count);
+    lua_settable(L,-3);
+    // printf("%s - %ld\n", token, count);
     count ++;
     token = strtok(NULL, delimiters);
   }
-  return count;
+  return 1;
 }
 
+/*
+返回字符串tonumber的转义字符串(用来支持超过31位整数的转换)
+@api string.toValue(str)
+@string 输入字符串
+@return string 转换后的二进制字符串
+@return number 转换了多少个字符
+@usage
+string.toValue("123456") --> "\1\2\3\4\5\6"  6
+string.toValue("123abc") --> "\1\2\3\a\b\c"  6
+*/
 static int str_toValue (lua_State *L) {
   size_t len = 0,i;
   const char *s = luaL_checklstring(L, 1, &len);
@@ -1633,9 +1685,9 @@ static int str_toValue (lua_State *L) {
   @usage
   -- 将字符串进行url编码转换
   log.info(string.urlEncode("123 abc+/"))			-->> "123+abc%2B%2F"
-  
+
   log.info(string.urlEncode("123 abc+/",1))			-->> "123%20abc%2B%2F"
-  
+
   log.info(string.urlEncode("123 abc+/",-1,1,"/"))	-->> "123%20abc%2B/"
   log.info(string.urlEncode("123 abc+/",-1,0,"/"))	-->> "123+abc%2B/"
   log.info(string.urlEncode("123 abc+/",-1,0,"/ "))	-->> "123 abc%2B/"
@@ -1650,7 +1702,7 @@ static int str_urlEncode (lua_State *L) {
   const char *str = luaL_checklstring(L, 1, &len);
   if(argc == 1)
   {
-  	mode = 0;	
+  	mode = 0;
   }
   else{
   	mode = luaL_checkinteger(L, 2);
@@ -1754,7 +1806,7 @@ static const unsigned char base64_dec_map[128] =
 /*
  * Encode a buffer into base64 format
  */
-static int base64_encode( unsigned char *dst, size_t dlen, size_t *olen,
+int luat_str_base64_encode( unsigned char *dst, size_t dlen, size_t *olen,
                    const unsigned char *src, size_t slen )
 {
     size_t i, n;
@@ -1824,7 +1876,7 @@ static int base64_encode( unsigned char *dst, size_t dlen, size_t *olen,
 #ifndef uint32_t
 #define uint32_t unsigned int
 #endif
-static int base64_decode( unsigned char *dst, size_t dlen, size_t *olen,
+int luat_str_base64_decode( unsigned char *dst, size_t dlen, size_t *olen,
                    const unsigned char *src, size_t slen )
 {
     size_t i, n;
@@ -1911,32 +1963,6 @@ static int base64_decode( unsigned char *dst, size_t dlen, size_t *olen,
 }
 
 /*
-将字符串进行base64解码
-@api string.fromBase64(str)
-@string 需要转换的字符串
-@return string 解码后的字符串,如果解码失败会返回空字符串
-*/
-static int str_fromBase64(lua_State *L) {
-  size_t len = 0;
-  const char* str = luaL_checklstring(L, 1, &len);
-  if (len == 0) {
-    lua_pushstring(L, "");
-    return 1;
-  }
-  luaL_Buffer buff = {0};
-  luaL_buffinitsize(L, &buff, len * 1.5 + 1);
-  size_t olen = 0;
-  int re = base64_encode((unsigned char *)buff.b, buff.size, &olen, (const unsigned char * )str, len);
-  if (re == 0) {
-    luaL_pushresultsize(&buff, olen);
-    return 1;
-  }
-  // 编码失败,返回空字符串, 可能性应该是0吧
-  lua_pushstring(L, "");
-  return 1;
-}
-
-/*
 将字符串进行base64编码
 @api string.toBase64(str)
 @string 需要转换的字符串
@@ -1950,9 +1976,34 @@ static int str_toBase64(lua_State *L) {
     return 1;
   }
   luaL_Buffer buff = {0};
+  luaL_buffinitsize(L, &buff, len * 1.5 + 1);
+  size_t olen = 0;
+  int re = luat_str_base64_encode((unsigned char *)buff.b, buff.size, &olen, (const unsigned char * )str, len);
+  if (re == 0) {
+    luaL_pushresultsize(&buff, olen);
+    return 1;
+  }
+  // 编码失败,返回空字符串, 可能性应该是0吧
+  lua_pushstring(L, "");
+  return 1;
+}
+/*
+将字符串进行base64解码
+@api string.fromBase64(str)
+@string 需要转换的字符串
+@return string 解码后的字符串,如果解码失败会返回空字符串
+*/
+static int str_fromBase64(lua_State *L) {
+  size_t len = 0;
+  const char* str = luaL_checklstring(L, 1, &len);
+  if (len == 0) {
+    lua_pushstring(L, "");
+    return 1;
+  }
+  luaL_Buffer buff = {0};
   luaL_buffinitsize(L, &buff, len + 1);
   size_t olen = 0;
-  int re = base64_decode((unsigned char *)buff.b, buff.size, &olen, (const unsigned char * )str, len);
+  int re = luat_str_base64_decode((unsigned char *)buff.b, buff.size, &olen, (const unsigned char * )str, len);
   if (re == 0) {
     luaL_pushresultsize(&buff, olen);
     return 1;

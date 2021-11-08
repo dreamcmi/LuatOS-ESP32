@@ -11,7 +11,7 @@
 #include <limits.h>
 #include <stddef.h>
 
-#include <luat_conf_bsp.h>
+#include "luat_conf_bsp.h"
 #include "luat_conf_default.h"
 
 /*
@@ -50,6 +50,12 @@
 */
 #if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
 #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+#endif
+
+#ifndef LUA_USE_WINDOWS
+#ifdef LUAT_FORCE_WIN32
+#define LUA_USE_WINDOWS
+#endif
 #endif
 
 
@@ -673,7 +679,7 @@
 ** macro must include header 'locale.h'.)
 */
 #if !defined(lua_getlocaledecpoint)
-#define lua_getlocaledecpoint()		(localeconv()->decimal_point[0])
+#define lua_getlocaledecpoint()		('.')
 #endif
 
 /* }================================================================== */

@@ -7,7 +7,7 @@
 #ifndef LUAT_BASE
 #define LUAT_BASE
 /**LuatOS版本号*/
-#define LUAT_VERSION "V0006"
+#define LUAT_VERSION "V0007"
 #define LUAT_VERSION_BETA 1
 // 调试开关, 预留
 #define LUAT_DEBUG 0
@@ -41,81 +41,9 @@ int luat_main (void);
  */
 void luat_openlibs(lua_State *L);
 
-// 以下luaopen_大多有平台无关的实现, 需要实现的是对应的luat_XXX_XXX 方法.
+// luaopen_xxx 代表各种库, 2021.09.26起独立一个头文件
+#include "luat_libs.h"
 
-/** 加载sys库, 预留, 实际不可用状态*/
-LUAMOD_API int luaopen_sys( lua_State *L );
-/** 加载rtos库, 必选*/
-LUAMOD_API int luaopen_rtos( lua_State *L );
-/** 加载timer库, 可选*/
-LUAMOD_API int luaopen_timer( lua_State *L );
-/** 加载msgbus库, 预留, 实际不可用状态*/
-LUAMOD_API int luaopen_msgbus( lua_State *L );
-/** 加载gpio库, 可选*/
-LUAMOD_API int luaopen_gpio( lua_State *L );
-/** 加载adc库, 可选*/
-LUAMOD_API int luaopen_adc( lua_State *L );
-/** 加载pwm库, 可选*/
-LUAMOD_API int luaopen_pwm( lua_State *L );
-/** 加载uart库, 一般都需要*/
-LUAMOD_API int luaopen_uart( lua_State *L );
-/** 加载pm库, 预留*/
-LUAMOD_API int luaopen_pm( lua_State *L );
-/** 加载fs库, 预留*/
-LUAMOD_API int luaopen_fs( lua_State *L );
-/** 加载wlan库, 操作wifi,可选*/
-LUAMOD_API int luaopen_wlan( lua_State *L );
-/** 加载socket库, 依赖netclient.h,可选*/
-LUAMOD_API int luaopen_socket( lua_State *L );
-/** 加载sensor库, 依赖gpio库, 可选*/
-LUAMOD_API int luaopen_sensor( lua_State *L );
-/** 加载log库, 必选, 依赖底层uart抽象层*/
-LUAMOD_API int luaopen_log( lua_State *L );
-/** 加载json库, 可选*/
-LUAMOD_API int luaopen_cjson( lua_State *L );
-/** 加载i2c库, 可选*/
-LUAMOD_API int luaopen_i2c( lua_State *L );
-/** 加载spi库, 可选*/
-LUAMOD_API int luaopen_spi( lua_State *L );
-/** 加载disp库, 可选, 会依赖i2c和spi*/
-LUAMOD_API int luaopen_disp( lua_State *L );
-/** 加载u8g2库, 可选, 会依赖i2c和spi*/
-LUAMOD_API int luaopen_u8g2( lua_State *L );
-/** 加载utest库, 预留*/
-LUAMOD_API int luaopen_utest( lua_State *L );
-/** 加载mqtt库, 预留*/
-LUAMOD_API int luaopen_mqtt( lua_State *L );
-/** 加载mqtt库, 预留*/
-LUAMOD_API int luaopen_http( lua_State *L );
-/** 加载pack库, 可选,平台无关*/
-LUAMOD_API int luaopen_pack( lua_State *L );
-/** 加载mqttcore库, 可选,平台无关*/
-LUAMOD_API int luaopen_mqttcore( lua_State *L );
-/** 加载crypto库, 可选*/
-LUAMOD_API int luaopen_crypto( lua_State *L );
-LUAMOD_API int luaopen_pm( lua_State *L);
-LUAMOD_API int luaopen_m2m( lua_State *L);
-LUAMOD_API int luaopen_libcoap( lua_State *L);
-LUAMOD_API int luaopen_lpmem( lua_State *L);
-LUAMOD_API int luaopen_ctiot( lua_State *L);
-LUAMOD_API int luaopen_iconv(lua_State *L);
-LUAMOD_API int luaopen_nbiot( lua_State *L );
-LUAMOD_API int luaopen_libgnss( lua_State *L ) ;
-LUAMOD_API int luaopen_fatfs( lua_State *L );
-LUAMOD_API int luaopen_eink( lua_State *L);
-LUAMOD_API int luaopen_dbg( lua_State *L );
-/** 加载zbuff库, 可选,平台无关*/
-LUAMOD_API int luaopen_zbuff( lua_State *L );
-/** lwip库 **/
-LUAMOD_API int luaopen_lwip( lua_State *L );
-/** ble库 esp32平台 **/
-LUAMOD_API int luaopen_ble(lua_State *L);
-/** espnow库 esp32平台 **/
-LUAMOD_API int luaopen_espnow(lua_State *L);
-/** RMT库 esp32平台 **/
-LUAMOD_API int luaopen_rmt(lua_State *L);
-/** esp32专用库 **/
-LUAMOD_API int luaopen_esp32(lua_State *L);
 /** sprintf需要支持longlong值的打印, 提供平台无关的实现*/
 int l_sprintf(char *buf, size_t size, const char *fmt, ...);
 
@@ -136,5 +64,10 @@ void stopboot(void);
 void luat_timer_us_delay(size_t us);
 
 const char* luat_version_str(void);
+
+void luat_os_print_heapinfo(const char* tag);
+
+// 自定义扩展库的初始化入口, 可以自行注册lua库, 或其他初始化操作.
+void luat_custom_init(lua_State *L);
 
 #endif

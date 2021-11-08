@@ -10,6 +10,7 @@
 #include "luat_msgbus.h"
 #include "luat_fs.h"
 #include "string.h"
+#include "luat_zbuff.h"
 
 #define LUAT_LOG_TAG "luat.uart"
 #include "luat_log.h"
@@ -68,12 +69,15 @@ int l_uart_handler(lua_State *L, void* ptr) {
 配置串口参数
 @api    uart.setup(id, baud_rate, data_bits, stop_bits, partiy, bit_order, buff_size)
 @int 串口id, uart0写0, uart1写1
-@int 波特率 9600~115200
-@int 数据位 7或8, 一般是8
-@int 停止位 1或0, 一般是1
-@int 校验位, 可选 uart.None/uart.Even/uart.Odd
-@int 大小端, 默认小端 uart.LSB, 可选 uart.MSB
-@int 缓冲区大小, 默认值1024
+@int 波特率
+@int 数据位，默认为8
+@int 停止位，默认为1
+@int 校验位，可选 uart.None/uart.Even/uart.Odd
+@int 大小端，默认小端 uart.LSB, 可选 uart.MSB
+@int 缓冲区大小，默认值1024
+@int 485模式下的转换GPIO, 默认值0xffffffff
+@int 485模式下的rx方向GPIO的电平, 默认值0
+@int 485模式下tx向rx转换的延迟时间，默认值12bit的时间，单位us
 @return int 成功返回0,失败返回其他值
 @usage
 -- 最常用115200 8N1
@@ -82,19 +86,29 @@ uart.setup(1, 115200, 8, 1, uart.NONE)
 */
 static int l_uart_setup(lua_State *L)
 {
-    luat_uart_t *uart_config = (luat_uart_t *)luat_heap_malloc(sizeof(luat_uart_t));
-    uart_config->id = luaL_checkinteger(L, 1);
-    uart_config->baud_rate = luaL_optinteger(L, 2, 115200);
-    uart_config->data_bits = luaL_optinteger(L, 3, 8);
-    uart_config->stop_bits = luaL_optinteger(L, 4, 1);
-    uart_config->parity = luaL_optinteger(L, 5, LUAT_PARITY_NONE);
-    uart_config->bit_order = luaL_optinteger(L, 6, LUAT_BIT_ORDER_LSB);
-    uart_config->bufsz = luaL_optinteger(L, 7, 1024);
+    lua_Number stop_bits = luaL_optnumber(L, 4, 1);
+    luat_uart_t uart_config = {
+        .id = luaL_checkinteger(L, 1),
+        .baud_rate = luaL_optinteger(L, 2, 115200),
+        .data_bits = luaL_optinteger(L, 3, 8),
+        .parity = luaL_optinteger(L, 5, LUAT_PARITY_NONE),
+        .bit_order = luaL_optinteger(L, 6, LUAT_BIT_ORDER_LSB),
+        .bufsz = luaL_optinteger(L, 7, 1024),
+        .pin485 = luaL_optinteger(L, 8, 0xffffffff),
+        .rx_level = luaL_optinteger(L, 9, 0),
+    };
+    if(stop_bits == 0.5)
+        uart_config.stop_bits = LUAT_0_5_STOP_BITS;
+    else if(stop_bits == 1.5)
+        uart_config.stop_bits = LUAT_1_5_STOP_BITS;
+    else
+        uart_config.stop_bits = (uint8_t)stop_bits;
 
-    int result = luat_uart_setup(uart_config);
+    uart_config.delay = luaL_optinteger(L, 10, 12000000/uart_config.baud_rate);
+
+    int result = luat_uart_setup(&uart_config);
     lua_pushinteger(L, result);
 
-    luat_heap_free(uart_config);
     return 1;
 }
 
@@ -102,7 +116,8 @@ static int l_uart_setup(lua_State *L)
 写串口
 @api    uart.write(id, data)
 @int 串口id, uart0写0, uart1写1
-@string 待写入的数据
+@string/zbuff 待写入的数据，如果是zbuff会从指针起始位置开始读
+@int 可选，要发送的数据长度，默认全发
 @return int 成功的数据长度
 @usage
 uart.write(1, "rdy\r\n")
@@ -110,11 +125,24 @@ uart.write(1, "rdy\r\n")
 static int l_uart_write(lua_State *L)
 {
     size_t len;
-    const char *buf;
+    const char *buf = 0;
     uint8_t id = luaL_checkinteger(L, 1);
-    buf = lua_tolstring(L, 2, &len);//取出字符串数据
-    //uint32_t length = len;
-    uint8_t result = luat_uart_write(id, (char*)buf, len);
+    if(lua_isuserdata(L, 2))
+    {
+        luat_zbuff_t *buff = ((luat_zbuff_t *)luaL_checkudata(L, 2, LUAT_ZBUFF_TYPE));
+        len = buff->len - buff->cursor;
+    }
+    else
+    {
+        buf = lua_tolstring(L, 2, &len);//取出字符串数据
+    }
+    if(lua_isinteger(L, 3))
+    {
+        size_t l = luaL_checkinteger(L, 3);
+        if(len > l)
+            len = l;
+    }
+    int result = luat_uart_write(id, (char*)buf, len);
     lua_pushinteger(L, result);
     return 1;
 }
@@ -124,8 +152,8 @@ static int l_uart_write(lua_State *L)
 @api    uart.read(id, len)
 @int 串口id, uart0写0, uart1写1
 @int 读取长度
-@int 文件句柄(可选)
-@return string 读取到的数据
+@file/zbuff 可选：文件句柄或zbuff对象
+@return string 读取到的数据 / 传入zbuff时，返回读到的长度，并把zbuff指针后移
 @usage
 uart.read(1, 16)
 */
@@ -133,26 +161,46 @@ static int l_uart_read(lua_State *L)
 {
     uint8_t id = luaL_checkinteger(L, 1);
     uint32_t length = luaL_optinteger(L, 2, 1024);
-    if (length > 4096) {
-        length = 4096;
+    if(lua_isuserdata(L, 3)){//zbuff对象特殊处理
+        luat_zbuff_t *buff = ((luat_zbuff_t *)luaL_checkudata(L, 3, LUAT_ZBUFF_TYPE));
+        uint8_t* recv = buff->addr+buff->cursor;
+        if(length > buff->len - buff->cursor)
+            length = buff->len - buff->cursor;
+        int result = luat_uart_read(id, recv, length);
+        if(result < 0)
+            result = 0;
+        buff->cursor += result;
+        lua_pushinteger(L, result);
+        return 1;
     }
-    void *recv = luat_heap_malloc(length);
+    uint8_t* recv = luat_heap_malloc(length);
     if (recv == NULL) {
         LLOGE("system is out of memory!!!");
         lua_pushstring(L, "");
         return 1;
     }
-    int result = luat_uart_read(id, recv, length);
-    //lua_gc(L, LUA_GCCOLLECT, 0);
-    if (result > 0) {
+
+    uint32_t read_length = 0;
+    while(read_length < length)//循环读完
+    {
+        int result = luat_uart_read(id, (void*)(recv + read_length), length - read_length);
+        if (result > 0) {
+            read_length += result;
+        }
+        else
+        {
+            break;
+        }
+    }
+    if(read_length > 0)
+    {
         if (lua_isinteger(L, 3)) {
             uint32_t fd = luaL_checkinteger(L, 3);
-            luat_fs_fwrite(recv, 1, result, (FILE*)fd);
+            luat_fs_fwrite(recv, 1, read_length, (FILE*)fd);
         }
         else {
-            lua_pushlstring(L, (const char*)recv, result);
+            lua_pushlstring(L, (const char*)recv, read_length);
         }
-        
     }
     else
     {

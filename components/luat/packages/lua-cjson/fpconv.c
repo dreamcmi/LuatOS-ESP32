@@ -178,8 +178,9 @@ int fpconv_f_fmt(char *str, double num, int precision)
     for(i = 0; i < len; ++i)
     {
         *str++ = (*b == locale_decimal_point ? '.' : *b);
-         *b = *b + 1;
-
+        /*esp32*/
+        *b = *b + 1;
+        /*esp32*/
     }
     *str = 0x00;
     return len;

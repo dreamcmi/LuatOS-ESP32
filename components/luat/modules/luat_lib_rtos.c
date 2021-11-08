@@ -40,12 +40,13 @@ static int l_rtos_receive(lua_State *L) {
 //------------------------------------------------------------------
 static int l_timer_handler(lua_State *L, void* ptr) {
     luat_timer_t *timer = (luat_timer_t *)ptr;
-    // LLOGD(("l_timer_handler id=%ld\n", timer->id);
+    // LLOGD("l_timer_handler id=%ld\n", timer->id);
     lua_pushinteger(L, MSG_TIMER);
     lua_pushinteger(L, timer->id);
     lua_pushinteger(L, timer->repeat);
     //lua_pushinteger(L, timer->timeout);
     if (timer->repeat == 0) {
+        // LLOGD("l_timer_handler stop id=%ld\n", timer->id);
         luat_timer_stop(timer);
         luat_heap_free(timer);
     }
@@ -102,7 +103,7 @@ static int l_rtos_timer_start(lua_State *L) {
 @return nil            无返回值
 @usage
 -- 用户代码请使用sys.timerStop
-rtos.timer_stop(100000)
+rtos.timer_stop(id)
 */
 static int l_rtos_timer_stop(lua_State *L) {
     luat_timer_t *timer = NULL;
@@ -151,7 +152,7 @@ static int l_rtos_build_date(lua_State *L) {
 @api    rtos.bsp()
 @return string 硬件bsp型号
 @usage
--- 获取编译日期
+-- 获取硬件bsp型号
 local bsp = rtos.bsp()
 */
 static int l_rtos_bsp(lua_State *L) {
@@ -178,8 +179,8 @@ static int l_rtos_version(lua_State *L) {
 @int    休眠时长,单位毫秒     
 @return nil  无返回值
 @usage
--- 读取版本号
-local luatos_version = rtos.version()
+-- 进入待机模式
+rtos.standby(5000)
 */
 static int l_rtos_standy(lua_State *L) {
     int timeout = luaL_checkinteger(L, 1);
@@ -232,6 +233,39 @@ static int l_rtos_firmware(lua_State *L) {
     return 1;
 }
 
+extern char custom_search_paths[4][24];
+
+/*
+设置自定义lua脚本搜索路径,优先级高于内置路径
+@api    rtos.setPaths(pathA, pathB, pathC, pathD)
+@string 路径A, 例如 "/sdcard/%s.luac",若不传值,将默认为"",另外,最大长度不能超过23字节
+@string 路径B, 例如 "/sdcard/%s.lua"
+@string 路径C, 例如 "/lfs2/%s.luac"
+@string 路径D, 例如 "/lfs2/%s.lua"
+@usage
+-- 挂载sd卡或者spiflash后
+rtos.setPaths("/sdcard/user/%s.luac", "/sdcard/user/%s.lua")
+require("sd_user_main") -- 将搜索并加载 /sdcard/user/sd_user_main.luac 和 /sdcard/user/sd_user_main.lua
+*/
+static int l_rtos_set_paths(lua_State *L) {
+    size_t len = 0;
+    const char* str = NULL;
+    for (size_t i = 0; i < 4; i++)
+    {
+        if (lua_isstring(L, i +1)) {
+            str = luaL_checklstring(L, i+1, &len);
+            memcpy(custom_search_paths[i], str, len + 1);
+        }
+        else {
+            custom_search_paths[i][0] = 0x00;
+        }
+    }
+    return 0;
+}
+
+static int l_rtos_nop(lua_State *L) {
+    return 0;
+}
 //------------------------------------------------------------------
 #include "rotable.h"
 static const rotable_Reg reg_rtos[] =
@@ -247,6 +281,8 @@ static const rotable_Reg reg_rtos[] =
     { "version",           l_rtos_version,     0},
     { "meminfo",           l_rtos_meminfo,     0},
     { "firmware",          l_rtos_firmware,    0},
+    { "setPaths",          l_rtos_set_paths,   0},
+    { "nop",               l_rtos_nop,   0},
 
     { "INF_TIMEOUT",        NULL,              -1},
 
@@ -263,5 +299,9 @@ LUAMOD_API int luaopen_rtos( lua_State *L ) {
 }
 
 LUAT_WEAK const char* luat_version_str(void) {
+    #ifdef LUAT_BSP_VERSION
+    return LUAT_BSP_VERSION;
+    #else
     return LUAT_VERSION;
+    #endif
 }

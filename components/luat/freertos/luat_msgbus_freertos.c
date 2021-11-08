@@ -1,9 +1,9 @@
 
 #include "luat_msgbus.h"
-
+/*esp32*/
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-
+/*esp32*/
 #define QUEUE_LENGTH 0xFF
 #define ITEM_SIZE sizeof(rtos_msg_t)
 

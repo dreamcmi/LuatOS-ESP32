@@ -129,13 +129,14 @@ int luat_spi_close(int spi_id)
         return -1;
 }
 
-int luat_spi_transfer(int spi_id, const char *send_buf, char *recv_buf, size_t length)
+int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char *recv_buf, size_t recv_length)
 {
     if (spi_id == 2)
     {
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
-        t.length = length * 8;
+        t.length = send_length * 8;
+        t.rxlength = recv_length * 8;
         t.tx_buffer = send_buf;
         t.rx_buffer = recv_buf;
         esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
@@ -173,7 +174,7 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
     {
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
-        t.length = length * 8;
+        t.rxlength = length * 8;
         t.rx_buffer = recv_buf;
         esp_err_t err = spi_device_polling_transmit(spi_handle, &t);
         ESP_ERROR_CHECK(err);

@@ -659,20 +659,20 @@ static int g_write (lua_State *L, FILE *f, int arg) {
   int nargs = lua_gettop(L) - arg;
   int status = 1;
   for (; nargs--; arg++) {
-    if (lua_type(L, arg) == LUA_TNUMBER) {
-      /* optimization: could be done exactly as for strings */
-      int len = lua_isinteger(L, arg)
-                ? fprintf(f, LUA_INTEGER_FMT,
-                             (LUAI_UACINT)lua_tointeger(L, arg))
-                : fprintf(f, LUA_NUMBER_FMT,
-                             (LUAI_UACNUMBER)lua_tonumber(L, arg));
-      status = status && (len > 0);
-    }
-    else {
+    // if (lua_type(L, arg) == LUA_TNUMBER) {
+    //   /* optimization: could be done exactly as for strings */
+    //   int len = lua_isinteger(L, arg)
+    //             ? fprintf(f, LUA_INTEGER_FMT,
+    //                          (LUAI_UACINT)lua_tointeger(L, arg))
+    //             : fprintf(f, LUA_NUMBER_FMT,
+    //                          (LUAI_UACNUMBER)lua_tonumber(L, arg));
+    //   status = status && (len > 0);
+    // }
+    // else {
       size_t l;
       const char *s = luaL_checklstring(L, arg, &l);
       status = status && (fwrite(s, sizeof(char), l, f) == l);
-    }
+    // }
   }
   if (status) return 1;  /* file handle already on stack top */
   else return luaL_fileresult(L, status, NULL);
@@ -728,7 +728,11 @@ static int f_setvbuf (lua_State *L) {
 
 
 static int f_flush (lua_State *L) {
+#ifdef LUA_USE_WINDOWS
   return luaL_fileresult(L, fflush(tofile(L)) == 0, NULL);
+#else
+  return 0;
+#endif
 }
 
 #include "luat_malloc.h"
@@ -744,7 +748,7 @@ static int io_exists (lua_State *L) {
 
 static int io_fileSize (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
-  FILE* f = fopen(filename, "r");
+  FILE* f = fopen(filename, "rb");
   if(f == NULL)
     return 0;
   int r = fseek(f, 0, SEEK_END);
@@ -758,7 +762,7 @@ static int io_fileSize (lua_State *L) {
 
 static int io_readFile (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
-  const char *mode = luaL_optstring(L, 2, "r");
+  const char *mode = luaL_optstring(L, 2, "rb");
   FILE* f = fopen(filename, mode);
   if(f == NULL)
     return 0;
@@ -790,6 +794,55 @@ static int io_writeFile (lua_State *L) {
   lua_pushboolean(L,1);
   return 1;
 }
+
+#ifdef LUAT_USE_ZBUFF
+#include "luat_zbuff.h"
+/*
+读取文件并填充到zbuff内
+@api io.fill(buff, offset, len)
+@userdata zbuff实体
+@int 写入的位置,默认是0
+@int 写入的长度,默认是zbuff的len减去offset
+@return 成功返回true,否则返回false
+@usage
+local buff = zbuff.create(1024)
+local f = io.open("/sd/test.txt")
+if f then
+  f:fill(buff)
+end
+*/
+static int f_fill(lua_State *L) {
+  FILE* f = tofile(L);
+  luat_zbuff_t* buff;
+  int offset;
+  int len;
+  if (!lua_isuserdata(L, 2)) {
+    return 0;
+  }
+  if (f == NULL)
+    return 0;
+  buff = luaL_checkudata(L, 2, LUAT_ZBUFF_TYPE);
+  if (lua_isinteger(L, 3)) {
+    offset = luaL_checkinteger(L, 3);
+  }
+  else {
+    offset = 0;
+  }
+  if (lua_isinteger(L, 4)) {
+    len = luaL_checkinteger(L, 4);
+    if (len > buff->len)
+      len = buff->len;
+    if (offset + len > buff->len)
+      len = len - offset;
+  }
+  else {
+    len = buff->len - offset;
+  }
+  len = fread(buff->addr + offset, 1, len, f);
+  lua_pushboolean(L, len >= 0 ? 1 : 0);
+  return 1;
+}
+#endif
 
 /*
 ** functions for 'io' library
@@ -828,17 +881,38 @@ static const luaL_Reg flib[] = {
   {"seek", f_seek},
   {"setvbuf", f_setvbuf},
   {"write", f_write},
+#ifdef LUAT_USE_ZBUFF
+  {"fill", f_fill},
+#endif
   {"__gc", f_gc},
   {"__tostring", f_tostring},
   {NULL, NULL}
 };
 
+static int luat_io_meta_index(lua_State *L) {
+    if (lua_isstring(L, 2)) {
+        const char* keyname = luaL_checkstring(L, 2);
+        //printf("zbuff keyname = %s\n", keyname);
+        int i = 0;
+        while (1) {
+            if (flib[i].name == NULL) break;
+            if (!strcmp(keyname, flib[i].name)) {
+                lua_pushcfunction(L, flib[i].func);
+                return 1;
+            }
+            i++;
+        }
+    }
+    return 0;
+}
+
 
 static void createmeta (lua_State *L) {
   luaL_newmetatable(L, LUA_FILEHANDLE);  /* create metatable for file handles */
-  lua_pushvalue(L, -1);  /* push metatable */
+  //lua_pushvalue(L, -1);  /* push metatable */
+  lua_pushcfunction(L, luat_io_meta_index);
   lua_setfield(L, -2, "__index");  /* metatable.__index = metatable */
-  luaL_setfuncs(L, flib, 0);  /* add file methods to new metatable */
+  //luaL_setfuncs(L, flib, 0);  /* add file methods to new metatable */
   lua_pop(L, 1);  /* pop new metatable */
   //lua_pushvalue(L, -1);
   //lua_newtable( L );

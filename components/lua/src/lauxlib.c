@@ -726,7 +726,8 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
   int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
   if (filename == NULL) {
     lua_pushliteral(L, "=stdin");
-    lf.f = stdin;
+    //lf.f = stdin;
+    return errfile(L, "open", fnameindex);
   }
   else {
     lua_pushfstring(L, "@%s", filename);
@@ -989,17 +990,21 @@ LUALIB_API int luaL_getsubtable (lua_State *L, int idx, const char *fname) {
 */
 LUALIB_API void luaL_requiref (lua_State *L, const char *modname,
                                lua_CFunction openf, int glb) {
+  // luaL_getsubtable 这个语句并不能直接删掉
+  // 原因在于, 在其他代码中, 会默认LUA_LOADED_TABLE对应的_LOADED表存在, 这点可以通过搜索LUA_LOADED_TABLE来确认
+  // 其他代码都是直接获取这个表或表内的元素, 只有这里会调用luaL_getsubtable,而luaL_getsubtable在表不存在时会创建
   luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
-  lua_getfield(L, -1, modname);  /* LOADED[modname] */
-  if (!lua_toboolean(L, -1)) {  /* package not already loaded? */
-    lua_pop(L, 1);  /* remove field */
+  lua_pop(L, 1);
+  //lua_getfield(L, -1, modname);  /* LOADED[modname] */
+  //if (!lua_toboolean(L, -1)) {  /* package not already loaded? */
+  // lua_pop(L, 1);  /* remove field */
     lua_pushcfunction(L, openf);
     lua_pushstring(L, modname);  /* argument to open function */
     lua_call(L, 1, 1);  /* call 'openf' to open module */
-    lua_pushvalue(L, -1);  /* make copy of module (call result) */
-    lua_setfield(L, -3, modname);  /* LOADED[modname] = module */
-  }
-  lua_remove(L, -2);  /* remove LOADED table */
+  // lua_pushvalue(L, -1);  /* make copy of module (call result) */
+  // lua_setfield(L, -3, modname);  /* LOADED[modname] = module */
+  //}
+  //lua_remove(L, -2);  /* remove LOADED table */
   if (glb) {
     lua_pushvalue(L, -1);  /* copy of module */
     lua_setglobal(L, modname);  /* _G[modname] = module */
@@ -1024,28 +1029,29 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s, const char *p,
 }
 
 
-static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
-  (void)ud; (void)osize;  /* not used */
-  if (nsize == 0) {
-    free(ptr);
-    return NULL;
-  }
-  else
-    return realloc(ptr, nsize);
-}
+// static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
+  // (void)ud; (void)osize;  /* not used */
+  // if (nsize == 0) {
+  //   free(ptr);
+  //   return NULL;
+  // }
+  // else
+  //   return realloc(ptr, nsize);
+// }
 
 
-static int panic (lua_State *L) {
-  lua_writestringerror("PANIC: unprotected error in call to Lua API (%s)\n",
-                        lua_tostring(L, -1));
-  return 0;  /* return to Lua to abort */
-}
+// static int panic (lua_State *L) {
+//   lua_writestringerror("PANIC: unprotected error in call to Lua API (%s)\n",
+//                         lua_tostring(L, -1));
+//   return 0;  /* return to Lua to abort */
+// }
 
 
 LUALIB_API lua_State *luaL_newstate (void) {
-  lua_State *L = lua_newstate(l_alloc, NULL);
-  if (L) lua_atpanic(L, &panic);
-  return L;
+  // lua_State *L = lua_newstate(l_alloc, NULL);
+  // if (L) lua_atpanic(L, &panic);
+  // return L;
+  return NULL;
 }
 
 

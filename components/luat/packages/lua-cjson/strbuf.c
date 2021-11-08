@@ -28,24 +28,23 @@
 #include <string.h>
 #include "strbuf.h"
 
+#include "luat_base.h"
+#include "luat_malloc.h"
+
+#define LUAT_LOG_TAG "cjson"
+#include "luat_log.h"
+
 #ifdef WIN32
 #define vsnprintf _vsnprintf
 #endif
 
-#define L_MALLOC malloc
-#define L_FREE  free
-#define L_REALLOC  realloc
+#define L_MALLOC luat_heap_malloc
+#define L_FREE  luat_heap_free
+#define L_REALLOC  luat_heap_realloc
 
 static void die(const char *fmt, ...)
 {
-#if 0
-    va_list arg;
-
-    va_start(arg, fmt);
-    vfprintf(stderr, fmt, arg);
-    va_end(arg);
-    fprintf(stderr, "\n");
-#endif
+    LLOGD("%s", fmt);
     exit(-1);
 }
 
