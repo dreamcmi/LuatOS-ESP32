@@ -152,7 +152,8 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
     {
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
-        t.length = length * 8;
+        t.length = send_length * 8;
+        t.rxlength = recv_length * 8;
         t.tx_buffer = send_buf;
         t.rx_buffer = recv_buf;
         esp_err_t err = spi_device_polling_transmit(spi3_handle, &t);
