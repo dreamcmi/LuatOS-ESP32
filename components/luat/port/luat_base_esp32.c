@@ -43,13 +43,14 @@ static const luaL_Reg loadedlibs[] = {
     {"i2c", luaopen_i2c},     // I2C操作
     {"spi", luaopen_spi},     // SPI操作
     {"uart",luaopen_uart},    // UART操作
-    {"pwm",luaopen_pwm},      // PWM操作
+    // {"pwm",luaopen_pwm},      // PWM操作
     {"wlan", luaopen_wlan},   // wlan/wifi联网操作
     {"lwip",luaopen_lwip},    // lwip操作
     // {"ble",luaopen_ble},      // ble操作
     // {"espnow",luaopen_espnow},// espnow操作
     // {"rmt",luaopen_rmt},      // rmt操作
     {"esp32",luaopen_esp32},  // esp32专用库
+    {"pwm2",luaopen_pwm2},    // pwm2
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数

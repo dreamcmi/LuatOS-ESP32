@@ -102,3 +102,5 @@ LUAMOD_API int luaopen_espnow(lua_State *L);
 LUAMOD_API int luaopen_rmt(lua_State *L);
 /** esp32专用库 **/
 LUAMOD_API int luaopen_esp32(lua_State *L);
+/** pwm2 esp32平台 **/
+LUAMOD_API int luaopen_pwm2(lua_State *L);
