@@ -1,6 +1,12 @@
 #include "luat_base.h"
+
 #include "esp_log.h"
 #include "esp_system.h"
+#include "esp_sleep.h"
+#include "driver/gpio.h"
+#include "driver/uart.h"
+#include "esp_timer.h"
+
 #include <string.h>
 
 /*
@@ -13,14 +19,13 @@ esp32.getmac(0)
 */
 static int l_esp32_getmac(lua_State *L)
 {
-    int type = luaL_optinteger(L,1,0);
+    int type = luaL_optinteger(L, 1, 0);
     uint8_t mac[6] = {0};
     esp_read_mac(&mac, type);
     char *macc = (char *)mac;
-    lua_pushlstring(L,macc,6);
+    lua_pushlstring(L, macc, 6);
     return 1;
 }
-
 
 /*
 获取重启原因
@@ -32,7 +37,7 @@ esp32.getRstReason()
 static int l_esp32_get_rst_reason(lua_State *L)
 {
     esp_reset_reason_t reason = esp_reset_reason();
-    lua_pushinteger(L,(int)reason);
+    lua_pushinteger(L, (int)reason);
     return 1;
 }
 
@@ -46,7 +51,7 @@ esp32.random()
 static int l_esp32_random(lua_State *L)
 {
     uint32_t r = esp_random();
-    lua_pushinteger(L,r);
+    lua_pushinteger(L, r);
     return 1;
 }
 
@@ -69,32 +74,94 @@ static int l_esp32_get_chip(lua_State *L)
     lua_newtable(L);
 
     lua_pushstring(L, "chip");
-	lua_pushinteger(L,info.model);
-	lua_settable(L, -3);  
+    lua_pushinteger(L, info.model);
+    lua_settable(L, -3);
 
     lua_pushstring(L, "features");
-	lua_pushinteger(L,info.features);
-	lua_settable(L, -3);  
+    lua_pushinteger(L, info.features);
+    lua_settable(L, -3);
 
     lua_pushstring(L, "cores");
-	lua_pushinteger(L,info.cores);
-	lua_settable(L, -3);  
+    lua_pushinteger(L, info.cores);
+    lua_settable(L, -3);
 
     lua_pushstring(L, "revision");
-	lua_pushinteger(L,info.revision);
-	lua_settable(L, -3);  
+    lua_pushinteger(L, info.revision);
+    lua_settable(L, -3);
 
     return 1;
 }
 
+/*
+获取唤醒原因
+@api esp32.getWakeupCause()
+@return int reason
+@usage
+cause = esp32.getWakeupCause()
+*/
+static int l_esp32_get_wakeup_cause(lua_State *L)
+{
+    esp_sleep_wakeup_cause_t reason = esp_sleep_get_wakeup_cause();
+    lua_pushinteger(L, (int)reason);
+    return 1;
+}
+
+/*
+lightsleep
+@api esp32.enterLightSleep(waketype,pin/rtc,level/nil)
+@int 唤醒类型 gpio(0) rtc(1)
+@int 唤醒条件 gpio(pin) rtc(time:us)
+@int gpio唤醒沿
+@usage
+-- gpio唤醒
+esp32.enterLightSleep(0,9,0)
+-- rtc唤醒
+esp32.enterLightSleep(1,10*1000*1000)
+*/
+static int l_esp32_enter_light_sleep(lua_State *L)
+{
+    int waketype = luaL_checkinteger(L, 1);
+    if (waketype == 0)
+    {
+        int pin = luaL_checkinteger(L, 2);
+        int level = luaL_checkinteger(L, 3);
+        if (!esp_sleep_is_valid_wakeup_gpio(pin))
+        {
+            ESP_LOGE("LPM", "Error wakeup pin:%d", pin);
+            return 0;
+        }
+        gpio_config_t config = {
+            .pin_bit_mask = BIT64(pin),
+            .mode = GPIO_MODE_INPUT};
+        ESP_ERROR_CHECK(gpio_config(&config));
+        gpio_wakeup_enable(pin, level == 0 ? GPIO_INTR_LOW_LEVEL : GPIO_INTR_HIGH_LEVEL);
+        esp_sleep_enable_gpio_wakeup();
+        uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
+        esp_light_sleep_start();
+    }
+    else if (waketype == 1)
+    {
+        int time = luaL_checkinteger(L, 2);
+        esp_sleep_enable_timer_wakeup(time);
+        uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
+        esp_light_sleep_start();
+    }
+    else
+    {
+        ESP_LOGE("LPM", "Error lightsleep type:%d", waketype);
+    }
+    return 0;
+}
 
 #include "rotable.h"
 static const rotable_Reg reg_esp32[] =
     {
-        {"getmac",l_esp32_getmac,0},
-        {"getRstReason",l_esp32_get_rst_reason,0},
-        {"random",l_esp32_random,0},
-        {"getchip",l_esp32_get_chip,0},
+        {"getmac", l_esp32_getmac, 0},
+        {"getRstReason", l_esp32_get_rst_reason, 0},
+        {"random", l_esp32_random, 0},
+        {"getchip", l_esp32_get_chip, 0},
+        {"getWakeupCause",l_esp32_get_wakeup_cause,0},
+        {"enterLightSleep",l_esp32_enter_light_sleep,0},
         {NULL, NULL, 0}};
 
 LUAMOD_API int luaopen_esp32(lua_State *L)
