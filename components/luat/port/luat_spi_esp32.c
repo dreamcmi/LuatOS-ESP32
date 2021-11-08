@@ -8,7 +8,10 @@
 #include "luat_log.h"
 
 static spi_device_handle_t spi_handle = {0};
+
+#if CONFIG_IDF_TARGET_ESP32S3
 static spi_device_handle_t spi3_handle = {0};
+#endif
 
 int luat_spi_setup(luat_spi_t *spi)
 {
