@@ -111,7 +111,7 @@ lightsleep
 @api esp32.enterLightSleep(waketype,pin/rtc,level/nil)
 @int 唤醒类型 gpio(0) rtc(1)
 @int 唤醒条件 gpio(pin) rtc(time:us)
-@int gpio唤醒沿
+@int gpio唤醒沿 0:下降沿 1:上升沿
 @usage
 -- gpio唤醒
 esp32.enterLightSleep(0,9,0)
@@ -153,6 +153,57 @@ static int l_esp32_enter_light_sleep(lua_State *L)
     return 0;
 }
 
+/*
+deepsleep
+@api esp32.enterDeepSleep(waketype,pin/rtc,level/nil)
+@int 唤醒类型 gpio(0) rtc(1)
+@int 唤醒条件 gpio(pin) rtc(time:us)
+@int gpio唤醒沿 0:下降沿 1:上升沿
+@usage
+-- gpio唤醒
+esp32.enterDeepSleep(0,9,0)
+-- rtc唤醒
+esp32.enterDeepSleep(1,10*1000*1000)
+*/
+#if CONFIG_IDF_TARGET_ESP32C3
+static int l_esp32_enter_deep_sleep(lua_State *L)
+{
+    int waketype = luaL_checkinteger(L, 1);
+    if (waketype == 0)
+    {
+        int pin = luaL_checkinteger(L, 2);
+        if (pin >= 0 && pin <= 5)
+        {
+            int level = luaL_checkinteger(L, 3);
+            gpio_config_t config = {
+                .pin_bit_mask = BIT(pin),
+                .mode = GPIO_MODE_INPUT};
+            ESP_ERROR_CHECK(gpio_config(&config));
+            ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level));
+            uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
+            esp_deep_sleep_start();
+        }
+        else
+        {
+            ESP_LOGE("LPM", "Error gpio for deepsleep:%d", pin);
+            return 0;
+        }
+    }
+    else if (waketype == 1)
+    {
+        int time = luaL_checkinteger(L, 2);
+        esp_sleep_enable_timer_wakeup(time);
+        uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
+        esp_deep_sleep_start();
+    }
+    else
+    {
+        ESP_LOGE("LPM", "Error lightsleep type:%d", waketype);
+    }
+    return 0;
+}
+#endif
+
 #include "rotable.h"
 static const rotable_Reg reg_esp32[] =
     {
@@ -160,8 +211,11 @@ static const rotable_Reg reg_esp32[] =
         {"getRstReason", l_esp32_get_rst_reason, 0},
         {"random", l_esp32_random, 0},
         {"getchip", l_esp32_get_chip, 0},
-        {"getWakeupCause",l_esp32_get_wakeup_cause,0},
-        {"enterLightSleep",l_esp32_enter_light_sleep,0},
+        {"getWakeupCause", l_esp32_get_wakeup_cause, 0},
+        {"enterLightSleep", l_esp32_enter_light_sleep, 0},
+#if CONFIG_IDF_TARGET_ESP32C3
+        {"enterDeepSleep", l_esp32_enter_deep_sleep, 0},
+#endif
         {NULL, NULL, 0}};
 
 LUAMOD_API int luaopen_esp32(lua_State *L)
