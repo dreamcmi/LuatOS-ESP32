@@ -32,9 +32,9 @@ jobs:
         run: |
           pip3 install -r tools/requirements.txt
           cd tools/
-          python3 esp32v2.py -t esp32c3 -p
+          python3 esp32v3.py -t esp32c3 -p
           mkdir firmware
-          mv *.soc firmware/
+          mv *.bin firmware/
       - name: Upload firmware
         uses: actions/upload-artifact@main
         with:

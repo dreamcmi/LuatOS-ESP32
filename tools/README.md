@@ -6,7 +6,7 @@
 
 Author : 梦程MI(Darren)
 
-Version : V2.0.0（Date：2021.10.23）
+Version : V3.0.0（Date：2021.11.12）
 
 
 
@@ -24,8 +24,8 @@ Repo = 'D:\gitee\esp32\LuatOS-ESP32\'
 [esp32c3]
 Type = 'uart' #'uart' or 'usb'
 COM = 'COM176'
-Baud = 921600
-Firmware = 'LuatOS-SoC_esp32c3_V0001.soc'
+Baud = '921600'
+Firmware = 'LuatOS-SoC_esp32c3_V0001.bin'
 FsPath = 'demo'
 FsOffset = '0x310000'
 FsSize = '0XF0000'
@@ -41,23 +41,34 @@ FsSize = '0XF0000'
 1. 安装Python3.8
 2. 切换到仓库文件夹，在命令行执行`pip install -r requirements.txt`
 3. 修改`config.toml`中的`COM` `Baud`  `Firmware` `FsPath`为您自己的参数
-4. 执行`python esp32v2.py -h`查看帮助信息，根据您的需求进行使用
+4. 执行`python esp32v3.py -h`查看帮助信息，根据您的需求进行使用
 
 ```shell
-usage: esp32v2.py [-h] [-t TARGET] [-f] [-r] [-p]
+usage: esp32v3.py [-h] [-v] [-t TARGET] [-f] [-r] [-p]
 
-LuatOS-SoC For ESP32 Flash Tool
+ESP32 Flash Tool
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --version         Show version
   -t TARGET, --target TARGET
-                        Chip型号:esp32,es32c3,esp32s2,esp32s3
+                        Chip型号:es32c3,esp32s3
   -f, --fs              下载脚本
   -r, --rom             下载底层固件
   -p, --pkg             打包固件
 ```
 
-## 2、鸣谢
+ ```she
+ 使用示例：
+ esp32c3刷固件：
+ python esp32v3.py -t esp32c3 -r
+ esp32c3刷脚本：
+ python esp32v3.py -t esp32c3 -f
+ ```
+
+
+
+## 3、鸣谢
 
 排名不分前后
 
