@@ -12,8 +12,6 @@ Name | Type | Description
 -----|------|--------------
 `id`|`int`| 通道id,与具体设备有关,通常从0开始
 
-> id可选：32-39
-
 ## 返回值
 
 > `boolean`: 打开结果
@@ -22,10 +20,10 @@ Name | Type | Description
 
 ```lua
 -- 打开adc通道2,并读取
-if adc.open(32) then
-    log.info("adc", adc.read(32))
+if adc.open(2) then
+    log.info("adc", adc.read(2))
 end
-adc.close(32)
+adc.close(2)
 ```
 
 
@@ -44,8 +42,6 @@ Name | Type | Description
 -----|------|--------------
 `id`|`int`| 通道id,与具体设备有关,通常从0开始
 
-> id可选：32-39
-
 ## 返回值
 
 No. | Type | Description
@@ -56,11 +52,7 @@ No. | Type | Description
 ## 调用示例
 
 ```lua
--- 打开adc通道2,并读取
-if adc.open(32) then
-    log.info("adc", adc.read(32))
-end
-adc.close(32)
+log.info("adc", adc.read(2))
 ```
 
 
@@ -79,8 +71,6 @@ Name | Type | Description
 -----|------|--------------
 `id`|`int`| 通道id,与具体设备有关,通常从0开始
 
-> id可选：32-39
-
 ## 返回值
 
 > *无返回值*
@@ -88,10 +78,6 @@ Name | Type | Description
 ## 调用示例
 
 ```lua
--- 打开adc通道2,并读取
-if adc.open(32) then
-    log.info("adc", adc.read(32))
-end
 adc.close(32)
 ```
 

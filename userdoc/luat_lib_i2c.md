@@ -10,7 +10,7 @@ i2c编号是否存在
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`|`int`| 设备id, ESP32C3可选0，ESP32S3可选0,1 
 
 ## 返回值
 
@@ -39,7 +39,7 @@ i2c初始化
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`| `int` | 设备id, ESP32C3可选0，ESP32S3可选0,1 
 
 ## 返回值
 
@@ -70,7 +70,7 @@ i2c发送数据
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`|`int`| 设备id, ESP32C3可选0，ESP32S3可选0,1 
 `addr`|`int`| I2C子设备的地址, 7位地址
 `data`|`string`| 待发送的数据
 
@@ -99,7 +99,7 @@ i2c接收数据
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`|`int`| 设备id, ESP32C3可选0，ESP32S3可选0,1 
 `addr`|`int`| I2C子设备的地址, 7位地址
 `len`|`int`| 手机数据的长度
 
@@ -128,7 +128,7 @@ i2c写寄存器数据
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`|`int`| 设备id, ESP32C3可选0，ESP32S3可选0,1 
 `addr`|`int`| I2C子设备的地址, 7位地址
 `reg`|`int`| 寄存器地址
 `data`|`string`| 待发送的数据
@@ -158,7 +158,7 @@ i2c读寄存器数据
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`|`int`| 设备id, ESP32C3可选0，ESP32S3可选0,1 
 `addr`|`int`| I2C子设备的地址, 7位地址
 `reg`|`int`| 寄存器地址
 `len`|`int`| 待接收的数据长度
@@ -188,7 +188,7 @@ i2c.close(id)
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| 设备id, 当前只能写1 
+`id`|`int`| 设备id, ESP32C3可选0，ESP32S3可选0,1 
 
 ## 返回值
 

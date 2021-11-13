@@ -10,7 +10,7 @@ spi.setup(id, cs, CPHA, CPOL, dataw, bandrate, bitdict, ms, mode)
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| SPI号,1对应SPI2_HOST,2对应SPI3_HOST 
+`id`|`int`| SPI号,2对应SPI2_HOST,3对应SPI3_HOST 
 `cs`|`int`| CS 片选脚,暂不可用,请填nil
 `CPHA`|`int`| CPHA 默认0,可选0/1
 `CPOL`|`int`| CPOL 默认0,可选0/1
@@ -38,7 +38,7 @@ spi.close(id)
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| SPI号,例如0
+`id`| `int` | SPI号,2对应SPI2_HOST,3对应SPI3_HOST 
 
 ## 返回值
 
@@ -58,7 +58,7 @@ spi.transfer(id, send_data)
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| SPI号,1对应SPI2_HOST,2对应SPI3_HOST 
+`id`| `int`    | SPI号,2对应SPI2_HOST,3对应SPI3_HOST 
 `send_data`|`string`| 待发送的数据
 
 ## 返回值
@@ -79,7 +79,7 @@ spi.recv(id, size)
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| SPI号,1对应SPI2_HOST,2对应SPI3_HOST 
+`id`|`int`| SPI号,2对应SPI2_HOST,3对应SPI3_HOST 
 `size`|`int`| 数据长度
 
 ## 返回值
@@ -100,7 +100,7 @@ spi.send(id, data)
 
 Name | Type | Description
 -----|------|--------------
-`id`|`int`| SPI号,1对应SPI2_HOST,2对应SPI3_HOST 
+`id`|`int`| SPI号,2对应SPI2_HOST,3对应SPI3_HOST 
 `data`|`string`| 待发送的数据
 
 ## 返回值
