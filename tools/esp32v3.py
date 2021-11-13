@@ -76,6 +76,9 @@ def pkgRom(chip):
         # 查找固件位置
         flasher_args = open(config['pkg']['Repo'] + 'build/' + "flasher_args.json", 'r', encoding='utf-8')
         j = json.load(flasher_args)
+        if j['extra_esptool_args']['chip'] != chip:
+            logging.error("The selected chip is inconsistent with the build")
+            sys.exit(-1)
         ss = sorted(
             ((o, f) for (o, f) in j['flash_files'].items()),
             key=lambda x: int(x[0], 0),
