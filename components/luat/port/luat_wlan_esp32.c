@@ -86,7 +86,7 @@ static int l_wlan_get_mode(lua_State *L)
 }
 
 /*
-设置wifi模式,通常不需要设置
+设置wifi模式
 @api wlan.setMode(mode)
 @int 模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP
 @return int   成功返回1,否则返回0
