@@ -56,7 +56,7 @@ static int l_socket_connect(lua_State *L)
 }
 
 /*
-发送数据
+发送数据(阻塞)
 @api socket.send(sock_handle,data)
 @int sock_handle
 @string data
@@ -75,7 +75,7 @@ static int l_socket_send(lua_State *L)
 }
 
 /*
-接收数据(非阻塞)
+接收数据(阻塞)
 @api socket.recv(sock_handle)
 @int sock_handle
 @return string data
@@ -102,7 +102,7 @@ static int l_socket_recv(lua_State *L)
 }
 
 /*
-销毁socket
+销毁socket(阻塞)
 @api socket.close(sock_handle)
 @int sock_handle
 @return none
