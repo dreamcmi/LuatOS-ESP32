@@ -12,21 +12,33 @@ sys.taskInit(
         ret = wlan.init()
         log.info("wlan", "wlan_init:", ret)
         wlan.setMode(wlan.STATION)
-        wlan.connect("lua123456", "lua123456")
-
+        repeat
+            werr = wlan.connect("lua123456", "lua123456")
+            log.info("wlan", "wait connect")
+        until (werr == 1)
+        log.info("wlan", "connected")
+        
         sys.wait(2 * 1000) -- 稍微延时下
 
         log.info("socket", "begin socket")
         local sock = socket.creat(socket.TCP) -- tcp
-        -- log.info("socket", "sock", sock)
-        socket.connect(sock, "112.125.89.8", 33863)
-        socket.send(sock, "hello lua esp32c3")
+
+        repeat
+            err = socket.connect(sock, "112.125.89.8", 37300)
+            print("socket connect wait")
+            sys.wait(1000)
+        until (err == 0)
+        log.info("socket", "connected")
+
+        len = socket.send(sock, "hello lua esp32c3")
+        log.info("socket", "sendlen", len)
+
         while 1 do
             local data, len = socket.recv(sock)
             if data ~= nil then
                 if data == "close" then
                     socket.close(sock)
-                    break
+                    log.info("socket", "close")
                 end
                 log.info("socket", "len", len)
                 log.info("socket", "data", data)

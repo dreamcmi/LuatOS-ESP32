@@ -21,8 +21,10 @@ sock = socket.creat(socket.TCP)
 */
 static int l_socket_creat(lua_State *L)
 {
+    int flags = 0;
     int sockType = luaL_checkinteger(L, 1);
     int sock = socket(AF_INET, sockType, IPPROTO_IP);
+    fcntl(sock, F_GETFL); // 设置非阻塞
     lua_pushinteger(L, sock);
     return 1;
 }
@@ -56,7 +58,7 @@ static int l_socket_connect(lua_State *L)
 }
 
 /*
-发送数据(阻塞)
+发送数据
 @api socket.send(sock_handle,data)
 @int sock_handle
 @string data
@@ -75,7 +77,7 @@ static int l_socket_send(lua_State *L)
 }
 
 /*
-接收数据(阻塞)
+接收数据
 @api socket.recv(sock_handle)
 @int sock_handle
 @return string data
@@ -90,7 +92,7 @@ static int l_socket_recv(lua_State *L)
     int len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
     if (len < 0)
     {
-        ESP_LOGE(TAG, "recv failed: errno %d", errno);
+        // ESP_LOGE(TAG, "recv failed: errno %d", errno);
         return 0;
     }
     else
@@ -102,7 +104,7 @@ static int l_socket_recv(lua_State *L)
 }
 
 /*
-销毁socket(阻塞)
+销毁socket
 @api socket.close(sock_handle)
 @int sock_handle
 @return none
