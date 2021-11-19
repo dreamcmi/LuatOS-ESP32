@@ -33,6 +33,7 @@ static const luaL_Reg loadedlibs[] = {
     {LUA_BITLIBNAME, luaopen_bit32}, // 不太可能启用
 #endif
     {"rtos", luaopen_rtos},   // rtos底层库, 核心功能是队列和定时器
+    {"fs",luaopen_fs},        // FS
     {"log", luaopen_log},     // 日志库
     {"timer", luaopen_timer}, // 延时库
     {"crypto", luaopen_crypto},// 加密和hash库
