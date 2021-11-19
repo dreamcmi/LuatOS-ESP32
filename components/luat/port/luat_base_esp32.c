@@ -48,7 +48,7 @@ static const luaL_Reg loadedlibs[] = {
     {"wlan", luaopen_wlan},   // wlan/wifi联网操作
     // {"lwip",luaopen_lwip},    // lwip操作
     // {"ble",luaopen_ble},      // ble操作
-    // {"espnow",luaopen_espnow},// espnow操作
+    {"espnow",luaopen_espnow},// espnow操作
     // {"rmt",luaopen_rmt},      // rmt操作
     {"esp32",luaopen_esp32},  // esp32专用库
     {"pwm2",luaopen_pwm2},    // pwm2
