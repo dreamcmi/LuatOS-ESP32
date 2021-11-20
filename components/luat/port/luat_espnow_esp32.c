@@ -18,8 +18,7 @@ static const char *broadcast_mac = "\377\377\377\377\377\377"; // FF:FF:FF:FF:FF
 static int l_espnow_handler(lua_State *L, void *ptr)
 {
     rtos_msg_t *msg = (rtos_msg_t *)lua_topointer(L, -1);
-    espnow_event_handle_t *evt = malloc(sizeof(espnow_event_handle_t));
-    evt = ptr;
+    espnow_event_handle_t *evt = (espnow_event_handle_t *)ptr;
     // ESP_LOGD(TAG, "enter handler");
     int type = msg->arg1;
     switch (type)
@@ -63,8 +62,9 @@ static void espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status
     else
     {
         ESP_LOGD(TAG, "send ok : " MACSTR " :status:%d", MAC2STR(mac_addr), status);
-        memcpy(evt->send_mac_addr, mac_addr, ESP_NOW_ETH_ALEN);
+        evt->send_mac_addr = mac_addr;
         evt->status = status;
+
         msg.handler = l_espnow_handler;
         msg.ptr = (espnow_event_handle_t *)evt;
         msg.arg1 = 2; // send = 2
@@ -86,8 +86,8 @@ static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len
     else
     {
         ESP_LOGD(TAG, "Recv data to " MACSTR ", len: %d ,data: %s", MAC2STR(mac_addr), len, data);
-        memcpy(evt->recv_mac_addr, mac_addr, ESP_NOW_ETH_ALEN);
-        memcpy(evt->data, data, len);
+        evt->recv_mac_addr = mac_addr;
+        evt->data = data;
         evt->data_len = len;
 
         msg.handler = l_espnow_handler;
@@ -193,7 +193,6 @@ espnow发送
 @usage 
 espnow.send(string.fromHex("0016EAAE3C40"),"espnow")
 */
-
 static int l_espnow_send(lua_State *L)
 {
     size_t len = 0;

@@ -23,13 +23,13 @@
 //     espnow_event_recv_cb_t *recv_cb;
 // } espnow_event_info_t;
 
-typedef struct 
+typedef struct
 {
-    uint8_t *send_mac_addr;
+    const uint8_t *send_mac_addr;
     int status;
-    
-    uint8_t *recv_mac_addr;
-    uint8_t *data;
+
+    const uint8_t *recv_mac_addr;
+    const uint8_t *data;
     int data_len;
 } espnow_event_handle_t;
 
