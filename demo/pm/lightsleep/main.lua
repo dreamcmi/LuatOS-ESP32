@@ -9,7 +9,7 @@ sys.taskInit(
     function()
         while 1 do
             log.info("lightsleep", "I want to sleep, press gpio9 to wake me up")
-            esp32.enterLightSleep(0, 9, 0)
+            esp32.enterLightSleep(esp32.GPIO, 9, 0)
             log.info("wakeup", "gpio9")
             sys.wait(1000) -- 硬核消抖？
         end
@@ -21,7 +21,7 @@ sys.taskInit(
 --     function()
 --         while 1 do
 --             log.info("lightsleep", "I want sleep 10s")
---             esp32.enterLightSleep(1, 10 * 1000 * 1000)
+--             esp32.enterLightSleep(esp32.RTC, 10 * 1000 * 1000)
 --             log.info("wakeup", "10s")
 --         end
 --     end

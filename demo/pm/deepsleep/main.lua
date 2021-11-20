@@ -9,7 +9,7 @@ sys.taskInit(
     function()
         while 1 do
             log.info("deepsleep", "I want to sleep, press gpio5 to wake me up")
-            esp32.enterDeepSleep(0, 5, 0) --c3可选0-5 s3可选0-21 (只能是rtc gpio)
+            esp32.enterDeepSleep(esp32.GPIO, 5, 0) --c3可选0-5 s3可选0-21 (只能是rtc gpio)
             log.info("wakeup", "gpio5")
             sys.wait(1000) -- 硬核消抖？
         end
@@ -21,7 +21,7 @@ sys.taskInit(
 --     function()
 --         while 1 do
 --             log.info("deepsleep", "I want sleep 10s")
---             esp32.enterDeepSleep(1, 10 * 1000 * 1000)
+--             esp32.enterDeepSleep(esp32.RTC, 10 * 1000 * 1000)
 --             log.info("wakeup", "10s")
 --         end
 --     end
