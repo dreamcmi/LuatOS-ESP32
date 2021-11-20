@@ -117,7 +117,7 @@ static int l_espnow_init(lua_State *L)
     ESP_ERROR_CHECK(esp_now_init());
     ESP_ERROR_CHECK(esp_now_register_send_cb(espnow_send_cb));
     ESP_ERROR_CHECK(esp_now_register_recv_cb(espnow_recv_cb));
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, 0);
     return 1;
 }
 
@@ -125,7 +125,7 @@ static int l_espnow_init(lua_State *L)
 设置pmk
 @api espnow.setPmk()
 @string pmk
-@return int err
+@return int esp_err
 @usage 
 espnow.setPmk("pmk1234567890123")
 */
@@ -143,7 +143,7 @@ static int l_espnow_set_pmk(lua_State *L)
 @api espnow.addPeer()
 @string mac地址
 @string lmk
-@return int err
+@return int esp_err
 @usage 
 espnow.addPeer(string.fromHex("0016EAAE3C40"),"lmk1234567890123")
 */
@@ -200,27 +200,25 @@ static int l_espnow_send(lua_State *L)
     const char *send_data = luaL_checklstring(L, 2, &len);
 
     esp_err_t err = esp_now_send((const uint8_t *)my_broadcast_mac, (const uint8_t *)send_data, len);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "SEND ERR:%x", err);
-        lua_pushinteger(L, err);
-        return 1;
-    }
-    // ESP_LOGD(TAG, "send ok");
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, err);
     return 1;
 }
 
 /*
 去初始化espnow
 @api espnow.deinit()
-@return int  
+@return int  esp_err
 @usage 
 espnow.deinit()
 */
 static int l_espnow_deinit(lua_State *L)
 {
-    esp_err_t err = esp_now_deinit();
+    esp_err_t err = -1;
+    err = esp_wifi_stop();
+    ESP_ERROR_CHECK(err);
+    err = esp_event_loop_delete_default();
+    ESP_ERROR_CHECK(err);
+    err = esp_now_deinit();
     lua_pushinteger(L, err);
     return 1;
 }
