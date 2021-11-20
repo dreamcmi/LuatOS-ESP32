@@ -16,43 +16,32 @@
 static int l_ble_init(lua_State *L)
 {
     esp_err_t ret = ESP_FAIL;
-
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-
     ret = esp_bt_controller_init(&bt_cfg);
     ESP_ERROR_CHECK(ret);
-
     ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
     ESP_ERROR_CHECK(ret);
-
     ret = esp_bluedroid_init();
     ESP_ERROR_CHECK(ret);
-
     ret = esp_bluedroid_enable();
     ESP_ERROR_CHECK(ret);
-
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, ret);
     return 1;
 }
 
 static int l_ble_deinit(lua_State *L)
 {
     esp_err_t ret = ESP_FAIL;
-
     ret = esp_bluedroid_disable();
     ESP_ERROR_CHECK(ret);
-
     ret = esp_bluedroid_deinit();
     ESP_ERROR_CHECK(ret);
-
     ret = esp_bt_controller_disable();
     ESP_ERROR_CHECK(ret);
-
     ret = esp_bt_controller_deinit();
     ESP_ERROR_CHECK(ret);
-
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, ret);
     return 1;
 }
 

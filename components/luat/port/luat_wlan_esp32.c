@@ -89,7 +89,7 @@ static int l_wlan_get_mode(lua_State *L)
 设置wifi模式
 @api wlan.setMode(mode)
 @int 模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP
-@return int   成功返回1,否则返回0
+@return int   返回esp_err
 @usage 
 -- 将wlan设置为wifi客户端模式
 wlan.setMode(wlan.STATION) 
@@ -105,7 +105,7 @@ static int l_wlan_set_mode(lua_State *L)
     case WIFI_MODE_AP:
     case WIFI_MODE_APSTA:
         err = esp_wifi_set_mode(mode);
-        lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+        lua_pushinteger(L, err);
         return 1;
     default:
         return luaL_error(L, "invalid wifi mode %d", mode);
@@ -115,7 +115,7 @@ static int l_wlan_set_mode(lua_State *L)
 /*
 初始化wifi
 @api wlan.init()
-@return int   成功返回1,否则返回0
+@return int   返回esp_err
 @usage 
 -- 在使用wifi前初始化一下
 wlan.init()
@@ -124,11 +124,11 @@ static int l_wlan_init(lua_State *L)
 {
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_err_t err = esp_wifi_init(&cfg);
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip));
-    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    esp_err_t err = esp_wifi_init(&cfg);
+    lua_pushinteger(L, err);
     return 1;
 }
 
@@ -137,7 +137,7 @@ static int l_wlan_init(lua_State *L)
 @api wlan.connect(ssid,password)
 @string  ssid  wifi的SSID
 @string password wifi的密码,可选
-@return int 成功返回1,否则返回0
+@return int 返回esp_err
 @usage 
 -- 连接到uiot,密码1234567890
 wlan.connect("uiot", "1234567890")
@@ -162,14 +162,14 @@ static int l_wlan_connect(lua_State *L)
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
     esp_err_t err = (esp_wifi_start());
-    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    lua_pushinteger(L, err);
     return 1;
 }
 
 /*
 断开wifi
 @api wlan.disconnect()
-@return int 成功返回1,否则返回0
+@return int 返回esp_err
 @usage
 -- 断开wifi连接 
 wlan.disconnect()
@@ -177,22 +177,27 @@ wlan.disconnect()
 static int l_wlan_disconnect(lua_State *L)
 {
     esp_err_t err = esp_wifi_disconnect();
-    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    lua_pushinteger(L, err);
     return 1;
 }
 
 /*
 去初始化wifi
 @api wlan.deinit()
-@return int 成功返回1,否则返回0
+@return int 返回esp_err
 @usage
 -- 去初始化wifi
 wlan.deinit()
 */
 static int l_wlan_deinit(lua_State *L)
 {
-    esp_err_t err = esp_wifi_deinit();
-    lua_pushinteger(L, err == ESP_OK ? 1 : 0);
+    esp_err_t err = -1;
+    err = esp_wifi_stop();
+    ESP_ERROR_CHECK(err);
+    err = esp_event_loop_delete_default();
+    ESP_ERROR_CHECK(err);
+    err = esp_wifi_deinit();
+    lua_pushinteger(L, err);
     return 1;
 }
 
@@ -200,7 +205,7 @@ static int l_wlan_deinit(lua_State *L)
 设置wifi省电
 @api wlan.setps()
 @int 省电等级 0:WIFI_PS_NONE  1:WIFI_PS_MIN_MODEM 2:WIFI_PS_MAX_MODEM
-@return int 成功返回1,否则返回err
+@return int 返回esp_err
 @usage
 wlan.setps(1)
 */
@@ -208,22 +213,23 @@ static int l_wlan_set_ps(lua_State *L)
 {
     int ps = luaL_checkinteger(L, 1);
     esp_err_t err = esp_wifi_set_ps(ps);
-    lua_pushinteger(L, (int)err);
+    lua_pushinteger(L, err);
     return 1;
 }
 
 /*
 获取wifi省电模式
 @api wlan.getps()
-@return int 
+@return int esp_err
 @usage  省电等级 0:WIFI_PS_NONE  1:WIFI_PS_MIN_MODEM 2:WIFI_PS_MAX_MODEM
 wlan.getps()
 */
 static int l_wlan_get_ps(lua_State *L)
 {
+    esp_err_t err = -1;
     wifi_ps_type_t type;
-    esp_wifi_get_ps(&type);
-    lua_pushinteger(L, (int)type);
+    err = esp_wifi_get_ps(&type);
+    lua_pushinteger(L, err);
     return 1;
 }
 
