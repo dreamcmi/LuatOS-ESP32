@@ -216,6 +216,8 @@ static const rotable_Reg reg_esp32[] =
 #if CONFIG_IDF_TARGET_ESP32C3
         {"enterDeepSleep", l_esp32_enter_deep_sleep, 0},
 #endif
+        {"GPIO", NULL, 0},
+        {"RTC", NULL, 1},
         {NULL, NULL, 0}};
 
 LUAMOD_API int luaopen_esp32(lua_State *L)
