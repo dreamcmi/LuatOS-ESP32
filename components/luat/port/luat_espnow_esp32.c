@@ -199,7 +199,7 @@ static int l_espnow_send(lua_State *L)
     const char *my_broadcast_mac = luaL_checklstring(L, 1, &len);
     const char *send_data = luaL_checklstring(L, 2, &len);
 
-    esp_err_t err = esp_now_send((const uint8_t *)my_broadcast_mac, (uint8_t *)send_data, len);
+    esp_err_t err = esp_now_send((const uint8_t *)my_broadcast_mac, (const uint8_t *)send_data, len);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "SEND ERR:%x", err);
