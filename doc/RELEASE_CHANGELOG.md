@@ -86,3 +86,28 @@ Update：
 5. 网络部分(wifi,ble,espnow,lwip,mbedtls)将在后续版本陆续完善。
 6. 当您发现固件有问题时，请在仓库提交issue并等待开发者回复，我们同时欢迎您自行编译固件或者提交pr。
 
+## 2021.11.25
+
+#### ESP32 V0001_BETA3
+
+Fix:
+
+1. ESPNOW 初始化和去初始化参数不完整
+
+Add:
+
+1. ESPNOW基础功能实现
+
+2. socket基础功能实现
+
+3. ESP32S3启用psram
+
+
+
+
+注：ESP32S3发布固件分为两种，主要为了区分psram的接口类型，未接psram的可随意选择无影响。
+
+
+
+
+
