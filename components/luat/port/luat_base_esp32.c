@@ -120,7 +120,3 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
   *total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
 }
 
-void luat_nprint(char *s, size_t l)
-{
-  printf("%s", s);
-}

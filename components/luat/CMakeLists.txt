@@ -5,7 +5,6 @@ idf_component_register(
              port
              ../../../LuatOS/luat/packages/lua-cjson
              ../../../LuatOS/luat/vfs 
-             ../../../LuatOS/luat/weak 
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
             ../../../LuatOS/luat/include 
