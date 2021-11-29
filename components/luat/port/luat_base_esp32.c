@@ -19,6 +19,12 @@
 #endif
 #include "esp_heap_caps.h"
 
+LUAMOD_API int luaopen_espnow(lua_State* L);
+LUAMOD_API int luaopen_rmt(lua_State* L);
+LUAMOD_API int luaopen_esp32(lua_State* L);
+LUAMOD_API int luaopen_espnow(lua_State* L);
+LUAMOD_API int luaopen_pwm2(lua_State* L);
+
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
     {LUA_LOADLIBNAME, luaopen_package}, // require

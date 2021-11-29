@@ -244,3 +244,39 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
     else
         return -1;
 }
+
+// // 初始化总线
+// int luat_spi_bus_setup(luat_spi_device_t* spi_dev) {
+//     return -1;
+// }
+
+// 初始化设备
+int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
+    return -1;
+}
+
+// // 配置设备
+// int luat_spi_device_config(luat_spi_device_t* spi_dev) {
+//     return -1;
+// }
+
+// //关闭SPI设备，成功返回0
+// int luat_spi_device_close(luat_spi_device_t* spi_dev) {
+//     return -1;
+// }
+
+//收发SPI数据，返回接收字节数
+int luat_spi_device_transfer(luat_spi_device_t* spi_dev, const char* send_buf, size_t send_length, char* recv_buf, size_t recv_length) {
+    return -1;
+}
+
+//收SPI数据，返回接收字节数
+int luat_spi_device_recv(luat_spi_device_t* spi_dev, char* recv_buf, size_t length) {
+    return -1;
+}
+
+//发SPI数据，返回发送字节数
+int luat_spi_device_send(luat_spi_device_t* spi_dev, const char* send_buf, size_t length) {
+    return -1;
+}
+
