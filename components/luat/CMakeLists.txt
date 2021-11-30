@@ -5,15 +5,16 @@ idf_component_register(
     SRC_DIRS ../../../LuatOS/luat/modules 
              freertos
              port
-             ../../../LuatOS/luat/packages/lua-cjson
              ../../../LuatOS/luat/vfs
+             ../../../LuatOS/luat/packages/lua-cjson
              ../../../LuatOS/luat/packages/eink
              ../../../LuatOS/luat/packages/epaper
              ../../../LuatOS/luat/packages/qrcode
              ../../../LuatOS/luat/packages/u8g2
+             ../../../LuatOS/luat/packages/lfs
              ../../../LuatOS/components/coremark
              ../../../LuatOS/components/sfud
-             ../../../LuatOS/luat/packages/lfs
+             ../../../LuatOS/components/lcd
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
             ../../../LuatOS/luat/include 
@@ -26,6 +27,7 @@ idf_component_register(
             ../../../LuatOS/luat/packages/lfs
             ../../../LuatOS/components/coremark
             ../../../LuatOS/components/sfud
+            ../../../LuatOS/components/lcd
 
     REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls
 )
