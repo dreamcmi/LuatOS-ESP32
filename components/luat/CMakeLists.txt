@@ -13,6 +13,7 @@ idf_component_register(
              ../../../LuatOS/luat/packages/u8g2
              ../../../LuatOS/components/coremark
              ../../../LuatOS/components/sfud
+             ../../../LuatOS/luat/packages/lfs
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
             ../../../LuatOS/luat/include 
@@ -21,6 +22,8 @@ idf_component_register(
             ../../../LuatOS/luat/packages/epaper
             ../../../LuatOS/luat/packages/qrcode
             ../../../LuatOS/luat/packages/u8g2
+            ../../../LuatOS/luat/packages/fatfs
+            ../../../LuatOS/luat/packages/lfs
             ../../../LuatOS/components/coremark
             ../../../LuatOS/components/sfud
 

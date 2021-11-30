@@ -5,7 +5,7 @@
 
 #define TAG "luat.fs"
 
-// fs的默认实现, 指向poisx的stdio.h声明的方法
+#ifndef LUAT_USE_FS_VFS
 
 LUAT_WEAK FILE* luat_fs_fopen(const char *filename, const char *mode) {
     //LLOGD("fopen %s %s", filename, mode);
@@ -87,3 +87,5 @@ LUAT_WEAK int luat_fs_rmdir(char const* _DirName) {
     LLOGE("not support yet : rmdir");
     return -1;
 }
+
+#endif

@@ -3,10 +3,19 @@
 #define LUAT_BSP_VERSION "V0001"
 
 #define LUAT_MODULE_SEARCH_PATH   "/spiffs/%s.luac", "/spiffs/%s.lua",\
+  "/%s.luac", "/%s.lua",\
+  "/luadb/%s.luac", "/luadb/%s.lua",\
   "/spiffs/lua/%s.luac", "/spiffs/lua/%s.lua",\
   "/spiffs/luadb/%s.luac", "/spiffs/luadb/%s.lua",\
   "",
 
+// #define LUAT_MAIN_DEMO 1
+
+//----------------------------------
+// 使用Luat VFS(虚拟文件系统)和内置库文件, 与esp32的vfs不冲突
+#define LUAT_USE_FS_VFS 1
+#define LUAT_USE_VFS_INLINE_LIB 1
+//----------------------------------
 
 //----------------------------
 // 外设,按需启用, 最起码启用uart
