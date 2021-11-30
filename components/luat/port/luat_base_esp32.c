@@ -50,6 +50,9 @@ static const luaL_Reg loadedlibs[] = {
     {"i2c", luaopen_i2c},     // I2C操作
     {"spi", luaopen_spi},     // SPI操作
     {"uart",luaopen_uart},    // UART操作
+    {"eink", luaopen_eink},   // 墨水屏
+    {"u8g2", luaopen_u8g2},   // oled屏
+    {"disp", luaopen_disp},   // oled屏
     // {"pwm",luaopen_pwm},      // PWM操作
     {"wlan", luaopen_wlan},   // wlan/wifi联网操作
     // {"lwip",luaopen_lwip},    // lwip操作
