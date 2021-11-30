@@ -18,6 +18,8 @@
 #include "esp32s3/rom/ets_sys.h"
 #endif
 #include "esp_heap_caps.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 LUAMOD_API int luaopen_espnow(lua_State* L);
 LUAMOD_API int luaopen_rmt(lua_State* L);
@@ -38,22 +40,116 @@ static const luaL_Reg loadedlibs[] = {
 #if defined(LUA_COMPAT_BITLIB)
     {LUA_BITLIBNAME, luaopen_bit32}, // 不太可能启用
 #endif
-    {"rtos", luaopen_rtos},   // rtos底层库, 核心功能是队列和定时器
-    {"fs",luaopen_fs},        // FS
-    {"log", luaopen_log},     // 日志库
-    {"timer", luaopen_timer}, // 延时库
-    {"crypto", luaopen_crypto},// 加密和hash库
-    {"json", luaopen_cjson},   // json的序列化和反序列化
-    {"zbuff",luaopen_zbuff},  // zbuff
-    {"gpio", luaopen_gpio},   // GPIO脚的操作
-    {"adc", luaopen_adc},     // ADC库
-    {"i2c", luaopen_i2c},     // I2C操作
-    {"spi", luaopen_spi},     // SPI操作
-    {"uart",luaopen_uart},    // UART操作
-    {"eink", luaopen_eink},   // 墨水屏
-    {"u8g2", luaopen_u8g2},   // oled屏
-    {"disp", luaopen_disp},   // oled屏
-    // {"pwm",luaopen_pwm},      // PWM操作
+
+//-----------------------------------------------------------------------
+// 设备驱动类, 可按实际情况删减. 即使最精简的固件, 也强烈建议保留uart库
+#ifdef LUAT_USE_UART
+  {"uart",    luaopen_uart},              // 串口操作
+#endif
+#ifdef LUAT_USE_GPIO
+  {"gpio",    luaopen_gpio},              // GPIO脚的操作
+#endif
+#ifdef LUAT_USE_I2C
+  {"i2c",     luaopen_i2c},               // I2C操作
+#endif
+#ifdef LUAT_USE_SPI
+  {"spi",     luaopen_spi},               // SPI操作
+#endif
+#ifdef LUAT_USE_ADC
+  {"adc",     luaopen_adc},               // ADC模块
+#endif
+#ifdef LUAT_USE_SDIO
+  {"sdio",     luaopen_sdio},             // SDIO模块
+#endif
+#ifdef LUAT_USE_PWM
+  {"pwm",     luaopen_pwm},               // PWM模块
+#endif
+#ifdef LUAT_USE_WDT
+  {"wdt",     luaopen_wdt},               // watchdog模块
+#endif
+#ifdef LUAT_USE_PM
+  {"pm",      luaopen_pm},                // 电源管理模块
+#endif
+#ifdef LUAT_USE_MCU
+  {"mcu",     luaopen_mcu},               // MCU特有的一些操作
+#endif
+#ifdef LUAT_USE_HWTIMER
+  {"hwtimer", luaopen_hwtimer},           // 硬件定时器
+#endif
+#ifdef LUAT_USE_RTC
+  {"rtc", luaopen_rtc},                   // 实时时钟
+#endif
+//-----------------------------------------------------------------------
+// 工具库, 按需选用
+#ifdef LUAT_USE_CRYPTO
+  {"crypto",luaopen_crypto},            // 加密和hash模块
+#endif
+#ifdef LUAT_USE_CJSON
+  {"json",    luaopen_cjson},          // json的序列化和反序列化
+#endif
+#ifdef LUAT_USE_ZBUFF
+  {"zbuff",   luaopen_zbuff},             // 像C语言语言操作内存块
+#endif
+#ifdef LUAT_USE_PACK
+  {"pack",    luaopen_pack},              // pack.pack/pack.unpack
+#endif
+  // {"mqttcore",luaopen_mqttcore},          // MQTT 协议封装
+  // {"libcoap", luaopen_libcoap},           // 处理COAP消息
+
+#ifdef LUAT_USE_GNSS
+  {"libgnss", luaopen_libgnss},           // 处理GNSS定位数据
+#endif
+#ifdef LUAT_USE_FS
+  {"fs",      luaopen_fs},                // 文件系统库,在io库之外再提供一些方法
+#endif
+#ifdef LUAT_USE_SENSOR
+  {"sensor",  luaopen_sensor},            // 传感器库,支持DS18B20
+#endif
+#ifdef LUAT_USE_SFUD
+  {"sfud", luaopen_sfud},              // sfud
+#endif
+#ifdef LUAT_USE_DISP
+  {"disp",  luaopen_disp},              // OLED显示模块,支持SSD1306
+#endif
+#ifdef LUAT_USE_U8G2
+  {"u8g2", luaopen_u8g2},              // u8g2
+#endif
+
+#ifdef LUAT_USE_EINK
+  {"eink",  luaopen_eink},              // 电子墨水屏,试验阶段
+#endif
+
+#ifdef LUAT_USE_LVGL
+#ifndef LUAT_USE_LCD
+#define LUAT_USE_LCD
+#endif
+  {"lvgl",   luaopen_lvgl},
+#endif
+
+#ifdef LUAT_USE_LCD
+  {"lcd",    luaopen_lcd},
+#endif
+#ifdef LUAT_USE_STATEM
+  {"statem",    luaopen_statem},
+#endif
+#ifdef LUAT_USE_GTFONT
+  {"gtfont",    luaopen_gtfont},
+#endif
+#ifdef LUAT_USE_NIMBLE
+  {"nimble",    luaopen_nimble},
+#endif
+#ifdef LUAT_USE_FDB
+  {"fdb",       luaopen_fdb},
+#endif
+#ifdef LUAT_USE_LCDSEG
+  {"lcdseg",       luaopen_lcdseg},
+#endif
+#ifdef LUAT_USE_VMX
+  {"vmx",       luaopen_vmx},
+#endif
+#ifdef LUAT_USE_COREMARK
+  {"coremark", luaopen_coremark},
+#endif
     {"wlan", luaopen_wlan},   // wlan/wifi联网操作
     // {"lwip",luaopen_lwip},    // lwip操作
     // {"ble",luaopen_ble},      // ble操作
@@ -110,10 +206,12 @@ void luat_os_standy(int timeout)
 
 void luat_os_entry_cri(void)
 {
+  vPortEnterCritical();
 }
 
 void luat_os_exit_cri(void)
 {
+  vPortExitCritical();
 }
 
 void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
