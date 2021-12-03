@@ -26,6 +26,7 @@ LUAMOD_API int luaopen_rmt(lua_State* L);
 LUAMOD_API int luaopen_esp32(lua_State* L);
 LUAMOD_API int luaopen_espnow(lua_State* L);
 LUAMOD_API int luaopen_pwm2(lua_State* L);
+LUAMOD_API int luaopen_esphttp(lua_State *L);
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -164,6 +165,9 @@ static const luaL_Reg loadedlibs[] = {
     {"esp32",luaopen_esp32},  // esp32专用库
     {"pwm2",luaopen_pwm2},    // pwm2
     {"socket",luaopen_socket},// socket
+#ifdef LUAT_USE_ESPHTTP
+    {"esphttp", luaopen_esphttp},
+#endif
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数
