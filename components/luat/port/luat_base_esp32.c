@@ -207,6 +207,8 @@ const char *luat_os_bsp(void)
   return "ESP32C3";
 #elif CONFIG_IDF_TARGET_ESP32S3
   return "ESP32S3";
+#else
+  return "esp32";
 #endif
 }
 
@@ -216,12 +218,12 @@ void luat_os_standy(int timeout)
 
 void luat_os_entry_cri(void)
 {
-  vPortEnterCritical();
+  //vPortEnterCritical();
 }
 
 void luat_os_exit_cri(void)
 {
-  vPortExitCritical();
+  //vPortExitCritical();
 }
 
 void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)

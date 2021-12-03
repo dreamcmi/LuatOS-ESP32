@@ -19,6 +19,8 @@
 #define LUAT_HEAP_SIZE (96 * 1024)
 #elif CONFIG_IDF_TARGET_ESP32S3
 #define LUAT_HEAP_SIZE (100 * 1024)
+#else
+#define LUAT_HEAP_SIZE (64 * 1024)
 #endif
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 

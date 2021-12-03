@@ -109,12 +109,12 @@ int luat_uart_exist(int uartid)
 #elif CONFIG_IDF_TARGET_ESP32S3
     if (uartid >= 1 && uartid<=2)
         return 1;
+#else
+    if (uartid == 1)
+        return 1;
 #endif
-    else
-    {
-        ESP_LOGE("UART", "uart%d not exist", uartid);
-        return 0;
-    }
+    ESP_LOGE("UART", "uart%d not exist", uartid);
+    return 0;
 }
 
 int luat_setup_cb(int uartid, int received, int sent)
