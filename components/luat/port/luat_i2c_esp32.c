@@ -65,6 +65,8 @@ int luat_i2c_exist(int id)
         return 1;
     }
     return 0;
+#else
+    return 0;
 #endif
 }
 

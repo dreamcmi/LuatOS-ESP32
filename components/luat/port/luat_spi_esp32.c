@@ -246,19 +246,19 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
 }
 
 // // 初始化总线
-// int luat_spi_bus_setup(luat_spi_device_t* spi_dev) {
-//     return -1;
-// }
-
-// 初始化设备
-int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
+int luat_spi_bus_setup(luat_spi_device_t* spi_dev) {
     return -1;
 }
 
-// // 配置设备
-// int luat_spi_device_config(luat_spi_device_t* spi_dev) {
+// // 初始化设备
+// int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
 //     return -1;
 // }
+
+// // 配置设备
+int luat_spi_device_config(luat_spi_device_t* spi_dev) {
+    return -1;
+}
 
 // //关闭SPI设备，成功返回0
 // int luat_spi_device_close(luat_spi_device_t* spi_dev) {
