@@ -10,4 +10,9 @@
 # set(COMPONENT_ADD_INCLUDEDIRS "include")
 # register_component()
 
-idf_component_register(SRC_DIRS src INCLUDE_DIRS include ../luat/include)
+idf_component_register(
+    SRC_DIRS ../../../LuatOS/lua/src 
+    INCLUDE_DIRS ../../../LuatOS/lua/include 
+        ../../../LuatOS/luat/include
+        ../luat/include
+)
