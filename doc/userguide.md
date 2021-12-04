@@ -36,23 +36,25 @@
 
 #### 1、克隆仓库
 
-`git clone https://gitee.com/dreamcmi/LuatOS-ESP32`
+(1)`git clone https://gitee.com/dreamcmi/LuatOS-ESP32`
 
 `git clone https://github.com/dreamcmi/LuatOS-ESP32`
 
 国内用户有限选择码云，两个链接源码保持一直，克隆一个即可
 
-#### 2、进入本地文件夹，右键使用vscode打开
+(2) `git clone https://gitee.com/openLuat/LuatOS`
 
-#### 3、更改`c_cpp_properties.json`
+克隆luatos主仓库，与LuatOS-ESP32文件夹同级。
 
-将`"compilerPath"`后面路径的用户名改成你的即可
+#### 2、进入LuatOS-ESP32文件夹，右键使用vscode打开
 
-#### 4、更改`settings.json`
+#### 3、配置vscode
 
-将`"idf.customExtraPaths"` `"idf.pythonBinPathWin"` `"idf.toolsPathWin"` 后面路径的用户名改成你的即可
+(1)在vscode界面按F1 找到下图确定
 
-将`"idf.espIdfPathWin"`后面的路径改成你espidf源码所在的地址即可
+![04configesp](../img/04configesp.png)
+
+(2)添加LuatOS文件夹到vscode工作区
 
 ## 四、注意事项
 
