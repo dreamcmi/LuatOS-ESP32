@@ -1,6 +1,3 @@
-
-
-
 idf_component_register(
     SRC_DIRS ../../../LuatOS/luat/modules 
              freertos
@@ -28,7 +25,6 @@ idf_component_register(
             ../../../LuatOS/components/coremark
             ../../../LuatOS/components/sfud
             ../../../LuatOS/components/lcd
-
     REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls
 )
 
