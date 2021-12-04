@@ -21,7 +21,7 @@ jobs:
           cd ~/esp
           git clone -b release/v4.4 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
-          ./install.sh
+          ./install.sh esp32s3
       - name: get LuatOS repo
         run: |
           cd ..
