@@ -22,6 +22,10 @@ jobs:
           git clone -b release/v4.4 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
           ./install.sh
+      - name: get LuatOS repo
+        run: |
+          cd ..
+          git clone https://gitee.com/openLuat/LuatOS
       - name: build s3
         run: |
           source ~/esp/esp-idf/export.sh
