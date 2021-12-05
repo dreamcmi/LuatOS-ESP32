@@ -12,11 +12,8 @@ sys.taskInit(
         ret = wlan.init()
         log.info("wlan", "wlan_init:", ret)
         wlan.setMode(wlan.STATION)
-        repeat
-            werr = wlan.connect("lua123456", "lua123456")
-            log.info("wlan", "wait connect")
-        until (werr == 1)
-        log.info("wlan", "connected")
+        werr = wlan.connect("lua123456", "lua123456")
+        log.info("wlan", "wait connect",werr)
         
         sys.wait(2 * 1000) -- 稍微延时下
 
