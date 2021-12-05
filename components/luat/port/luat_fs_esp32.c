@@ -32,7 +32,7 @@ esp_vfs_spiffs_conf_t spiffs_conf = {
 
 int luat_fs_init(void)
 {
-  ESP_LOGW(TAG, "Initializing SPIFFS\n");
+  printf("Initializing SPIFFS\n");
 
   esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
 
@@ -63,7 +63,7 @@ int luat_fs_init(void)
     printf("Partition size: total: %d, used: %d\n", total, used);
   }
 #ifdef LUAT_USE_FS_VFS
-    luat_vfs_reg(&vfs_fs_posix);
+  luat_vfs_reg(&vfs_fs_posix);
 	luat_fs_conf_t conf = {
 		.busname = "",
 		.type = "posix",

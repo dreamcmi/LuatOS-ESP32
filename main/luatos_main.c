@@ -49,7 +49,7 @@ void app_main(void)
         break;
     }
     #else
-    ESP_LOGE("InitPSRAM","NOT Defined");
+    ESP_LOGE("InitPSRAM","NOT Support");
     bpool(luavm_heap, LUAT_HEAP_SIZE);
     #endif
 
