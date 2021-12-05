@@ -33,14 +33,14 @@ def flashFs(fspath, port, baud, chip, offset, size):
         for root, dirs, name in os.walk(fspath):
             for i in range(len(name)):
                 if name[i].endswith(".lua"):
-                    if useplat == "Windows":
+                    if usePlat == "Windows":
                         cmd = bundle_dir + "\\bin\\luac_536_32bits.exe -o" + " tmp/" + \
                               os.path.basename(name[i]) + "c " + fspath + os.path.basename(name[i])
-                    elif useplat == "Linux":
+                    elif usePlat == "Linux":
                         cmd = bundle_dir + "/bin/luac_536_32bits -o" + " tmp/" + \
                               os.path.basename(name[i]) + "c " + fspath + os.path.basename(name[i])
                     else:
-                        logging.error("The platform {} is not support".format(useplat))
+                        logging.error("The platform {} is not support".format(usePlat))
                     a = os.system(cmd)
                     if a != 0:
                         logging.error("luac failed")
@@ -66,6 +66,7 @@ def flashFs(fspath, port, baud, chip, offset, size):
                                        full_path)
             image = spiffs.to_binary()
             image_file.write(image)
+            image_file.close()
     else:
         logging.error("not support chip")
         sys.exit(-1)
@@ -84,15 +85,16 @@ def flashFs(fspath, port, baud, chip, offset, size):
 def pkgRom(chip):
     if chip == "esp32c3" or chip == "esp32s3":
         # 查找固件位置
-        flasher_args = open(config['pkg']['Repo'] + 'build/' + "flasher_args.json", 'r', encoding='utf-8')
-        j = json.load(flasher_args)
-        if j['extra_esptool_args']['chip'] != chip:
-            logging.error("The selected chip is inconsistent with the build")
-            sys.exit(-1)
-        ss = sorted(
-            ((o, f) for (o, f) in j['flash_files'].items()),
-            key=lambda x: int(x[0], 0),
-        )
+        with open(config['pkg']['Repo'] + 'build/' + "flasher_args.json", 'r', encoding='utf-8') as flash_args:
+            j = json.load(flash_args)
+            if j['extra_esptool_args']['chip'] != chip:
+                logging.error("The selected chip is inconsistent with the build")
+                sys.exit(-1)
+            ss = sorted(
+                ((o, f) for (o, f) in j['flash_files'].items()),
+                key=lambda x: int(x[0], 0),
+            )
+            flash_args.close()
 
         # 获取版本信息
         # logging.info("start get version")
@@ -114,6 +116,7 @@ def pkgRom(chip):
                     break
                 else:
                     versionBsp = "unknown"
+            f.close()
         logging.info("versionBsp:{}".format(versionBsp))
 
         # 判断打包类型
@@ -146,6 +149,8 @@ def pkgRom(chip):
                     data = fin.read()
                     fout.write(data)
                     base_offset += len(data)
+                    fin.close()
+            fout.close()
     else:
         logging.error("not support chip")
         sys.exit(-1)
@@ -175,11 +180,11 @@ def flashRom(rom, port, baud, chip):
 
 
 def get_version():
-    return '3.0.0'
+    return '3.0.1'
 
 
 if __name__ == '__main__':
-    useplat = platform.system()
+    usePlat = platform.system()
     if not os.path.exists("config.toml"):
         logging.error("config.toml not found ,please check")
         sys.exit(-1)
