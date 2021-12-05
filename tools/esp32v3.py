@@ -112,6 +112,8 @@ def pkgRom(chip):
                     vb = re.sub('^#define LUAT_BSP_VERSION', '', line).strip()
                     versionBsp = re.sub(r'"(?!")', '', vb)
                     break
+                else:
+                    versionBsp = "unknown"
         logging.info("versionBsp:{}".format(versionBsp))
 
         # 判断打包类型
@@ -121,12 +123,18 @@ def pkgRom(chip):
             firmware_name = "LuatOS-SoC_" + chip + '_' + \
                             git_sha1.decode() + "_" + \
                             time.strftime("%Y%m%d%H%M%S", time.localtime()) + ".bin"
+            config[chip]['Firmware'] = firmware_name
         elif config['pkg']['Release'] == 1:
             logging.warning("release build")
             firmware_name = "LuatOS-SoC_" + chip + '_' + versionBsp + ".bin"
+            config[chip]['Firmware'] = firmware_name
         else:
             logging.error("release option error")
             sys.exit(-1)
+        # 写入配置
+        with open('config.toml', "w", encoding='utf-8') as f:
+            toml.dump(config, f)
+            f.close()
 
         # 进入合并流程
         base_offset = 0x0
