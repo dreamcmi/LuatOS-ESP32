@@ -4,13 +4,12 @@
 @version 1.0
 @date    2021.05.30
 */
+#include <string.h>
 #include "luat_base.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-#include <string.h>
-#include "esp_event.h"
 #include "luat_msgbus.h"
 
 esp_event_handler_instance_t instance_any_id;

@@ -5,6 +5,7 @@
 
 #include "driver/uart.h"
 #include "esp_log.h"
+static const char *TAG = "LUART";
 
 int luat_uart_setup(luat_uart_t *uart)
 {
@@ -55,7 +56,7 @@ int luat_uart_setup(luat_uart_t *uart)
 #endif
         break;
     default:
-        ESP_LOGE("UART", "UARTID:%d not found", uart->id);
+        ESP_LOGE(TAG, "UARTID:%d not found", uart->id);
         return -1;
         break;
     }
@@ -113,7 +114,7 @@ int luat_uart_exist(int uartid)
     if (uartid == 1)
         return 1;
 #endif
-    ESP_LOGE("UART", "uart%d not exist", uartid);
+    ESP_LOGE(TAG, "uart%d not exist", uartid);
     return 0;
 }
 
