@@ -40,7 +40,7 @@
 
 `git clone https://github.com/dreamcmi/LuatOS-ESP32`
 
-国内用户有限选择码云，两个链接源码保持一直，克隆一个即可
+国内用户优先选择码云，两个链接源码保持一致，克隆一个即可
 
 (2) `git clone https://gitee.com/openLuat/LuatOS`
 

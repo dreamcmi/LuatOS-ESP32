@@ -64,6 +64,8 @@ optional arguments:
  python esp32v3.py -t esp32c3 -r
  esp32c3刷脚本：
  python esp32v3.py -t esp32c3 -f
+esp32c3刷固件+脚本：
+ python esp32v3.py -t esp32c3 -prf
  ```
 
 
