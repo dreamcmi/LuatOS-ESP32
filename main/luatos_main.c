@@ -10,6 +10,8 @@
 #include "freertos/timers.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 
 #ifdef CONFIG_SPIRAM
 #include "spiram_psram.h"
@@ -49,6 +51,7 @@ void app_main(void)
         break;
     }
     #else
+    REG_SET_FIELD(RTC_CNTL_FIB_SEL_REG, RTC_CNTL_FIB_SEL, RTC_CNTL_FIB_SUPER_WDT_RST | RTC_CNTL_FIB_BOR_RST);
     ESP_LOGE("InitPSRAM","NOT Support");
     bpool(luavm_heap, LUAT_HEAP_SIZE);
     #endif
