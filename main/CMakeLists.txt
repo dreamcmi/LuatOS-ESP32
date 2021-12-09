@@ -3,4 +3,4 @@ idf_component_register(SRCS
                     INCLUDE_DIRS "."
                     )
 
-# spiffs_create_partition_image(spiffs ../spiffs FLASH_IN_PROJECT)
+# spiffs_create_partition_image(spiffs ../demo/esp32 FLASH_IN_PROJECT)
