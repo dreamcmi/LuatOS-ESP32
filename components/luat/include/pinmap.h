@@ -1,5 +1,5 @@
-#ifndef __PIN_MAP__
-#define __PIN_MAP__
+#ifndef __PIN_MAP_H__
+#define __PIN_MAP_H__
 
 // ESP32C3
 #define _C3_U1TX        (4)
