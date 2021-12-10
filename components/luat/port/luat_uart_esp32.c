@@ -3,6 +3,7 @@
 #include "luat_log.h"
 #define LUAT_LOG_TAG "luat.uart"
 
+#include "pinmap.h"
 #include "driver/uart.h"
 #include "esp_log.h"
 static const char *TAG = "LUART";
@@ -50,9 +51,9 @@ int luat_uart_setup(luat_uart_t *uart)
     switch (uart->id)
     {
     case 1:
-        uart_set_pin(1, 4, 5, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+        uart_set_pin(1, _C3_U1TX, _C3_U1RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 #if CONFIG_IDF_TARGET_ESP32S3
-        uart_set_pin(1, 17, 18, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+        uart_set_pin(1, _S3_U1TX, _S3_U1TX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 #endif
         break;
     default:
@@ -108,7 +109,7 @@ int luat_uart_exist(int uartid)
     if (uartid == 1)
         return 1;
 #elif CONFIG_IDF_TARGET_ESP32S3
-    if (uartid >= 1 && uartid<=2)
+    if (uartid >= 1 && uartid <= 2)
         return 1;
 #else
     if (uartid == 1)
