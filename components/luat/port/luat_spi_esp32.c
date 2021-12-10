@@ -4,7 +4,7 @@
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 
-#define LUAT_LOG_TAG "luat.spi"
+#define LUAT_LOG_TAG "spi"
 #include "luat_log.h"
 
 static spi_device_handle_t spi_handle = {0};
@@ -12,6 +12,79 @@ static spi_device_handle_t spi_handle = {0};
 #if CONFIG_IDF_TARGET_ESP32S3
 static spi_device_handle_t spi3_handle = {0};
 #endif
+
+int luat_spi_device_config(luat_spi_device_t* spi_dev) {
+    int bus_id = spi_dev->bus_id;
+    esp_err_t err = -1;
+    spi_device_interface_config_t dev_config;
+        memset(&dev_config, 0, sizeof(dev_config));
+        if (spi_dev->spi_config.CPHA == 0){
+            if (spi_dev->spi_config.CPOL == 0)
+                dev_config.mode = 0;
+            if (spi_dev->spi_config.CPOL == 1)
+                dev_config.mode = 1;
+        }else{
+            if (spi_dev->spi_config.CPOL == 0)
+                dev_config.mode = 2;
+            if (spi_dev->spi_config.CPOL == 1)
+                dev_config.mode = 3;
+        }
+        dev_config.clock_speed_hz = spi_dev->spi_config.bandrate;
+        dev_config.spics_io_num = -1; //用户自行控制cs
+        dev_config.queue_size = 7;
+        if (bus_id == 2)
+            err = spi_bus_add_device(SPI2_HOST, &dev_config, &spi_handle);
+#if CONFIG_IDF_TARGET_ESP32S3
+        else if (bus_id == 2)
+            err = spi_bus_add_device(SPI3_HOST, &dev_config, &spi3_handle);
+#endif
+        ESP_ERROR_CHECK(err);
+        ESP_LOGD("SPI", "device-err:%d", err);
+        if (err == ESP_OK)
+            return 0;
+        else
+            return -1;
+}
+
+int luat_spi_bus_setup(luat_spi_device_t* spi_dev){
+    int bus_id = spi_dev->bus_id;
+    esp_err_t err = -1;
+    if (bus_id == 2){
+        spi_bus_config_t buscfg = {
+#if CONFIG_IDF_TARGET_ESP32C3
+            .miso_io_num = 6,
+            .mosi_io_num = 7,
+            .sclk_io_num = 8,
+#elif CONFIG_IDF_TARGET_ESP32S3
+            .miso_io_num = 11,
+            .mosi_io_num = 12,
+            .sclk_io_num = 13,
+#endif
+            .quadwp_io_num = -1,
+            .quadhd_io_num = -1,
+            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
+        };
+        err = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
+        ESP_ERROR_CHECK(err);
+        ESP_LOGD("SPI", "bus-err:%d", err);
+    }
+#if CONFIG_IDF_TARGET_ESP32S3
+    else if (bus_id == 3){
+        spi_bus_config_t buscfg = {
+            .miso_io_num = 8,
+            .mosi_io_num = 9,
+            .sclk_io_num = 10,
+            .quadwp_io_num = -1,
+            .quadhd_io_num = -1,
+            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE};
+        err = spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO);
+        ESP_ERROR_CHECK(err);
+        ESP_LOGD("SPI", "bus-err:%d", err);
+    }
+#endif
+    return err;
+    
+}
 
 int luat_spi_setup(luat_spi_t *spi)
 {
@@ -53,7 +126,7 @@ int luat_spi_setup(luat_spi_t *spi)
         }
         dev_config.clock_speed_hz = spi->bandrate;
         dev_config.spics_io_num = -1; //用户自行控制cs
-        dev_config.queue_size = 7,
+        dev_config.queue_size = 7;
         err = spi_bus_add_device(SPI2_HOST, &dev_config, &spi_handle);
         ESP_ERROR_CHECK(err);
         ESP_LOGD("SPI", "device-err:%d", err);
@@ -93,7 +166,7 @@ int luat_spi_setup(luat_spi_t *spi)
         }
         dev_config.clock_speed_hz = spi->bandrate;
         dev_config.spics_io_num = -1; //用户自行控制cs
-        dev_config.queue_size = 7,
+        dev_config.queue_size = 7;
         err = spi_bus_add_device(SPI3_HOST, &dev_config, &spi3_handle);
         ESP_ERROR_CHECK(err);
         ESP_LOGD("SPI", "device-err:%d", err);
@@ -243,21 +316,6 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
 #endif
     else
         return -1;
-}
-
-// // 初始化总线
-int luat_spi_bus_setup(luat_spi_device_t* spi_dev) {
-    return -1;
-}
-
-// // 初始化设备
-// int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
-//     return -1;
-// }
-
-// // 配置设备
-int luat_spi_device_config(luat_spi_device_t* spi_dev) {
-    return -1;
 }
 
 // //关闭SPI设备，成功返回0

@@ -3,6 +3,7 @@ idf_component_register(
              freertos
              port
              ../../../LuatOS/luat/vfs
+             ../../../LuatOS/luat/weak
              ../../../LuatOS/luat/packages/lua-cjson
              ../../../LuatOS/luat/packages/eink
              ../../../LuatOS/luat/packages/epaper
