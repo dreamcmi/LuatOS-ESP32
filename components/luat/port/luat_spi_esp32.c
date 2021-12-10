@@ -267,7 +267,7 @@ int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
 #endif
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE
+            .max_transfer_sz = 4092*2
         };
         ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
         ESP_ERROR_CHECK(ret);
@@ -281,7 +281,7 @@ int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
             .sclk_io_num = 10,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
-            .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE};
+            .max_transfer_sz = 4092*2};
         ret = spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO);
         ESP_ERROR_CHECK(ret);
         ESP_LOGD("SPI", "bus-err:%d", ret);
@@ -306,10 +306,10 @@ int luat_spi_device_setup(luat_spi_device_t* spi_dev) {
     if (bus_id == 2)
         ret = spi_bus_add_device(SPI2_HOST, &dev_config, spi_device);
 #if CONFIG_IDF_TARGET_ESP32S3
-    else if (bus_id == 2)
+    else if (bus_id == 3)
         ret = spi_bus_add_device(SPI3_HOST, &dev_config, spi_device);
 #endif
-    ESP_ERROR_CHECK(ret);
+    // ESP_ERROR_CHECK(ret);
     ESP_LOGD("SPI", "device-err:%d", ret);
     if(ret!=0)luat_heap_free(spi_device);
     return ret;
@@ -342,7 +342,10 @@ int luat_spi_device_transfer(luat_spi_device_t* spi_dev, const char* send_buf, s
         ESP_ERROR_CHECK(ret);
         ESP_LOGD("SPI", "trans-err:%d", ret);
     }
-    return ret;
+    if (ret == 0)
+        return recv_length;
+    else
+        return -1;
 }
 
 //收SPI数据，返回接收字节数
@@ -358,7 +361,10 @@ int luat_spi_device_recv(luat_spi_device_t* spi_dev, char* recv_buf, size_t leng
         ESP_ERROR_CHECK(ret);
         ESP_LOGD("SPI", "recv-err:%d", ret);
     }
-    return ret;
+    if (ret == 0)
+        return length;
+    else
+        return -1;
 }
 
 //发SPI数据，返回发送字节数
@@ -371,8 +377,11 @@ int luat_spi_device_send(luat_spi_device_t* spi_dev, const char* send_buf, size_
         t.length = length * 8;
         t.tx_buffer = send_buf;
         ret = spi_device_polling_transmit(*(spi_device_handle_t*)(spi_dev->user_data), &t);
-        ESP_ERROR_CHECK(ret);
+        // ESP_ERROR_CHECK(ret);
         ESP_LOGD("SPI", "send-err:%d", ret);
     }
-    return ret;
+    if (ret == 0)
+        return length;
+    else
+        return -1;
 }
