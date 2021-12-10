@@ -4,6 +4,7 @@
 #define LUAT_LOG_TAG "luat.i2c"
 #include "luat_log.h"
 
+#include "pinmap.h"
 #include "driver/i2c.h"
 #include "sdkconfig.h"
 
@@ -77,18 +78,18 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
         i2c_config_t conf = {};
         conf.mode = I2C_MODE_MASTER;
 #if CONFIG_IDF_TARGET_ESP32C3
-        conf.sda_io_num = 3;
-        conf.scl_io_num = 2;
+        conf.sda_io_num = _C3_SDA0;
+        conf.scl_io_num = _C3_SCL0;
 #elif CONFIG_IDF_TARGET_ESP32S3
         if (id == 0)
         {
-            conf.sda_io_num = 4;
-            conf.scl_io_num = 5;
+            conf.sda_io_num = _S3_SDA0;
+            conf.scl_io_num = _S3_SCL0;
         }
         else
         {
-            conf.sda_io_num = 6;
-            conf.scl_io_num = 7;
+            conf.sda_io_num = _S3_SCL1;
+            conf.scl_io_num = _S3_SCL1;
         }
 #endif
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;

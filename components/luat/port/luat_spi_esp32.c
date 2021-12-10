@@ -2,6 +2,7 @@
 #include "luat_spi.h"
 #include "luat_malloc.h"
 
+#include "pinmap.h"
 #include "esp_log.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
@@ -22,13 +23,13 @@ int luat_spi_setup(luat_spi_t *spi)
     {
         spi_bus_config_t buscfg = {
 #if CONFIG_IDF_TARGET_ESP32C3
-            .miso_io_num = 6,
-            .mosi_io_num = 7,
-            .sclk_io_num = 8,
+            .miso_io_num = _C3_SPI2_MISO,
+            .mosi_io_num = _C3_SPI2_MOSI,
+            .sclk_io_num = _C3_SPI2_SCLK,
 #elif CONFIG_IDF_TARGET_ESP32S3
-            .miso_io_num = 11,
-            .mosi_io_num = 12,
-            .sclk_io_num = 13,
+            .miso_io_num = _S3_SPI2_MISO,
+            .mosi_io_num = _S3_SPI2_MOSI,
+            .sclk_io_num = _S3_SPI2_SCLK,
 #endif
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
@@ -66,9 +67,9 @@ int luat_spi_setup(luat_spi_t *spi)
     else if (spi->id == 3)
     {
         spi_bus_config_t buscfg = {
-            .miso_io_num = 8,
-            .mosi_io_num = 9,
-            .sclk_io_num = 10,
+            .miso_io_num = _S3_SPI3_MISO,
+            .mosi_io_num = _S3_SPI3_MOSI,
+            .sclk_io_num = _S3_SPI3_SCLK,
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
             .max_transfer_sz = SOC_SPI_MAXIMUM_BUFFER_SIZE};
