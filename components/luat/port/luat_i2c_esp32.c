@@ -19,7 +19,7 @@
 //SensorAdd 从机地址
 //addr 寄存器地址
 //val 要写入的值
-void IIC_WR_Reg(i2c_port_t num, int SensorAdd, uint8_t addr, uint8_t val)
+int IIC_WR_Reg(i2c_port_t num, int SensorAdd, uint8_t addr, uint8_t val)
 {
     // uint8_t data = 0;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
@@ -28,8 +28,9 @@ void IIC_WR_Reg(i2c_port_t num, int SensorAdd, uint8_t addr, uint8_t val)
     i2c_master_write_byte(cmd, addr, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, val, ACK_CHECK_EN);
     i2c_master_stop(cmd);
-    i2c_master_cmd_begin(num, cmd, 1000 / portTICK_RATE_MS);
+    esp_err_t ret = i2c_master_cmd_begin(num, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
+    return ret;
 }
 
 //读IIC寄存器
@@ -75,7 +76,7 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
 {
     if (luat_i2c_exist(id))
     {
-        i2c_config_t conf = {};
+        i2c_config_t conf = {0};
         conf.mode = I2C_MODE_MASTER;
 #if CONFIG_IDF_TARGET_ESP32C3
         conf.sda_io_num = _C3_SDA0;
@@ -95,6 +96,7 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
         conf.master.clk_speed = speed;
+        conf.clk_flags = I2C_SCLK_DEFAULT;
         ESP_ERROR_CHECK(i2c_param_config(id, &conf));
         ESP_ERROR_CHECK(i2c_driver_install(id, conf.mode, 0, 0, 0));
         return 0;
@@ -164,8 +166,8 @@ int luat_i2c_write_reg(int id, int addr, int reg, uint16_t value)
 {
     if (luat_i2c_exist(id))
     {
-        IIC_WR_Reg(id, addr, reg, value);
-        return 0;
+        int ret = IIC_WR_Reg(id, addr, reg, value);
+        return ret == 0 ? 0 : -1;
     }
     else
     {
