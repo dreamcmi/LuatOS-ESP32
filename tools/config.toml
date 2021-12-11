@@ -6,10 +6,10 @@ Release = 0
 Type = 'uart' #'uart' or 'usb'
 COM = 'COM176'
 Baud = '921600'
-Firmware = 'LuatOS-SoC_esp32c3_V0001.bin'
-FsPath = 'demo/'
-FsOffset = '0x310000'
-FsSize = '0XF0000'
+Firmware = '../build/LuatOS-SoC_esp32c3_V0001.bin'
+FsPath = '../demo/lcd/'
+FsOffset = '0x390000'
+FsSize = '0X70000'
 
 [esp32s3]
 Type = 'uart' #'uart' or 'usb'

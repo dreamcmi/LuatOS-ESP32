@@ -91,11 +91,17 @@ int luat_fs_init(void)
     ESP_LOGE("vfs", "found script partition %08X %08X", partition->address, (uint32_t)luat_vfs_reg);
     esp_partition_mmap(partition, 0, partition->size, SPI_FLASH_MMAP_DATA, &map_ptr, &map_handle);
     conf2.busname = (char*)map_ptr;
+    if (luat_fs_mount(&conf2)) {
+      // 挂载失败, 回退到内嵌luadb
+      conf2.busname = (char*)luadb_inline_sys;
+      luat_fs_mount(&conf2);
+    }
   }
   else {
     ESP_LOGE("vfs", "script partition not found");
+    luat_fs_mount(&conf2);
   }
-	luat_fs_mount(&conf2);
+	
 #endif
 
   return 0;
