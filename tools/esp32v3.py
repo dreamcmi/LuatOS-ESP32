@@ -170,6 +170,7 @@ def flashRom(rom, port, baud, chip):
             command.remove(baud)
         else:
             logging.error("Flash Type error")
+            sys.exit(-1)
 
         logging.info("erase flash")
         esptool.main(command_erase)
