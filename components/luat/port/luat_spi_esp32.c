@@ -234,6 +234,11 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
     else
         return -1;
 }
+static uint8_t spi_bus2 = 0;
+
+#if CONFIG_IDF_TARGET_ESP32S3
+static uint8_t spi_bus3 = 0;
+#endif
 
 // luat_spi_device_t* 在lua层看到的是一个userdata
 int luat_spi_device_setup(luat_spi_device_t *spi_dev)
@@ -244,7 +249,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
     if (spi_device == NULL)
         return ret;
     spi_dev->user_data = (void *)spi_device;
-    if (bus_id == 2)
+    if (bus_id == 2 && spi_bus2 == 0)
     {
         spi_bus_config_t buscfg = {
 #if CONFIG_IDF_TARGET_ESP32C3
@@ -262,9 +267,10 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
         };
         ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
         ESP_ERROR_CHECK(ret);
+        spi_bus2 = 1;
     }
 #if CONFIG_IDF_TARGET_ESP32S3
-    else if (bus_id == 3)
+    else if (bus_id == 3 && spi_bus3 == 0)
     {
         spi_bus_config_t buscfg = {
             .miso_io_num = _S3_SPI3_MISO,
@@ -273,8 +279,9 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
             .max_transfer_sz = 4092 * 2};
-        ret = spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO);
+        ret = spi_bus_initialize(SPI3_HOST, &buscfg, 0);
         ESP_ERROR_CHECK(ret);
+        spi_bus3 = 1;
     }
 #endif
     spi_device_interface_config_t dev_config;
@@ -296,6 +303,8 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
     dev_config.clock_speed_hz = spi_dev->spi_config.bandrate;
     dev_config.spics_io_num = spi_dev->spi_config.cs; //用户自行控制cs
     dev_config.queue_size = 7;
+    if (spi_dev->spi_config.mode == 0)
+        dev_config.flags = SPI_DEVICE_HALFDUPLEX;
     if (bus_id == 2)
         ret = spi_bus_add_device(SPI2_HOST, &dev_config, spi_device);
 #if CONFIG_IDF_TARGET_ESP32S3
@@ -335,7 +344,7 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
         t.rxlength = recv_length * 8;
         t.tx_buffer = send_buf;
         t.rx_buffer = recv_buf;
-        esp_err_t ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
         ESP_ERROR_CHECK(ret);
     }
     if (ret == 0)
@@ -355,7 +364,7 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
         memset(&t, 0, sizeof(t));
         t.rxlength = length * 8;
         t.rx_buffer = recv_buf;
-        esp_err_t ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
         ESP_ERROR_CHECK(ret);
     }
     if (ret == 0)
