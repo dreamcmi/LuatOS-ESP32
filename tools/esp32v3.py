@@ -190,9 +190,6 @@ def flashRom(rom, port, baud, chip):
     if chip == "esp32c3" or chip == "esp32s3":
         command_erase = ['--chip', chip, '--port', port, '--baud', baud, 'erase_flash']
         command = ['--chip', chip, '--port', port, '--baud', baud, 'write_flash', '0x0', rom]
-<<<<<<< HEAD
-=======
-        
         if config["pkg"]["SocSupport"]:
             if not os.path.exists('tmp'):
                 os.mkdir('tmp')
@@ -204,8 +201,6 @@ def flashRom(rom, port, baud, chip):
             command[-1] = "./tmp/luatos-esp32.bin"
         else:
             pass
-        
->>>>>>> luadb_zone
         if config[chip]["Type"] == "uart":
             logging.info("select uart flash")
         elif config[chip]["Type"] == "usb":
@@ -231,11 +226,7 @@ def flashRom(rom, port, baud, chip):
 
 
 def get_version():
-<<<<<<< HEAD
-    return '3.0.2'
-=======
     return '3.1.0'
->>>>>>> luadb_zone
 
 
 if __name__ == '__main__':

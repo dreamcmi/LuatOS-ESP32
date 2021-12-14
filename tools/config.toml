@@ -1,7 +1,7 @@
 [pkg]
 Repo = "../"
 Release = 0
-SocSupport = ftrue
+SocSupport = true
 
 [esp32c3]
 Type = "uart"
@@ -9,16 +9,8 @@ COM = "COM176"
 Baud = "921600"
 Firmware = ""
 FsPath = "../demo/esp32"
-<<<<<<< HEAD
-FsOffset = "0x310000"
-FsSize = "0XF0000"
-<<<<<<< HEAD
-=======
 FsOffset = "0x390000"
 FsSize = "0x70000"
->>>>>>> luadb_zone
-=======
->>>>>>> 21a57972d36786d6a5ab5dc70372c0629867aad3
 
 [esp32s3]
 Type = "uart"
