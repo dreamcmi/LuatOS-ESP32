@@ -44,4 +44,4 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: c3-master
-          path: tools/firmware/
+          path: firmware/
