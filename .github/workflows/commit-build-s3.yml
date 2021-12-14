@@ -38,7 +38,7 @@ jobs:
           cd tools/
           python3 esp32v3.py -t esp32s3 -p
           mkdir firmware
-          mv *.bin firmware/
+          mv !(firmware) firmware
       - name: Upload firmware
         uses: actions/upload-artifact@main
         with:
