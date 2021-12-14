@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+import zipfile
 
 import esptool
 import toml
@@ -50,7 +51,7 @@ def flashFs(fspath, port, baud, chip, offset, size):
                     shutil.copy(fspath + name[i], "tmp/" + os.path.basename(name[i]))
 
         # 制作fs分区
-        with open('spiffs.bin', 'wb') as image_file:
+        with open('script.bin', 'wb') as image_file:
             image_size = int(size, 0)
             spiffs_build_default = spiffsgen.SpiffsBuildConfig(256, spiffsgen.SPIFFS_PAGE_IX_LEN,
                                                                4096, spiffsgen.SPIFFS_BLOCK_IX_LEN, 4,
@@ -125,23 +126,17 @@ def pkgRom(chip):
             git_sha1 = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
             firmware_name = "LuatOS-SoC_" + chip + '_' + \
                             git_sha1.decode() + "_" + \
-                            time.strftime("%Y%m%d%H%M%S", time.localtime()) + ".bin"
-            config[chip]['Firmware'] = firmware_name
+                            time.strftime("%Y%m%d%H%M%S", time.localtime())
         elif config['pkg']['Release'] == 1:
             logging.warning("release build")
-            firmware_name = "LuatOS-SoC_" + chip + '_' + versionBsp + ".bin"
-            config[chip]['Firmware'] = firmware_name
+            firmware_name = "LuatOS-SoC_" + chip + '_' + versionBsp
         else:
             logging.error("release option error")
             sys.exit(-1)
-        # 写入配置
-        with open('config.toml', "w", encoding='utf-8') as f:
-            toml.dump(config, f)
-            f.close()
 
         # 进入合并流程
         base_offset = 0x0
-        with open(firmware_name, "wb") as fout:
+        with open("luatos-esp32.bin", "wb") as fout:
             for offset, name in ss:
                 fout.write(b"\xff" * (int(offset, 16) - base_offset))
                 base_offset = int(offset, 16)
@@ -151,6 +146,41 @@ def pkgRom(chip):
                     base_offset += len(data)
                     fin.close()
             fout.close()
+
+        if config["pkg"]["SocSupport"]:
+            if not os.path.exists('tmp'):
+                os.mkdir('tmp')
+            else:
+                shutil.rmtree('tmp')
+                os.mkdir('tmp')
+            shutil.move("luatos-esp32.bin", 'tmp/')
+            shutil.copy(config["pkg"]["Repo"] + "soc_tools/info.json", 'tmp/')
+            shutil.copy(config["pkg"]["Repo"] + "soc_tools/soc_download.exe", 'tmp/')
+            
+            # 改下bsp版本号
+            # with open('./tmp/info.json', 'r', encoding='utf-8') as f:
+            #     fir_info = json.load(f)
+            #     if f['rom']['version-bsp'] != versionBsp:
+            #         f['rom']['version-bsp'] = versionBsp
+            #         info_j = json.dumps(fir_info)
+            #         with open('./tmp/info.json', 'w') as f:
+            #             f.write(info_j)
+            #             f.close()
+            #     else:
+            #         pass
+            # f.close()
+            
+            z = zipfile.ZipFile(firmware_name + ".soc", "w")
+            if os.path.isdir("tmp"):
+                for d in os.listdir("tmp"):
+                    z.write("tmp/" + d, arcname=d)
+            z.close()
+            shutil.rmtree("tmp")
+            config[chip]['Firmware'] = firmware_name + ".soc"
+        else:
+            os.rename("luatos-esp32.bin", firmware_name + ".bin")
+            config[chip]['Firmware'] = firmware_name + ".bin"
+
     else:
         logging.error("not support chip")
         sys.exit(-1)
@@ -160,6 +190,22 @@ def flashRom(rom, port, baud, chip):
     if chip == "esp32c3" or chip == "esp32s3":
         command_erase = ['--chip', chip, '--port', port, '--baud', baud, 'erase_flash']
         command = ['--chip', chip, '--port', port, '--baud', baud, 'write_flash', '0x0', rom]
+<<<<<<< HEAD
+=======
+        
+        if config["pkg"]["SocSupport"]:
+            if not os.path.exists('tmp'):
+                os.mkdir('tmp')
+            else:
+                shutil.rmtree('tmp')
+                os.mkdir('tmp')
+            zfile = zipfile.ZipFile(config[ChipName]['Firmware'], "r")
+            zfile.extractall('./tmp')
+            command[-1] = "./tmp/luatos-esp32.bin"
+        else:
+            pass
+        
+>>>>>>> luadb_zone
         if config[chip]["Type"] == "uart":
             logging.info("select uart flash")
         elif config[chip]["Type"] == "usb":
@@ -176,13 +222,20 @@ def flashRom(rom, port, baud, chip):
         esptool.main(command_erase)
         logging.info("start flash firmware")
         esptool.main(command)
+        
+        if os.path.exists('tmp'):
+            shutil.rmtree('tmp')
     else:
         logging.error("not support chip")
         sys.exit(-1)
 
 
 def get_version():
+<<<<<<< HEAD
     return '3.0.2'
+=======
+    return '3.1.0'
+>>>>>>> luadb_zone
 
 
 if __name__ == '__main__':
