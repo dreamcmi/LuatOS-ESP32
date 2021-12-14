@@ -1,21 +1,21 @@
 [pkg]
-Repo = '../'
+Repo = "../"
 Release = 0
 
 [esp32c3]
-Type = 'uart' #'uart' or 'usb'
-COM = 'COM176'
-Baud = '921600'
-Firmware = '../build/LuatOS-SoC_esp32c3_V0001.bin'
-FsPath = '../demo/lcd/'
-FsOffset = '0x390000'
-FsSize = '0X70000'
+Type = "uart"
+COM = "COM176"
+Baud = "921600"
+Firmware = ""
+FsPath = "../demo/esp32"
+FsOffset = "0x310000"
+FsSize = "0XF0000"
 
 [esp32s3]
-Type = 'uart' #'uart' or 'usb'
-COM = 'COM80'
-Baud = '921600'
-Firmware = 'LuatOS-SoC_esp32s3_V0001.bin'
-FsPath = 'demo/'
-FsOffset = '0x670000'
-FsSize = '0x190000'
+Type = "uart"
+COM = "COM80"
+Baud = "921600"
+Firmware = ""
+FsPath = "../demo/esp32"
+FsOffset = "0x670000"
+FsSize = "0x190000"
