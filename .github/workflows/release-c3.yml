@@ -33,8 +33,9 @@ jobs:
           cd tools/
           sed -i 's/Release = 0/Release = 1/' config.toml
           python3 esp32v3.py -t esp32c3 -p
+          cd ..
           mkdir firmware
-          mv !(firmware) firmware
+          mv tools/* firmware
       - name: Upload firmware
         uses: actions/upload-artifact@main
         with:

@@ -37,8 +37,9 @@ jobs:
           pip3 install -r tools/requirements.txt
           cd tools/
           python3 esp32v3.py -t esp32s3 -p
+          cd ..
           mkdir firmware
-          mv !(firmware) firmware
+          mv tools/* firmware
       - name: Upload firmware
         uses: actions/upload-artifact@main
         with:
