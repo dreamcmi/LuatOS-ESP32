@@ -150,7 +150,6 @@ def get_only_file_from_path(path, suffix=None):
 
 def merge(disk_path):
     all_files = get_only_file_from_path(disk_path)
-    print("disk_path",all_files)
     script = CheckScript()
     result, bin_data = script.merge_soc_script(disk_path, all_files)
     if not result:
@@ -161,9 +160,9 @@ def merge(disk_path):
         return True
 
 if __name__ == '__main__':
-    # try:
+    try:
         if str(sys.argv[1]):
             merge(Path(sys.argv[1]))
-    # except:
-    #     print("请输入目录")
+    except:
+        print("请输入目录")
     
