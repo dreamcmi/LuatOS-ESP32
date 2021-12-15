@@ -107,7 +107,7 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
     }
 }
 
-int luat_ic2_close(int id)
+int luat_i2c_close(int id)
 {
     if (luat_i2c_exist(id))
     {
