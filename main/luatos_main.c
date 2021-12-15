@@ -32,11 +32,6 @@ uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
 void app_main(void)
 {
-    // C3两层板可能会重启,先关闭毛刺
-#if CONFIG_IDF_TARGET_ESP32C3
-    REG_SET_FIELD(RTC_CNTL_FIB_SEL_REG, RTC_CNTL_FIB_SEL, RTC_CNTL_FIB_SUPER_WDT_RST | RTC_CNTL_FIB_BOR_RST);
-#endif
-
 #ifdef CONFIG_SPIRAM
     psram_size_t t = psram_get_size();
     switch (t)

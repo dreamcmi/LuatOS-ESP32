@@ -2,13 +2,13 @@
 #define __PIN_MAP_H__
 
 // ESP32C3
-#define _C3_U1TX        (4)
-#define _C3_U1RX        (5)
-#define _C3_SCL0        (2)
-#define _C3_SDA0        (3)
-#define _C3_SPI2_MISO   (6)
-#define _C3_SPI2_MOSI   (7)
-#define _C3_SPI2_SCLK   (8)
+#define _C3_U1TX        (0)
+#define _C3_U1RX        (1)
+#define _C3_SCL0        (5)
+#define _C3_SDA0        (4)
+#define _C3_SPI2_MISO   (10)
+#define _C3_SPI2_MOSI   (3)
+#define _C3_SPI2_SCLK   (2)
 
 // ESP32S3
 #define _S3_U1TX        (17)
