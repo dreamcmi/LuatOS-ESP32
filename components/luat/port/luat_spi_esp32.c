@@ -1,4 +1,5 @@
 #include "luat_base.h"
+#include "luat_gpio.h"
 #include "luat_spi.h"
 #include "luat_malloc.h"
 
@@ -234,8 +235,11 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
     else
         return -1;
 }
-static uint8_t spi_bus2 = 0;
 
+#define LUAT_SPI_CS_SELECT 0
+#define LUAT_SPI_CS_CLEAR  1
+
+static uint8_t spi_bus2 = 0;
 #if CONFIG_IDF_TARGET_ESP32S3
 static uint8_t spi_bus3 = 0;
 #endif
@@ -301,7 +305,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
             dev_config.mode = 3;
     }
     dev_config.clock_speed_hz = spi_dev->spi_config.bandrate;
-    dev_config.spics_io_num = spi_dev->spi_config.cs; //用户自行控制cs
+    dev_config.spics_io_num = -1; //用户自行控制cs
     dev_config.queue_size = 7;
     if (spi_dev->spi_config.mode == 0)
         dev_config.flags = SPI_DEVICE_HALFDUPLEX;
@@ -314,6 +318,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
     ESP_ERROR_CHECK(ret);
     if (ret != 0)
         luat_heap_free(spi_device);
+    luat_gpio_mode(spi_dev->spi_config.cs, Luat_GPIO_OUTPUT, Luat_GPIO_DEFAULT, Luat_GPIO_HIGH); // CS
     return ret;
 }
 
@@ -334,19 +339,25 @@ int luat_spi_device_close(luat_spi_device_t *spi_dev)
 //收发SPI数据，返回接收字节数
 int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, size_t send_length, char *recv_buf, size_t recv_length)
 {
+    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
     if (bus_id == 2 || bus_id == 3)
     {
-        spi_transaction_t t;
-        memset(&t, 0, sizeof(t));
-        t.length = send_length * 8;
-        t.rxlength = recv_length * 8;
-        t.tx_buffer = send_buf;
-        t.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
+        spi_transaction_t send;
+        memset(&send, 0, sizeof(send));
+        send.length = send_length * 8;
+        send.tx_buffer = send_buf;
+        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
+        ESP_ERROR_CHECK(ret);
+        spi_transaction_t recv;
+        memset(&recv, 0, sizeof(recv));
+        recv.rxlength = recv_length * 8;
+        recv.rx_buffer = recv_buf;
+        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
         ESP_ERROR_CHECK(ret);
     }
+    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     if (ret == 0)
         return recv_length;
     else
@@ -356,6 +367,7 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
 //收SPI数据，返回接收字节数
 int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t length)
 {
+    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
     if (bus_id == 2 || bus_id == 3)
@@ -367,6 +379,7 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
         ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
         ESP_ERROR_CHECK(ret);
     }
+    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     if (ret == 0)
         return length;
     else
@@ -376,6 +389,7 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
 //发SPI数据，返回发送字节数
 int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_t length)
 {
+    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_SELECT);
     esp_err_t ret = -1;
     int bus_id = spi_dev->bus_id;
     if (bus_id == 2 || bus_id == 3)
@@ -387,6 +401,7 @@ int luat_spi_device_send(luat_spi_device_t *spi_dev, const char *send_buf, size_
         ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
         ESP_ERROR_CHECK(ret);
     }
+    luat_gpio_set(spi_dev->spi_config.cs, LUAT_SPI_CS_CLEAR);
     if (ret == 0)
         return length;
     else
