@@ -132,13 +132,27 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
     esp_err_t ret = -1;
     if (spi_id == 2)
     {
-        spi_transaction_t t;
-        memset(&t, 0, sizeof(t));
-        t.length = send_length * 8;
-        t.rxlength = recv_length * 8;
-        t.tx_buffer = send_buf;
-        t.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(spi_handle, &t);
+        // spi_transaction_t t;
+        // memset(&t, 0, sizeof(t));
+        // t.length = send_length * 8;
+        // t.rxlength = recv_length * 8;
+        // t.tx_buffer = send_buf;
+        // t.rx_buffer = recv_buf;
+        // ret = spi_device_polling_transmit(spi_handle, &t);
+        // ESP_ERROR_CHECK(ret);
+
+        /* FIX:一句执行发送指令不满4会自动补满,导致多发00 */
+        spi_transaction_t send;
+        memset(&send, 0, sizeof(send));
+        send.length = send_length * 8;
+        send.tx_buffer = send_buf;
+        ret = spi_device_polling_transmit(spi_handle, &send);
+        ESP_ERROR_CHECK(ret);
+        spi_transaction_t recv;
+        memset(&recv, 0, sizeof(recv));
+        recv.rxlength = recv_length * 8;
+        recv.rx_buffer = recv_buf;
+        ret = spi_device_polling_transmit(spi_handle, &recv);
         ESP_ERROR_CHECK(ret);
         if (ret == ESP_OK)
             return recv_length;
@@ -148,13 +162,27 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
 #if CONFIG_IDF_TARGET_ESP32S3
     else if (spi_id == 3)
     {
-        spi_transaction_t t;
-        memset(&t, 0, sizeof(t));
-        t.length = send_length * 8;
-        t.rxlength = recv_length * 8;
-        t.tx_buffer = send_buf;
-        t.rx_buffer = recv_buf;
-        ret = spi_device_polling_transmit(spi3_handle, &t);
+        // spi_transaction_t t;
+        // memset(&t, 0, sizeof(t));
+        // t.length = send_length * 8;
+        // t.rxlength = recv_length * 8;
+        // t.tx_buffer = send_buf;
+        // t.rx_buffer = recv_buf;
+        // ret = spi_device_polling_transmit(spi3_handle, &t);
+        // ESP_ERROR_CHECK(ret);
+
+        /* FIX:一句执行发送指令不满4会自动补满,导致多发00 */
+        spi_transaction_t send;
+        memset(&send, 0, sizeof(send));
+        send.length = send_length * 8;
+        send.tx_buffer = send_buf;
+        ret = spi_device_polling_transmit(spi3_handle, &send);
+        ESP_ERROR_CHECK(ret);
+        spi_transaction_t recv;
+        memset(&recv, 0, sizeof(recv));
+        recv.rxlength = recv_length * 8;
+        recv.rx_buffer = recv_buf;
+        ret = spi_device_polling_transmit(spi3_handle, &recv);
         ESP_ERROR_CHECK(ret);
         if (ret == ESP_OK)
             return recv_length;
