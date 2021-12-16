@@ -17,6 +17,9 @@ static const char *TAG = "LSPIFFS";
 
 #ifdef LUAT_USE_FS_VFS
 extern const struct luat_vfs_filesystem vfs_fs_posix;
+#ifdef LUAT_USE_SFUD
+extern const struct luat_vfs_filesystem vfs_fs_lfs2;
+#endif
 #ifdef LUAT_USE_VFS_INLINE_LIB
 extern const char luadb_inline_sys[];
 extern const struct luat_vfs_filesystem vfs_fs_luadb;
@@ -66,12 +69,15 @@ int luat_fs_init(void)
     printf("Partition size: total: %d, used: %d\n", total, used);
   }
 #ifdef LUAT_USE_FS_VFS
+#ifdef LUAT_USE_SFUD
+  luat_vfs_reg(&vfs_fs_lfs2);
+#endif
   luat_vfs_reg(&vfs_fs_posix);
 	luat_fs_conf_t conf = {
 		.busname = "",
 		.type = "posix",
 		.filesystem = "posix",
-		.mount_point = ""
+		.mount_point = "/"
 	};
 	luat_fs_mount(&conf);
 	
