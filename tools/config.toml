@@ -1,6 +1,6 @@
 [pkg]
 Repo = "../"
-Release = 0
+Release = false
 SocSupport = true
 
 [esp32c3]
