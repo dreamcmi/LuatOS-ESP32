@@ -77,7 +77,7 @@ def flashFs(fspath, port, baud, chip, offset, size):
                '--chip', chip,
                'write_flash',
                offset,
-               "spiffs.bin"]
+               "script.bin"]
     esptool.main(command)
     # 最后删除临时目录
     shutil.rmtree("tmp")
