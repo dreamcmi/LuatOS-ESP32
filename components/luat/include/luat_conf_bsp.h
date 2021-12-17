@@ -22,17 +22,27 @@
 #define LUAT_USE_I2C  1
 #define LUAT_USE_SPI  1
 #define LUAT_USE_ADC  1
-// #define LUAT_USE_PWM  1
-// #define LUAT_USE_WDT  1
-// #define LUAT_USE_PM  1
+#define LUAT_USE_PWM  1
+// #define LUAT_USE_RMT 1
+
+#define LUAT_USE_WLAN 1
+#define LUAT_USE_ESPNOW 1
+#define LUAT_USE_ESP32LIB 1
+#define LUAT_USE_SOCKET 1
+#define LUAT_USE_NTP 1
+// #define LUAT_USE_LWIP 1
+// #define LUAT_USE_BLE 1
+// #define LUAT_USE_ESPHTTP 1
+
 // #define LUAT_USE_MCU  1
 // hwtimer库对lua代码没多少用处,通常禁用
 // #define LUAT_USE_HWTIMER  1
 // #define LUAT_USE_RTC 1
 
+
 //----------------------------
 // 常用工具库, 按需启用, cjson和pack是强烈推荐启用的
-// #define LUAT_USE_CRYPTO  1
+#define LUAT_USE_CRYPTO  1
 #define LUAT_USE_CJSON  1
 #define LUAT_USE_ZBUFF  1
 #define LUAT_USE_PACK  1
@@ -40,9 +50,8 @@
 #define LUAT_USE_FS  1
 #define LUAT_USE_SENSOR  1
 #define LUAT_USE_SFUD  1
-// #define LUAT_USE_STATEM 1
 // 性能测试,跑完就是玩,不要与lvgl一起启用,生产环境的固件别加这个库
-#define LUAT_USE_COREMARK 1
+// #define LUAT_USE_COREMARK 1
 
 //----------------------------
 // 高通字体, 需配合芯片使用
@@ -84,18 +93,6 @@
 /**********LVGL FONT*************/
 // #define LV_FONT_OPPOSANS_M_8
 // #define LV_FONT_OPPOSANS_M_10
-
-// -------------------------------------
-// PSRAM
-// 需要外挂PSRAM芯片, 否则不要启用, 必死机
-// air101虽然支持psram,但与spi存在复用冲突
-// air103支持psram与spi同时使用,复用不冲突
-// #define LUAT_USE_PSRAM 1
-// LVGL推荐把部分方法放入内存, 按需采用
-// #define LV_ATTRIBUTE_FAST_MEM __attribute__((section (".ram_run")))
-// ROTABLE技术是节省内存的关键技术, 启用PSRAM后内存不缺, 禁用可提高性能
-// #define LUAT_CONF_DISABLE_ROTABLE 1
-//---------------------------------------
 
 
 // ---------------------

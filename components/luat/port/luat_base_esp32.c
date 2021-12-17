@@ -14,18 +14,19 @@
 #include "sdkconfig.h"
 #if CONFIG_IDF_TARGET_ESP32C3
 #include "esp32c3/rom/ets_sys.h"
-#elif CONFIG_IDF_TARGET_ESP32S3
+#endif
+#if CONFIG_IDF_TARGET_ESP32S3
 #include "esp32s3/rom/ets_sys.h"
 #endif
 #include "esp_heap_caps.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-LUAMOD_API int luaopen_espnow(lua_State* L);
-LUAMOD_API int luaopen_rmt(lua_State* L);
-LUAMOD_API int luaopen_esp32(lua_State* L);
-LUAMOD_API int luaopen_espnow(lua_State* L);
-LUAMOD_API int luaopen_pwm2(lua_State* L);
+LUAMOD_API int luaopen_espnow(lua_State *L);
+LUAMOD_API int luaopen_rmt(lua_State *L);
+LUAMOD_API int luaopen_esp32(lua_State *L);
+LUAMOD_API int luaopen_espnow(lua_State *L);
+LUAMOD_API int luaopen_pwm2(lua_State *L);
 LUAMOD_API int luaopen_esphttp(lua_State *L);
 LUAMOD_API int luaopen_ble(lua_State *L);
 LUAMOD_API int luaopen_ntp(lua_State *L);
@@ -44,132 +45,128 @@ static const luaL_Reg loadedlibs[] = {
     {LUA_BITLIBNAME, luaopen_bit32}, // 不太可能启用
 #endif
 
-// 往下是LuatOS定制的库, 如需精简请仔细测试
-//----------------------------------------------------------------------
-// 核心支撑库, 不可禁用!!
-  {"rtos",    luaopen_rtos},              // rtos底层库, 核心功能是队列和定时器
-  {"log",     luaopen_log},               // 日志库
-  {"timer",   luaopen_timer},             // 延时库
+    // 往下是LuatOS定制的库, 如需精简请仔细测试
+    //----------------------------------------------------------------------
+    // 核心支撑库, 不可禁用!!
+    {"rtos", luaopen_rtos},   // rtos底层库, 核心功能是队列和定时器
+    {"log", luaopen_log},     // 日志库
+    {"timer", luaopen_timer}, // 延时库
 //-----------------------------------------------------------------------
 // 设备驱动类, 可按实际情况删减. 即使最精简的固件, 也强烈建议保留uart库
 #ifdef LUAT_USE_UART
-  {"uart",    luaopen_uart},              // 串口操作
+    {"uart", luaopen_uart}, // 串口操作
 #endif
 #ifdef LUAT_USE_GPIO
-  {"gpio",    luaopen_gpio},              // GPIO脚的操作
+    {"gpio", luaopen_gpio}, // GPIO脚的操作
 #endif
 #ifdef LUAT_USE_I2C
-  {"i2c",     luaopen_i2c},               // I2C操作
+    {"i2c", luaopen_i2c}, // I2C操作
 #endif
 #ifdef LUAT_USE_SPI
-  {"spi",     luaopen_spi},               // SPI操作
+    {"spi", luaopen_spi}, // SPI操作
 #endif
 #ifdef LUAT_USE_ADC
-  {"adc",     luaopen_adc},               // ADC模块
+    {"adc", luaopen_adc}, // ADC模块
 #endif
 #ifdef LUAT_USE_SDIO
-  {"sdio",     luaopen_sdio},             // SDIO模块
+    {"sdio", luaopen_sdio}, // SDIO模块
 #endif
 #ifdef LUAT_USE_PWM
-  {"pwm",     luaopen_pwm},               // PWM模块
+    {"pwm2", luaopen_pwm2}, // PWM模块
 #endif
-#ifdef LUAT_USE_WDT
-  {"wdt",     luaopen_wdt},               // watchdog模块
-#endif
-#ifdef LUAT_USE_PM
-  {"pm",      luaopen_pm},                // 电源管理模块
+#ifdef LUAT_USE_RMT
+    {"rmt", luaopen_rmt}, // rmt操作
 #endif
 #ifdef LUAT_USE_MCU
-  {"mcu",     luaopen_mcu},               // MCU特有的一些操作
+    {"mcu", luaopen_mcu}, // MCU特有的一些操作
 #endif
 #ifdef LUAT_USE_HWTIMER
-  {"hwtimer", luaopen_hwtimer},           // 硬件定时器
+    {"hwtimer", luaopen_hwtimer}, // 硬件定时器
 #endif
 #ifdef LUAT_USE_RTC
-  {"rtc", luaopen_rtc},                   // 实时时钟
+    {"rtc", luaopen_rtc}, // 实时时钟
 #endif
 //-----------------------------------------------------------------------
 // 工具库, 按需选用
 #ifdef LUAT_USE_CRYPTO
-  {"crypto",luaopen_crypto},            // 加密和hash模块
+    {"crypto", luaopen_crypto}, // 加密和hash模块
 #endif
 #ifdef LUAT_USE_CJSON
-  {"json",    luaopen_cjson},          // json的序列化和反序列化
+    {"json", luaopen_cjson}, // json的序列化和反序列化
 #endif
 #ifdef LUAT_USE_ZBUFF
-  {"zbuff",   luaopen_zbuff},             // 像C语言语言操作内存块
+    {"zbuff", luaopen_zbuff}, // 像C语言语言操作内存块
 #endif
 #ifdef LUAT_USE_PACK
-  {"pack",    luaopen_pack},              // pack.pack/pack.unpack
+    {"pack", luaopen_pack}, // pack.pack/pack.unpack
 #endif
-  // {"mqttcore",luaopen_mqttcore},          // MQTT 协议封装
-  // {"libcoap", luaopen_libcoap},           // 处理COAP消息
-
 #ifdef LUAT_USE_GNSS
-  {"libgnss", luaopen_libgnss},           // 处理GNSS定位数据
+    {"libgnss", luaopen_libgnss}, // 处理GNSS定位数据
 #endif
 #ifdef LUAT_USE_FS
-  {"fs",      luaopen_fs},                // 文件系统库,在io库之外再提供一些方法
+    {"fs", luaopen_fs}, // 文件系统库,在io库之外再提供一些方法
 #endif
 #ifdef LUAT_USE_SENSOR
-  {"sensor",  luaopen_sensor},            // 传感器库,支持DS18B20
+    {"sensor", luaopen_sensor}, // 传感器库,支持DS18B20
 #endif
 #ifdef LUAT_USE_SFUD
-  {"sfud", luaopen_sfud},              // sfud
+    {"sfud", luaopen_sfud}, // sfud
 #endif
-#ifdef LUAT_USE_DISP
-  {"disp",  luaopen_disp},              // OLED显示模块,支持SSD1306
+#ifdef LUAT_USE_WLAN
+    {"wlan", luaopen_wlan}, //wifi联网操作
 #endif
-#ifdef LUAT_USE_U8G2
-  {"u8g2", luaopen_u8g2},              // u8g2
+#ifdef LUAT_USE_ESPNOW
+    {"espnow", luaopen_espnow}, // espnow操作
+#endif
+#ifdef LUAT_USE_ESP32LIB
+    {"esp32", luaopen_esp32}, // esp32专用库
+#endif
+#ifdef LUAT_USE_SOCKET
+    {"socket", luaopen_socket}, // socket
+#endif
+#ifdef LUAT_USE_NTP
+    {"ntp", luaopen_ntp}, // ntp
+#endif
+#ifdef LUAT_USE_LWIP
+    {"lwip", luaopen_lwip}, // lwip操作
+#endif
+#ifdef LUAT_USE_BLE
+    {"ble", luaopen_ble}, // ble操作
+#endif
+#ifdef LUAT_USE_ESPHTTP
+    {"esphttp", luaopen_esphttp}, // esphttp
 #endif
 
-#ifdef LUAT_USE_EINK
-  {"eink",  luaopen_eink},              // 电子墨水屏,试验阶段
-#endif
-
+//-----------------------------------------------------------------------
+// 显示库
 #ifdef LUAT_USE_LVGL
 #ifndef LUAT_USE_LCD
 #define LUAT_USE_LCD
 #endif
-  {"lvgl",   luaopen_lvgl},
+    {"lvgl", luaopen_lvgl},
+#endif
+
+#ifdef LUAT_USE_DISP
+    {"disp", luaopen_disp}, // OLED显示模块,支持SSD1306
+#endif
+#ifdef LUAT_USE_U8G2
+    {"u8g2", luaopen_u8g2}, // u8g2
+#endif
+#ifdef LUAT_USE_EINK
+    {"eink", luaopen_eink}, // 电子墨水屏,试验阶段
 #endif
 
 #ifdef LUAT_USE_LCD
-  {"lcd",    luaopen_lcd},
-#endif
-#ifdef LUAT_USE_STATEM
-  {"statem",    luaopen_statem},
+    {"lcd", luaopen_lcd},
 #endif
 #ifdef LUAT_USE_GTFONT
-  {"gtfont",    luaopen_gtfont},
-#endif
-#ifdef LUAT_USE_NIMBLE
-  {"nimble",    luaopen_nimble},
+    {"gtfont", luaopen_gtfont},
 #endif
 #ifdef LUAT_USE_FDB
-  {"fdb",       luaopen_fdb},
-#endif
-#ifdef LUAT_USE_LCDSEG
-  {"lcdseg",       luaopen_lcdseg},
-#endif
-#ifdef LUAT_USE_VMX
-  {"vmx",       luaopen_vmx},
+    {"fdb", luaopen_fdb},
 #endif
 #ifdef LUAT_USE_COREMARK
-  {"coremark", luaopen_coremark},
-#endif
-    {"wlan", luaopen_wlan},   // wlan/wifi联网操作
-    // {"lwip",luaopen_lwip},    // lwip操作
-    // {"ble",luaopen_ble},      // ble操作
-    {"espnow",luaopen_espnow},// espnow操作
-    // {"rmt",luaopen_rmt},      // rmt操作
-    {"esp32",luaopen_esp32},  // esp32专用库
-    {"pwm2",luaopen_pwm2},    // pwm2
-    {"socket",luaopen_socket},// socket
-    {"ntp",luaopen_ntp},
-#ifdef LUAT_USE_ESPHTTP
-    {"esphttp", luaopen_esphttp},
+    {"coremark", luaopen_coremark},
 #endif
     {NULL, NULL}};
 
@@ -191,9 +188,9 @@ void luat_openlibs(lua_State *L)
   }
 }
 
-
 // 微妙硬延时
-void luat_timer_us_delay(size_t us) {
+void luat_timer_us_delay(size_t us)
+{
   if (us > 0)
     ets_delay_us(us);
 }
@@ -235,4 +232,3 @@ void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
   *max_used = esp_get_free_heap_size();
   *total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
 }
-
