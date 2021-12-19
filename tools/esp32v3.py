@@ -15,6 +15,7 @@ import esptool
 import toml
 
 import spiffsgen
+import luadb
 
 logging.basicConfig(format='- [%(levelname)s]: %(message)s', level=logging.INFO)
 
@@ -51,23 +52,28 @@ def flashFs(fspath, port, baud, chip, offset, size):
                     shutil.copy(fspath + name[i], "tmp/" + os.path.basename(name[i]))
 
         # 制作fs分区
-        with open('script.bin', 'wb') as image_file:
-            image_size = int(size, 0)
-            spiffs_build_default = spiffsgen.SpiffsBuildConfig(256, spiffsgen.SPIFFS_PAGE_IX_LEN,
-                                                               4096, spiffsgen.SPIFFS_BLOCK_IX_LEN, 4,
-                                                               32, spiffsgen.SPIFFS_OBJ_ID_LEN,
-                                                               spiffsgen.SPIFFS_SPAN_IX_LEN,
-                                                               True, True, 'little',
-                                                               True, True)
-            spiffs = spiffsgen.SpiffsFS(image_size, spiffs_build_default)
-            for root, dirs, files in os.walk("tmp/", followlinks=False):
-                for f in files:
-                    full_path = os.path.join(root, f)
-                    spiffs.create_file('/' + os.path.relpath(full_path, "tmp/").replace('\\', '/'),
-                                       full_path)
-            image = spiffs.to_binary()
-            image_file.write(image)
-            image_file.close()
+        if config[chip]["Luadb"]:
+            if not luadb.merge("tmp/"):
+                logging.error("Luadb merge FAIL!!!")
+                sys.exit(-1)
+        else:
+            with open('script.bin', 'wb') as image_file:
+                image_size = int(size, 0)
+                spiffs_build_default = spiffsgen.SpiffsBuildConfig(256, spiffsgen.SPIFFS_PAGE_IX_LEN,
+                                                                4096, spiffsgen.SPIFFS_BLOCK_IX_LEN, 4,
+                                                                32, spiffsgen.SPIFFS_OBJ_ID_LEN,
+                                                                spiffsgen.SPIFFS_SPAN_IX_LEN,
+                                                                True, True, 'little',
+                                                                True, True)
+                spiffs = spiffsgen.SpiffsFS(image_size, spiffs_build_default)
+                for root, dirs, files in os.walk("tmp/", followlinks=False):
+                    for f in files:
+                        full_path = os.path.join(root, f)
+                        spiffs.create_file('/' + os.path.relpath(full_path, "tmp/").replace('\\', '/'),
+                                        full_path)
+                image = spiffs.to_binary()
+                image_file.write(image)
+                image_file.close()
     else:
         logging.error("not support chip")
         sys.exit(-1)
@@ -78,6 +84,9 @@ def flashFs(fspath, port, baud, chip, offset, size):
                'write_flash',
                offset,
                "script.bin"]
+    if config[chip]["Luadb"]:
+        command[-2] = config[chip]["LuadbOffset"]
+        command[-1] = "disk.fs"
     esptool.main(command)
     # 最后删除临时目录
     shutil.rmtree("tmp")

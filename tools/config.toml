@@ -7,16 +7,20 @@ SocSupport = true
 Type = "uart"
 COM = "COM176"
 Baud = "921600"
+Luadb = true
 Firmware = ""
 FsPath = "../demo/esp32"
 FsOffset = "0x390000"
 FsSize = "0x70000"
+LuadbOffset = "0x310000"
 
 [esp32s3]
 Type = "uart"
 COM = "COM80"
 Baud = "921600"
+Luadb = true
 Firmware = ""
 FsPath = "../demo/esp32"
-FsOffset = "0x670000"
-FsSize = "0x190000"
+FsOffset = "0x770000"
+FsSize = "0x90000"
+LuadbOffset = "0x670000"

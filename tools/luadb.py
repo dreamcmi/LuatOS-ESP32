@@ -134,7 +134,7 @@ def merge(disk_path):
     if not result:
         return False
     else:
-        with open(str(disk_path.with_name("disk.fs")), "wb") as f:
+        with open("disk.fs", "wb") as f:
             f.write(bin_data)
         return True
 
