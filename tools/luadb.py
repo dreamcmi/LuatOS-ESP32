@@ -40,40 +40,20 @@ def resource_path(relative_path):
 
 class CheckScript():
     def __init__(self):
-        # 资源文件路径列表
-        self.resource_list = []
-        # port文件路径
-        self.port_file = None
-        # 需要加载的lua模块列表
-        self.require_module_list = []
-        self.require_module_dict = {}
-        self.encrypt_script_path = Path(os.getcwd(), '_temp', "script", "encrypt_script", "none")
         self.all_file_crc_name = ".airm2m_all_crc#.bin"
-        self.core_suffix = None
 
     def merge_add_head(self):
-            if self.port_file:
-                add_1 = 1
-            else:
-                add_1 = 0
             self.bin_data = bytearray()
             magic_mag = struct.pack("<BBI", 0x01, 0x04, 0xA55AA55A)
-            if self.support_luadb_v2():
-                version_mag = struct.pack("<BBh", 0x02, 0x02, 0x2)
-                length_msg = struct.pack("<BBI", 0x03, 0x04, 0x18)
-                file_num_msg = struct.pack("<BBH", 0x04, 0x02, len(self.require_module_list) + len(self.resource_list) + add_1 + 1)
-            else:
-                version_mag = struct.pack("<BBh", 0x02, 0x02, 0x1)
-                length_msg = struct.pack("<BBI", 0x03, 0x04, 0x18)
-                file_num_msg = struct.pack("<BBH", 0x04, 0x02, len(self.require_module_list) + len(self.resource_list) + add_1)
+            # if self.support_luadb_v2():
+            version_mag = struct.pack("<BBh", 0x02, 0x02, 0x2)
+            length_msg = struct.pack("<BBI", 0x03, 0x04, 0x18)
+            file_num_msg = struct.pack("<BBH", 0x04, 0x02, len(self.all_files) + 1)
             crc_head = struct.pack("<BB", 0xFE, 0x02)
             data = magic_mag + version_mag + length_msg + file_num_msg + crc_head
             self.bin_data.extend(data)
             num = sum_check(data)
             self.bin_data.extend(struct.pack("<H", num))
-
-            if self.port_file:
-                self.merge_add_body(str(self.port_file))
 
     def merge_add_body(self, dir_path, file_name=None):                 # 添加头文件的单个文件
             if not file_name:
@@ -85,7 +65,10 @@ class CheckScript():
             try:
                 with open(Path(dir_path, file_name), "rb") as f:
                     file_data = f.read()
+                #print(dir_path, file_name, file_data)
             except Exception as identifier:
+                print("error when reading", dir_path, file_name)
+                traceback.print_exc()
                 return False
             length_msg = struct.pack("<BBI", 0x03, 0x04, len(file_data))
             crc_head = struct.pack("<BB", 0xFE, 0x02)
@@ -96,15 +79,7 @@ class CheckScript():
             self.bin_data.extend(file_data)
             return True
 
-    def support_luadb_v2(self):
-        return self.core_suffix in ['.pac', ".soc"]
-
     def merge_add_all_crc(self):                 # 添加全文件CRC 校验
-        # if self.support_luadb_v2():
-        #     print("add crc file")
-        # else:
-        #     print("skip crc file")
-        #     return  # skip crc file
         magic_mag = struct.pack("<BBI", 0x01, 0x04, 0xA55AA55A)
         n = len(self.all_file_crc_name)
         name_msg = struct.pack("<BB%is" % n, 0x02, n, encode_ch(self.all_file_crc_name, d='utf-8'))
@@ -118,17 +93,17 @@ class CheckScript():
         soft_md5 = hashlib.md5(self.bin_data).hexdigest()
         if len(soft_md5) != 32:
             raise Exception("md5 check err %d" % len(soft_md5))
-        print(len(self.bin_data), soft_md5)
+        #print(len(self.bin_data), soft_md5)
         self.bin_data.extend(binascii.a2b_hex(soft_md5))
         return True
 
     def merge_soc_script(self, file_dir, all_files):
-            self.merge_add_head()
-            for _file in all_files:
-                if not self.merge_add_body(file_dir, _file):
-                    return False, _("合并") + " " + str(_file) + " " + _("时发生错误")
-            self.merge_add_all_crc()
-            return True, self.bin_data
+        self.merge_add_head()
+        for _file in all_files:
+            if not self.merge_add_body(file_dir, _file):
+                return False, _("合并") + " " + str(_file) + " " + _("时发生错误")
+        self.merge_add_all_crc()
+        return True, self.bin_data
 
 # 所搜指定目录下的所有文件和文件夹，但是不包括子文件夹下的文件
 def get_only_file_from_path(path, suffix=None):
@@ -150,7 +125,11 @@ def get_only_file_from_path(path, suffix=None):
 
 def merge(disk_path):
     all_files = get_only_file_from_path(disk_path)
+    if len(all_files) == 0 :
+        print("None File Found")
+        return False
     script = CheckScript()
+    script.all_files = all_files
     result, bin_data = script.merge_soc_script(disk_path, all_files)
     if not result:
         return False
@@ -160,9 +139,10 @@ def merge(disk_path):
         return True
 
 if __name__ == '__main__':
-    try:
-        if str(sys.argv[1]):
-            merge(Path(sys.argv[1]))
-    except:
-        print("请输入目录")
-    
+    if str(sys.argv[1]):
+        if not merge(Path(sys.argv[1])) :
+            print("merge FAIL!!!")
+            sys.exit(1)
+    else :
+        print("need path")
+        sys.exit(1)
