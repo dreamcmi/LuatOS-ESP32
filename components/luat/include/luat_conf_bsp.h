@@ -141,8 +141,8 @@
 #define LUAT_USE_LVGL_TILEVIEW   //平铺视图 依赖页面PAGE
 #define LUAT_USE_LVGL_WIN   //窗口 依赖容器CONT 按钮BTN 标签LABEL 图片IMG 页面PAGE
 
-#define LV_HOR_RES_MAX          (160)
-#define LV_VER_RES_MAX          (80)
+#define LV_HOR_RES_MAX          (320)
+#define LV_VER_RES_MAX          (320)
 #define LV_COLOR_DEPTH          16
 
 #define LV_COLOR_16_SWAP   1

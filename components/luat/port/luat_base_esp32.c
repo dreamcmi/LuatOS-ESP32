@@ -136,6 +136,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_ESPHTTP
     {"esphttp", luaopen_esphttp}, // esphttp
 #endif
+#ifdef LUAT_USE_LVGL
+    {"lvgl", luaopen_lvgl}, // lvgl
+#endif
 
 //-----------------------------------------------------------------------
 // 显示库
