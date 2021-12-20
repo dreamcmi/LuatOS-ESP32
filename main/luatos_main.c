@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "bget.h"
 #include "luat_base.h"
+#include "luat_msgbus.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -15,6 +16,11 @@
 #if CONFIG_IDF_TARGET_ESP32C3
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
+#endif
+
+#ifdef LUAT_USE_LVGL
+#include "lvgl.h"
+#include "luat_lvgl.h"
 #endif
 
 #ifdef CONFIG_SPIRAM
@@ -30,8 +36,27 @@
 #endif
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
+#ifdef LUAT_USE_LVGL
+
+static int luat_lvgl_cb(lua_State *L, void* ptr) {
+    lv_task_handler();
+    return 0;
+}
+
+static void luat_lvgl_callback(TimerHandle_t xTimer) {
+    lv_tick_inc(10);
+    rtos_msg_t msg = {0};
+    msg.handler = luat_lvgl_cb;
+    luat_msgbus_put(&msg, 0);
+}
+#endif
+
 void app_main(void)
 {
+#ifdef LUAT_USE_LVGL
+    lv_init();
+#endif
+
 #ifdef CONFIG_SPIRAM
     psram_size_t t = psram_get_size();
     switch (t)
@@ -66,5 +91,13 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
+#ifdef LUAT_USE_LVGL
+    lv_init();
+    TimerHandle_t os_timer;
+    os_timer = xTimerCreate("lvgl", 10 / portTICK_RATE_MS, true, NULL, luat_lvgl_callback);
+    xTimerStart(os_timer, 0);
+#endif
+
     luat_main();
 }
+

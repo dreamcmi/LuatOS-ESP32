@@ -13,6 +13,12 @@
 #include "esp_system.h"
 #include "esp_partition.h"
 
+#ifdef LUAT_USE_LVGL
+#include "lvgl.h"
+#include "luat_lvgl.h"
+#include "lv_sjpg.h"
+#endif
+
 static const char *TAG = "LSPIFFS";
 
 #ifdef LUAT_USE_FS_VFS
@@ -106,6 +112,13 @@ int luat_fs_init(void)
   else {
     ESP_LOGE("vfs", "script partition not found");
     luat_fs_mount(&conf2);
+
+#ifdef LUAT_USE_LVGL
+	luat_lv_fs_init();
+	// lv_bmp_init();
+	// lv_png_init();
+	lv_split_jpeg_init();
+#endif
   }
 	
 #endif
