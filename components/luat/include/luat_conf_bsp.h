@@ -32,7 +32,7 @@
 #define LUAT_USE_NTP 1
 // #define LUAT_USE_LWIP 1
 // #define LUAT_USE_BLE 1
-// #define LUAT_USE_ESPHTTP 1
+#define LUAT_USE_ESPHTTP 1
 
 // #define LUAT_USE_MCU  1
 // hwtimer库对lua代码没多少用处,通常禁用
@@ -98,7 +98,7 @@
 // ---------------------
 // LVGL
 // 主推的UI库, 功能强大但API繁琐
-// #define LUAT_USE_LVGL
+#define LUAT_USE_LVGL
 #define LV_DISP_DEF_REFR_PERIOD 30
 #define LUAT_LV_DEBUG 0
 
@@ -146,5 +146,9 @@
 #define LV_COLOR_DEPTH          16
 
 #define LV_COLOR_16_SWAP   1
+
+// #define LV_TICK_CUSTOM 1
+// #define LV_TICK_CUSTOM_INCLUDE  "freertos/task.h"         /*Header for the system time function*/
+// #define LV_TICK_CUSTOM_SYS_TIME_EXPR ((uint32_t)xTaskGetTickCount())     /*Expression evaluating to current system time in ms*/
 
 #endif

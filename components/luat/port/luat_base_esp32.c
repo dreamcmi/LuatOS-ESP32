@@ -30,6 +30,7 @@ LUAMOD_API int luaopen_pwm2(lua_State *L);
 LUAMOD_API int luaopen_esphttp(lua_State *L);
 LUAMOD_API int luaopen_ble(lua_State *L);
 LUAMOD_API int luaopen_ntp(lua_State *L);
+LUAMOD_API int luaopen_esphttp(lua_State *L);
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G

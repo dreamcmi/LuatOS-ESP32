@@ -55,7 +55,7 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_gif
             ../../../LuatOS/components/lvgl/exts/lv_png
             ../../../LuatOS/components/lvgl/exts/lv_qrcode
-    REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls
+    REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client
 )
 
 idf_build_set_property(C_COMPILE_OPTIONS "-D__LUATOS__=1 -Wno-error=unused-const-variable -Wno-error=pointer-sign" APPEND)
