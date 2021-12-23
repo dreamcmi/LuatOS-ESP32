@@ -25,10 +25,24 @@
 #define LUAT_LOG_TAG "esphttp"
 #include "luat_log.h"
 
+static int l_esphttp_event_finish_cb(lua_State *L, void* ptr) {
+    lua_getglobal(L, "sys_pub");
+    if (lua_isfunction(L, -1)) {
+        lua_pushstring(L, "ESPHTTP_EVT");
+        lua_pushlightuserdata(L, ptr);
+        lua_pushinteger(L, HTTP_EVENT_ON_FINISH);
+        lua_call(L, 3, 0);
+    }
+    return 0;
+}
+
 static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
     rtos_msg_t msg = {0};
-    msg.handler = NULL;
-    // msg.
+    if (evt->event_id == HTTP_EVENT_ON_FINISH) {
+        msg.handler = l_esphttp_event_finish_cb;
+        msg.ptr = evt->client;
+        luat_msgbus_put(&msg, 0);
+    }
     return ESP_OK;
 }
 
@@ -40,7 +54,8 @@ static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
 @return userdata 如果成功就返回client指针,否则返回nil
 @usage
 
-local httpc = esphttp.init("GET", "http://luatos.com/123.txt")
+-- 同步写法, 会阻塞
+local httpc = esphttp.init("GET", "http://httpbin.org/get")
 if httpc then
     local ok, err = esphttp.perform(httpc)
     if ok then
@@ -54,15 +69,46 @@ if httpc then
     end
     esphttp.cleanup(httpc)
 end
+
+-- 异步写法
+local httpc = esphttp.init("GET", "http://httpbin.org/get")
+if httpc then
+    local ok, err = esphttp.perform(httpc, true)
+    if ok then
+        local timeout = 120
+        ok = false
+        while timeout > 0 do
+            timeout = timeout = 20
+            local result, c, ret = sys.waitUntil("ESPHTTP_EVT", 20)
+            if c == httpc and ret == 5 then -- HTTP_EVENT_ON_FINISH
+                ok = true
+                break
+            end
+        end
+        if ok then
+            local code = esphttp.state_code(httpc)
+            log.info("esphttp", "code", code, "len", esphttp.content_length())
+            if code == 200 then
+                log.info("esphttp", "data", esphttp.read_response(httpc, 1024))
+            end
+        else
+            log.info("esphttp", "http wait timeout")
+        end
+    else
+        log.warn("esphttp", "bad perform", err)
+    end
+    esphttp.cleanup(httpc)
+end
 */
 static int l_esphttp_init(lua_State *L) {
     esp_http_client_config_t conf = {0};
     if (!lua_isinteger(L, 1) || !lua_isstring(L, 2)) {
         LLOGW("init with method and url!!!");
+        return 0;
     }
     conf.method = luaL_checkinteger(L, 1);
     conf.url = luaL_checkstring(L, 2);
-    //conf.event_handler = l_esphttp_event_handler; // TODO 仅https支持异步,这就很尴尬了
+    conf.event_handler = l_esphttp_event_handler; // TODO 仅https支持异步,这就很尴尬了
     esp_http_client_handle_t client = esp_http_client_init(&conf);
     if (client != NULL) {
         lua_pushlightuserdata(L, client);
@@ -95,6 +141,7 @@ static int l_esphttp_set_post_field(lua_State *L) {
         char *buff = (char *)malloc(len);
         memcpy(buff, data, len);
         data = (const char* )buff;
+        //client->userdata = data;
     }
     esp_err_t err = esp_http_client_set_post_field(client, data, len);
     lua_pushboolean(L, err == 0 ? 1 : 0);
@@ -102,10 +149,19 @@ static int l_esphttp_set_post_field(lua_State *L) {
     return 2;
 }
 
+static void esphttp_client_perform_t(void* ptr) {
+    esp_http_client_handle_t client = (esp_http_client_handle_t)ptr;
+    esp_err_t err = esp_http_client_perform(client);
+    if (err != ESP_OK) {
+
+    }
+}
+
 /*
 发起http请求
-@api esphttp.perform(client)
+@api esphttp.perform(client, async)
 @userdata 通过esphttp.init生产的client指针
+@boolean 是否异步, 默认情况下是同步, 异步可以等ESPHTTP_EVT事件
 @return boolean 成功与否
 @return int 底层返回值,调试用
 */
@@ -119,6 +175,20 @@ static int l_esphttp_perform(lua_State *L) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
+    if (lua_isboolean(L, 2) && lua_toboolean(L, 2)) {
+        int ret = xTaskCreate(esphttp_client_perform_t, "esphttp", 2*1024, client, 20, NULL);
+        if (pdPASS == ret)
+        {
+            lua_pushboolean(L, 1);
+            lua_pushinteger(L, 0);
+        }
+        else {
+            lua_pushboolean(L, 0);
+            lua_pushinteger(L, ret);
+        }
+        return 2;
+    }
+
     esp_err_t err = esp_http_client_perform(client);
     lua_pushboolean(L, err == 0 ? 1 : 0);
     lua_pushinteger(L, err);
@@ -142,6 +212,10 @@ static int l_esphttp_cleanup(lua_State *L) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
+    // if (client->userdata) {
+    //     free(client->userdata);
+    //     client->userdata = NULL;
+    // }
     esp_http_client_cleanup(client);
     return 0;
 }
@@ -213,6 +287,60 @@ static int l_esp_http_client_read_response(lua_State *L) {
     return 1;
 }
 
+/*
+设置http请求的header
+@api esphttp.set_header(client, key, value)
+@userdata 通过esphttp.init生产的client指针
+@string header的key, 必须是字符串
+@string header的value, 必须是字符串
+@return boolean 成功返回true,否则返回false
+@return int 底层返回的状态码,调试用
+*/
+static int l_esp_http_client_set_header(lua_State* L) {
+    if (!lua_islightuserdata(L, 1)) {
+        LLOGW("check your client , which is init by esphttp.init");
+        return 0;
+    }
+    esp_http_client_handle_t client = lua_touserdata(L, 1);
+    if (client == NULL) {
+        LLOGW("check your client , which is init by esphttp.init");
+        return 0;
+    }
+    const char* key = luaL_checkstring(L, 2);
+    const char* value = luaL_checkstring(L, 3);
+    esp_err_t err = esp_http_client_set_header(client, key, value);
+    lua_pushboolean(L, err == 0 ? 1 : 0);
+    lua_pushinteger(L, err);
+    return 2;
+}
+
+/*
+获取http响应的header
+@api esphttp.get_header(client, key)
+@userdata 通过esphttp.init生产的client指针
+@string header的key, 必须是字符串
+@return string 成功返回字符串,否则返回nil
+*/
+static int l_esp_http_client_get_header(lua_State* L) {
+    if (!lua_islightuserdata(L, 1)) {
+        LLOGW("check your client , which is init by esphttp.init");
+        return 0;
+    }
+    esp_http_client_handle_t client = lua_touserdata(L, 1);
+    if (client == NULL) {
+        LLOGW("check your client , which is init by esphttp.init");
+        return 0;
+    }
+    const char* key = luaL_checkstring(L, 2);
+    char buff[256];
+    esp_err_t err = esp_http_client_get_header(client, key, &buff);
+    if (err == ESP_OK) {
+        lua_pushstring(L, buff);
+        return 1;
+    }
+    return 0;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_esphttp[] =
 {
@@ -222,6 +350,8 @@ static const rotable_Reg reg_esphttp[] =
     { "status_code", l_esphttp_get_status_code, 0},
     { "content_length", l_esphttp_get_content_length, 0},
     { "read_response", l_esp_http_client_read_response, 0},
+    { "set_header", l_esp_http_client_set_header, 0},
+    { "get_header", l_esp_http_client_get_header, 0},
     { "cleanup", l_esphttp_cleanup, 0},
 
     // METHODS
