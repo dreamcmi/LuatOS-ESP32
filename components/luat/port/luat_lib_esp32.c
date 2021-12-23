@@ -119,6 +119,7 @@ esp32.enterLightSleep(0,9,0)
 -- rtc唤醒
 esp32.enterLightSleep(1,10*1000*1000)
 */
+#if CONFIG_IDF_TARGET_ESP32C3
 static int l_esp32_enter_light_sleep(lua_State *L)
 {
     int waketype = luaL_checkinteger(L, 1);
@@ -153,6 +154,7 @@ static int l_esp32_enter_light_sleep(lua_State *L)
     }
     return 0;
 }
+#endif
 
 /*
 deepsleep
@@ -212,15 +214,17 @@ temp
 @usage
 log.info("esp32","temp",esp32.temp())
 */
+#if CONFIG_IDF_TARGET_ESP32C3
 static int l_esp32_temp(lua_State *L)
 {
     float tsens_out = 0;
     temp_sensor_start();
     temp_sensor_read_celsius(&tsens_out);
     temp_sensor_stop();
-    lua_pushnumber(L,tsens_out);
+    lua_pushnumber(L, tsens_out);
     return 1;
 }
+#endif
 
 #include "rotable.h"
 static const rotable_Reg reg_esp32[] =
@@ -230,10 +234,10 @@ static const rotable_Reg reg_esp32[] =
         {"random", l_esp32_random, 0},
         {"getchip", l_esp32_get_chip, 0},
         {"getWakeupCause", l_esp32_get_wakeup_cause, 0},
-        {"enterLightSleep", l_esp32_enter_light_sleep, 0},
 #if CONFIG_IDF_TARGET_ESP32C3
+        {"enterLightSleep", l_esp32_enter_light_sleep, 0},
         {"enterDeepSleep", l_esp32_enter_deep_sleep, 0},
-        {"temp",l_esp32_temp,0},
+        {"temp", l_esp32_temp, 0},
 #endif
         {"GPIO", NULL, 0},
         {"RTC", NULL, 1},
@@ -241,11 +245,12 @@ static const rotable_Reg reg_esp32[] =
 
 LUAMOD_API int luaopen_esp32(lua_State *L)
 {
+#if CONFIG_IDF_TARGET_ESP32C3
     temp_sensor_config_t temp_sensor = {0};
     temp_sensor.dac_offset = TSENS_DAC_L2;
     temp_sensor.clk_div = 6;
     temp_sensor_set_config(temp_sensor);
-
+#endif
     luat_newlib(L, reg_esp32);
     return 1;
 }
