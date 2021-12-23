@@ -6,6 +6,7 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_timer.h"
+#include "driver/temp_sensor.h"
 
 #include <string.h>
 
@@ -204,6 +205,23 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
 }
 #endif
 
+/*
+temp
+@api esp32.temp()
+@return float temp 
+@usage
+log.info("esp32","temp",esp32.temp())
+*/
+static int l_esp32_temp(lua_State *L)
+{
+    float tsens_out = 0;
+    temp_sensor_start();
+    temp_sensor_read_celsius(&tsens_out);
+    temp_sensor_stop();
+    lua_pushnumber(L,tsens_out);
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_esp32[] =
     {
@@ -215,6 +233,7 @@ static const rotable_Reg reg_esp32[] =
         {"enterLightSleep", l_esp32_enter_light_sleep, 0},
 #if CONFIG_IDF_TARGET_ESP32C3
         {"enterDeepSleep", l_esp32_enter_deep_sleep, 0},
+        {"temp",l_esp32_temp,0},
 #endif
         {"GPIO", NULL, 0},
         {"RTC", NULL, 1},
@@ -222,6 +241,11 @@ static const rotable_Reg reg_esp32[] =
 
 LUAMOD_API int luaopen_esp32(lua_State *L)
 {
+    temp_sensor_config_t temp_sensor = {0};
+    temp_sensor.dac_offset = TSENS_DAC_L2;
+    temp_sensor.clk_div = 6;
+    temp_sensor_set_config(temp_sensor);
+
     luat_newlib(L, reg_esp32);
     return 1;
 }
