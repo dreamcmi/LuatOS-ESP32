@@ -7,7 +7,8 @@
 #include "mbedtls/md5.h"
 #include "md5_alt.h"
 
-#define LUAT_LOG_TAG "luat.crypto"
+
+#define LUAT_LOG_TAG "crypto"
 #include "luat_log.h"
 
 void luat_crypto_HmacSha1(const unsigned char *input, int ilen, unsigned char *output,const unsigned char *key, int keylen);
@@ -363,4 +364,10 @@ _exit:
     mbedtls_cipher_free(&ctx);
     luaL_pushresult(&buff);
     return 1;
+}
+
+//#include "esp_random.h"
+int luat_crypto_trng(char* buff, size_t len) {
+    //esp_fill_random(buff, len);
+    return 0;
 }

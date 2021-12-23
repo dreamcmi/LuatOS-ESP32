@@ -13,6 +13,7 @@
 // 使用Luat VFS(虚拟文件系统)和内置库文件, 与esp32的vfs不冲突
 #define LUAT_USE_FS_VFS 1
 #define LUAT_USE_VFS_INLINE_LIB 1
+#define LUAT_COMPILER_NOWEAK 1
 //----------------------------------
 
 //----------------------------
