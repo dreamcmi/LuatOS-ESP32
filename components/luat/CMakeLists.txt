@@ -12,7 +12,6 @@ idf_component_register(
              ../../../LuatOS/components/coremark
              ../../../LuatOS/components/sfud
              ../../../LuatOS/components/lcd
-             ../../../LuatOS/components/lvgl/src
              ../../../LuatOS/components/lvgl/gen/lv_core
              ../../../LuatOS/components/lvgl/gen/lv_draw
              ../../../LuatOS/components/lvgl/gen/lv_font
