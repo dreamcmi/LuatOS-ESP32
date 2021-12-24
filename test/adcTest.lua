@@ -4,7 +4,11 @@ local tag = "adcTest"
 
 local adcChannels = {}
 
-if MOD_TYPE == "air101" then adcChannels = {0, 1, 10} end
+if MOD_TYPE == "air101" then
+    adcChannels = {0, 1, 10}
+elseif MOD_TYPE == "ESP32C3" then
+    adcChannels = {0, 1, 2, 3, 4}
+end
 
 function adcTest.test()
     if adc == nil then
@@ -12,7 +16,7 @@ function adcTest.test()
         return
     end
     log.info(tag, "START")
-    for k, id in pairs(adcChannels) do
+    for _, id in pairs(adcChannels) do
         assert(adc.open(id) == true, tag .. ".open ERROR")
         log.info(tag .. ".read", adc.read(id))
         adc.close(id)
