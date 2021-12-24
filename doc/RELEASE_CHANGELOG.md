@@ -104,10 +104,34 @@ Add:
 
 
 
-
 注：ESP32S3发布固件分为两种，主要为了区分psram的接口类型，未接psram的可随意选择无影响。
 
+## 2021.12.24
 
+### ESP32 V0001_Beta4
 
+Fix: 
 
+1. SPI收发
+2. wifi连接逻辑优化
+
+Add:
+
+1. LCD库
+2. U8G2
+3. LVGL7
+4. Luadb文件系统
+5. esphttp库
+6. 分区表完善4/8/16M
+7. esp32库增加温度获取(C3)
+8. NTP库
+9. SFUD库
+10. pinmap.h 引脚统一配置
+
+Update:
+
+1. 固件格式统一luatos-soc格式,esp32v3工具更新支持,默认脚本路径为`/luadb/`
+2. idf版本更新到4.3.2(C3)
+3. 规范部分底层log
+4. 源码依赖LuatOS主仓库,本仓库只包含接口文件和工具
 
