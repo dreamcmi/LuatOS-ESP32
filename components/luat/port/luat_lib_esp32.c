@@ -23,8 +23,7 @@ static int l_esp32_getmac(lua_State *L)
     int type = luaL_optinteger(L, 1, 0);
     uint8_t mac[6] = {0};
     esp_read_mac(&mac, type);
-    char *macc = (char *)mac;
-    lua_pushlstring(L, macc, 6);
+    lua_pushlstring(L, (const char *)mac, 6);
     return 1;
 }
 
@@ -61,7 +60,7 @@ static int l_esp32_random(lua_State *L)
 @api esp32.getchip()
 @return table
 @usage
-local re = esp32.getchip()F
+local re = esp32.getchip()
 log.info("esp32", "chip", re['chip'])
 log.info("esp32", "features", re['features'])
 log.info("esp32", "cores", re['cores'])
@@ -119,7 +118,7 @@ esp32.enterLightSleep(0,9,0)
 -- rtc唤醒
 esp32.enterLightSleep(1,10*1000*1000)
 */
-#if CONFIG_IDF_TARGET_ESP32C3
+
 static int l_esp32_enter_light_sleep(lua_State *L)
 {
     int waketype = luaL_checkinteger(L, 1);
@@ -154,7 +153,6 @@ static int l_esp32_enter_light_sleep(lua_State *L)
     }
     return 0;
 }
-#endif
 
 /*
 deepsleep
@@ -168,7 +166,7 @@ esp32.enterDeepSleep(0,9,0)
 -- rtc唤醒
 esp32.enterDeepSleep(1,10*1000*1000)
 */
-#if CONFIG_IDF_TARGET_ESP32C3
+
 static int l_esp32_enter_deep_sleep(lua_State *L)
 {
     int waketype = luaL_checkinteger(L, 1);
@@ -178,11 +176,16 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
         if (pin >= 0 && pin <= 5)
         {
             int level = luaL_checkinteger(L, 3);
+#if CONFIG_IDF_TARGET_ESP32C3
             gpio_config_t config = {
                 .pin_bit_mask = BIT(pin),
                 .mode = GPIO_MODE_INPUT};
             ESP_ERROR_CHECK(gpio_config(&config));
             ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level));
+#else
+            const uint64_t ext_wakeup_pin_mask = 1ULL << pin;
+            esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_mask, level);
+#endif
             uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
             esp_deep_sleep_start();
         }
@@ -205,7 +208,6 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
     }
     return 0;
 }
-#endif
 
 /*
 temp
@@ -234,9 +236,9 @@ static const rotable_Reg reg_esp32[] =
         {"random", l_esp32_random, 0},
         {"getchip", l_esp32_get_chip, 0},
         {"getWakeupCause", l_esp32_get_wakeup_cause, 0},
-#if CONFIG_IDF_TARGET_ESP32C3
         {"enterLightSleep", l_esp32_enter_light_sleep, 0},
         {"enterDeepSleep", l_esp32_enter_deep_sleep, 0},
+#if CONFIG_IDF_TARGET_ESP32C3
         {"temp", l_esp32_temp, 0},
 #endif
         {"GPIO", NULL, 0},
