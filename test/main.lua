@@ -18,6 +18,7 @@ rtcTest = require("rtcTest")
 rtosTest = require("rtosTest")
 stringTest = require("stringTest")
 zbuffTest = require("zbuffTest")
+wlanTest = require("wlanTest")
 
 if mcu then mcu.setClk(240) end
 
@@ -35,5 +36,6 @@ rtcTest.test()
 rtosTest.test()
 stringTest.test()
 zbuffTest.test()
+wlanTest.test()
 
 sys.run()

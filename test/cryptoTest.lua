@@ -4,7 +4,6 @@ local tag = "cryptoTest"
 local testData = string.rep("cryptoTest", 10)
 local testKey = "123456"
 
--- local function upper(s) return string.upper(s) end
 local upper = string.upper
 
 function cryptoTest.test()
@@ -14,7 +13,6 @@ function cryptoTest.test()
     end
     log.info(tag, "START")
 
-    -- assert(upper() == upper(""), tag .. ". ERROR")
     assert(upper(crypto.md5(testData)) ==
                upper("5d0e9a7997bfa85e552af57710db3cb7"), tag .. ".md5 ERROR")
     assert(upper(crypto.hmac_md5(testData, testKey)) ==

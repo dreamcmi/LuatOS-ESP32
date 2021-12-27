@@ -3,12 +3,11 @@ fdbTest = {}
 local tag = "fdbTest"
 
 function fdbTest.test()
-    log.info(tag, "START")
     if fdb == nil then
         log.error(tag, "this fireware is not support fdb")
         return
     end
-
+    log.info(tag, "START")
     assert(fdb.kvdb_init("env", "onchip_flash") == true)
     assert(fdb.kv_set("testBool", false) == true, tag .. ".kv_set ERROR")
     assert(fdb.kv_set("testNumber1", 123) == true, tag .. ".kv_set ERROR")
