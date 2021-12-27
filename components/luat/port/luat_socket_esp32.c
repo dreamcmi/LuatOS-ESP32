@@ -21,10 +21,8 @@ sock = socket.creat(socket.TCP)
 */
 static int l_socket_creat(lua_State *L)
 {
-    int flags = 0;
     int sockType = luaL_checkinteger(L, 1);
     int sock = socket(AF_INET, sockType, IPPROTO_IP);
-    fcntl(sock, F_GETFL); // 设置非阻塞
     lua_pushinteger(L, sock);
     return 1;
 }
@@ -53,6 +51,7 @@ static int l_socket_connect(lua_State *L)
     dest_addr.sin_port = htons(host_port);
 
     int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
+    fcntl(sock, F_SETFL, O_NONBLOCK);
     lua_pushinteger(L, err);
     return 1;
 }
