@@ -19,6 +19,10 @@ rtosTest = require("rtosTest")
 stringTest = require("stringTest")
 zbuffTest = require("zbuffTest")
 wlanTest = require("wlanTest")
+socketTest = require("socketTest")
+bleTest = require("bleTest")
+esp32Test = require("esp32Test")
+espnowTest = require("espnowTest")
 
 if mcu then mcu.setClk(240) end
 
@@ -37,5 +41,9 @@ rtosTest.test()
 stringTest.test()
 zbuffTest.test()
 wlanTest.test()
+bleTest.test()
+socketTest.test()
+esp32Test.test()
+espnowTest.test()
 
 sys.run()
