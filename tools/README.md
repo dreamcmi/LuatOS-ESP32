@@ -19,22 +19,28 @@ Version : V3.0.0（Date：2021.11.12）
 
 ```toml
 [pkg]
-Repo = 'D:\gitee\esp32\LuatOS-ESP32\'
+Repo = "../"
+Release = false
+SocSupport = true
 
 [esp32c3]
-Type = 'uart' #'uart' or 'usb'
-COM = 'COM176'
-Baud = '921600'
-Firmware = 'LuatOS-SoC_esp32c3_V0001.bin'
-FsPath = 'demo'
-FsOffset = '0x310000'
-FsSize = '0XF0000'
+Type = "uart"
+COM = "COM3"
+Baud = "921600"
+Luadb = true
+Firmware = ""
+FsPath = "../demo/sesp32"
+FsOffset = "0x390000"
+FsSize = "0x70000"
+LuadbOffset = "0x310000"
 ```
 
 - [pkg]节点用于生成固件包
 - 每种soc都有一个单独的节点，如[esp32]  [esp32c3]
-- 用户可自定义部分为`COM` `Baud`  `Firmware` `FsPath`
-- `FsOffset` `FsSzize`非必要情况请保持默认
+- 用户可自定义部分为`COM` `Baud`  `Firmware` `FsPath` `Release` `SocSupport` `Luadb`
+- `FsOffset` `FsSzize` `LuadbOffset`非必要情况请保持默认
+- `Luadb`:使用luadb格式存储脚本 开启true 关闭false
+- `SocSupport`:使用luatos-soc统一固件格式 开启true 关闭false
 
 #### 上手指南
 
@@ -64,8 +70,8 @@ optional arguments:
  python esp32v3.py -t esp32c3 -r
  esp32c3刷脚本：
  python esp32v3.py -t esp32c3 -f
-esp32c3刷固件+脚本：
- python esp32v3.py -t esp32c3 -prf
+ esp32c3刷固件+脚本：
+ python esp32v3.py -t esp32c3 -rf
  ```
 
 
