@@ -2,21 +2,13 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "bget.h"
-#include "luat_base.h"
-#include "luat_msgbus.h"
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "freertos/timers.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
 
-// C3两层板可能会重启,先关闭毛刺
-#if CONFIG_IDF_TARGET_ESP32C3
-#include "soc/soc.h"
-#include "soc/rtc_cntl_reg.h"
-#endif
+#include "bget.h"
+#include "luat_base.h"
+#include "luat_msgbus.h"
 
 #ifdef LUAT_USE_LVGL
 #include "lvgl.h"
@@ -38,12 +30,14 @@ uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
 #ifdef LUAT_USE_LVGL
 
-static int luat_lvgl_cb(lua_State *L, void* ptr) {
+static int luat_lvgl_cb(lua_State *L, void *ptr)
+{
     lv_task_handler();
     return 0;
 }
 
-static void luat_lvgl_callback(TimerHandle_t xTimer) {
+static void luat_lvgl_callback(TimerHandle_t xTimer)
+{
     lv_tick_inc(10);
     rtos_msg_t msg = {0};
     msg.handler = luat_lvgl_cb;
@@ -53,9 +47,9 @@ static void luat_lvgl_callback(TimerHandle_t xTimer) {
 
 void app_main(void)
 {
-#ifdef LUAT_USE_LVGL
-    lv_init();
-#endif
+    uint8_t mac[6] = {0};
+    esp_read_mac(&mac, ESP_MAC_WIFI_STA);
+    printf("\nMac:%02x%02x%02x%02x%02x%02x\n",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
 
 #ifdef CONFIG_SPIRAM
     psram_size_t t = psram_get_size();
@@ -100,4 +94,3 @@ void app_main(void)
 
     luat_main();
 }
-
