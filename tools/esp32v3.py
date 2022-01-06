@@ -186,6 +186,10 @@ def pkgRom(chip):
         else:
             os.rename("luatos-esp32.bin", firmware_name + ".bin")
             config[chip]['Firmware'] = firmware_name + ".bin"
+        # 写入配置
+        with open('config.toml', "w", encoding='utf-8') as f:
+            toml.dump(config, f)
+            f.close()
 
     else:
         logging.error("not support chip")
