@@ -131,6 +131,7 @@ static int l_esp32_enter_light_sleep(lua_State *L)
             ESP_LOGE("LPM", "Error wakeup pin:%d", pin);
             return 0;
         }
+        gpio_reset_pin(pin);
         gpio_config_t config = {
             .pin_bit_mask = BIT64(pin),
             .mode = GPIO_MODE_INPUT};
@@ -173,27 +174,20 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
     if (waketype == 0)
     {
         int pin = luaL_checkinteger(L, 2);
-        if (pin >= 0 && pin <= 5)
-        {
-            int level = luaL_checkinteger(L, 3);
+        int level = luaL_checkinteger(L, 3);
+        gpio_reset_pin(pin);
 #if CONFIG_IDF_TARGET_ESP32C3
-            gpio_config_t config = {
-                .pin_bit_mask = BIT(pin),
-                .mode = GPIO_MODE_INPUT};
-            ESP_ERROR_CHECK(gpio_config(&config));
-            ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level));
+        gpio_config_t config = {
+            .pin_bit_mask = BIT(pin),
+            .mode = GPIO_MODE_INPUT};
+        ESP_ERROR_CHECK(gpio_config(&config));
+        ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level));
 #else
-            const uint64_t ext_wakeup_pin_mask = 1ULL << pin;
-            esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_mask, level);
+        const uint64_t ext_wakeup_pin_mask = 1ULL << pin;
+        esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_mask, level);
 #endif
-            uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
-            esp_deep_sleep_start();
-        }
-        else
-        {
-            ESP_LOGE("LPM", "Error gpio for deepsleep:%d", pin);
-            return 0;
-        }
+        uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
+        esp_deep_sleep_start();
     }
     else if (waketype == 1)
     {
