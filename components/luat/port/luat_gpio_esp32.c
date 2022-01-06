@@ -27,8 +27,9 @@ int luat_gpio_setup(luat_gpio_t *gpio)
 {
     if (!gpio_exist(gpio->pin))
         return -1;
-    //选择io
-    gpio_pad_select_gpio(gpio->pin);
+
+    // 先去初始化gpio(esp32c3的io18和19必须做这一步)
+    gpio_reset_pin(gpio->pin);
 
     //设置输入输出模式
     if (gpio->mode == Luat_GPIO_OUTPUT)
