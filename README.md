@@ -22,9 +22,11 @@
 
 欢迎提issue和pr帮助项目进步。
 
-## 3、进度
+## 3、相关文档
 
 [Support](./doc/SUPPORT.md)
+
+[ESP32C3解锁GPIO11](./doc/VDD_SPI_AS_GPIO.md)
 
 进度更新中，欢迎提需求。
 
