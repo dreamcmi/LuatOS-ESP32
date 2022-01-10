@@ -19,7 +19,7 @@
         "fs" : {
             "script" : {
                 "offset" : "0",
-                "size" : 256,
+                "size" : 512,
 				"type": "luadb"
             }
         },
@@ -41,7 +41,7 @@
         "use-debug" : true
     },
 	"fs" : {
-		"total_len" : 448,
+		"total_len" : 576,
 		"format_len" : "1000"
 	},
     "user" : {
