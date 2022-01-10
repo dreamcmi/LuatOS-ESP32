@@ -13,13 +13,15 @@ sys.taskInit(
 
         wlan.setMode(wlan.STATION)
         wlan.connect("xxxx", "123456789")
-        result, _ = sys.waitUntil("WLAN_STA_CONNECTED", 3000)
+        -- 等待连上路由,此时还没获取到ip
+        result, _ = sys.waitUntil("WLAN_STA_CONNECTED")
         log.info("wlan", "WLAN_STA_CONNECTED", result)
-
-        sys.wait(5000)
+        -- 等到成功获取ip就代表连上局域网了
+        result, data = sys.waitUntil("IP_READY")
+        log.info("wlan", "IP_READY", result, data)
 
         wlan.disconnect()
-        result, _ = sys.waitUntil("WLAN_STA_DISCONNECTED", 3000)
+        result, _ = sys.waitUntil("WLAN_STA_DISCONNECTED")
         log.info("wlan", "WLAN_STA_DISCONNECTED", result)
 
         log.info("wlan", "wlan_deinit", wlan.deinit())

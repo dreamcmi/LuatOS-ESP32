@@ -19,37 +19,50 @@ static int l_wlan_handler(lua_State *L, void *ptr)
 {
     rtos_msg_t *msg = (rtos_msg_t *)lua_topointer(L, -1);
     int event = msg->arg1;
+    int type = msg->arg2;
+    ip_event_got_ip_t *event_data = (ip_event_got_ip_t *)ptr;
 
-    lua_getglobal(L, "sys_pub");
-    if (lua_isnil(L, -1))
+    if (type == 0)
     {
-        lua_pushinteger(L, 0);
-        return 1;
+        switch (event)
+        {
+        case WIFI_EVENT_STA_START: // 网络就绪，可以链接wifi
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_READY");
+            lua_call(L, 1, 0);
+            esp_wifi_connect();
+            break;
+        case WIFI_EVENT_STA_CONNECTED: // 已连上wifi
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_STA_CONNECTED");
+            lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_STA_DISCONNECTED: //已断开wifi
+            lua_pushstring(L, "WLAN_STA_DISCONNECTED");
+            lua_call(L, 1, 0);
+            break;
+        default:
+            break;
+        }
     }
-    ESP_LOGI("wlan", "event：%d", event);
-    switch (event)
+    else if (type == 1)
     {
-    case WIFI_EVENT_WIFI_READY: // 网络就绪
-        lua_pushstring(L, "WLAN_READY");
-        lua_call(L, 1, 0);
-        // 额外发送一个通用事件 NET_READY
-        lua_getglobal(L, "sys_pub");
-        lua_pushstring(L, "NET_READY");
-        lua_call(L, 1, 0);
-        break;
-    case WIFI_EVENT_STA_START: // 连上wifi路由器/热点,但还没拿到ip
-        esp_wifi_connect();
-        lua_pushstring(L, "WLAN_STA_CONNECTED");
-        lua_pushinteger(L, 1);
-        lua_call(L, 2, 0);
-        break;
-    case WIFI_EVENT_STA_DISCONNECTED: // 从wifi路由器/热点断开了
-        lua_pushstring(L, "WLAN_STA_DISCONNECTED");
-        lua_call(L, 1, 0);
-        break;
-    default:
-        break;
+        switch (event)
+        {
+        case IP_EVENT_STA_GOT_IP: //已获得ip
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "IP_READY");
+            lua_pushfstring(L, "%d.%d.%d.%d", esp_ip4_addr1_16(&event_data->ip_info.ip),
+                                                esp_ip4_addr2_16(&event_data->ip_info.ip),
+                                                esp_ip4_addr3_16(&event_data->ip_info.ip),
+                                                esp_ip4_addr4_16(&event_data->ip_info.ip));
+            lua_call(L, 2, 0);
+            break;
+        default:
+            break;
+        }
     }
+
     lua_pushinteger(L, 0);
     return 1;
 }
@@ -61,8 +74,31 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     rtos_msg_t msg;
     msg.handler = l_wlan_handler;
     msg.ptr = NULL;
-    msg.arg1 = event_id;
     msg.arg2 = 0;
+
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    {
+        msg.arg1 = WIFI_EVENT_STA_START;
+        msg.arg2 = 0;
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    {
+        msg.arg1 = WIFI_EVENT_STA_DISCONNECTED;
+        msg.arg2 = 0;
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED)
+    {
+        msg.arg1 = WIFI_EVENT_STA_CONNECTED;
+        msg.arg2 = 0;
+    }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    {
+        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+        ESP_LOGI("wlan", "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        msg.arg1 = IP_EVENT_STA_GOT_IP;
+        msg.arg2 = 1;
+        msg.ptr = event_data;
+    }
     luat_msgbus_put(&msg, 1);
 }
 
@@ -230,7 +266,6 @@ static int l_wlan_get_ps(lua_State *L)
     lua_pushinteger(L, err);
     return 1;
 }
-
 
 #include "rotable.h"
 static const rotable_Reg reg_wlan[] =

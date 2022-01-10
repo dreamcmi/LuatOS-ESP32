@@ -13,18 +13,18 @@ sys.taskInit(
         log.info("wlan", "wlan_init:", ret)
         wlan.setMode(wlan.STATION)
         wlan.connect("xxxx", "123456789")
-        result, _ = sys.waitUntil("WLAN_STA_CONNECTED", 3000)
-        log.info("wlan", "WLAN_STA_CONNECTED", result)
+        -- 等到成功获取ip就代表连上局域网了
+        result, data = sys.waitUntil("IP_READY")
+        log.info("wlan", "IP_READY", result, data)
 
         log.info("socket", "begin socket")
         local sock = socket.creat(socket.TCP) -- tcp
 
         repeat
-            err = socket.connect(sock, "112.125.89.8", 37300)
-            print("socket connect wait")
-            sys.wait(1000)
+            err = socket.connect(sock, "112.125.89.8", 35227)
+            log.info("socket", err)
+            sys.wait(3000)  -- 重试间隔
         until (err == 0)
-        log.info("socket", "connected")
 
         len = socket.send(sock, "hello lua esp32c3")
         log.info("socket", "sendlen", len)
