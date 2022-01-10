@@ -198,6 +198,9 @@ def pkgRom(chip):
 
 def flashRom(rom, port, baud, chip):
     if chip == "esp32c3" or chip == "esp32s3":
+        if not os.path.isfile(rom):
+            logging.error("Firmware not configured")
+            sys.exit(-1)
         command_erase = ['--chip', chip, '--port', port, '--baud', baud, 'erase_flash']
         command = ['--chip', chip, '--port', port, '--baud', baud, 'write_flash', '0x0', rom]
         if config["pkg"]["SocSupport"]:
@@ -236,7 +239,7 @@ def flashRom(rom, port, baud, chip):
 
 
 def get_version():
-    return '3.1.0'
+    return '3.1.1'
 
 
 if __name__ == '__main__':
