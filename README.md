@@ -22,6 +22,10 @@
 
 欢迎提issue和pr帮助项目进步。
 
+ESP32开发QQ群：667220396
+
+LuatOS开发QQ群：1061642968
+
 ## 3、相关文档
 
 [Support](./doc/SUPPORT.md)
