@@ -160,8 +160,13 @@ def pkgRom(chip):
                 shutil.rmtree('tmp')
                 os.mkdir('tmp')
             shutil.move("luatos-esp32.bin", 'tmp/')
-            shutil.copy(config["pkg"]["Repo"] + "soc_tools/info.json", 'tmp/')
             shutil.copy(config["pkg"]["Repo"] + "soc_tools/soc_download.exe", 'tmp/')
+            if chip == "esp32c3":
+                shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_c3.json", 'tmp/')
+                os.rename("tmp/info_c3.json","tmp/info.json")
+            elif chip == "esp32s3":
+                shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_s3.json", 'tmp/')
+                os.rename("tmp/info_s3.json","tmp/info.json")
             
             # 改下bsp版本号
             # with open('./tmp/info.json', 'r', encoding='utf-8') as f:
@@ -239,7 +244,7 @@ def flashRom(rom, port, baud, chip):
 
 
 def get_version():
-    return '3.1.1'
+    return '3.1.2'
 
 
 if __name__ == '__main__':
