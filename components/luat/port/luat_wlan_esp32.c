@@ -38,6 +38,7 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             lua_call(L, 1, 0);
             break;
         case WIFI_EVENT_STA_DISCONNECTED: //已断开wifi
+            lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STA_DISCONNECTED");
             lua_call(L, 1, 0);
             break;
@@ -53,9 +54,9 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "IP_READY");
             lua_pushfstring(L, "%d.%d.%d.%d", esp_ip4_addr1_16(&event_data->ip_info.ip),
-                                                esp_ip4_addr2_16(&event_data->ip_info.ip),
-                                                esp_ip4_addr3_16(&event_data->ip_info.ip),
-                                                esp_ip4_addr4_16(&event_data->ip_info.ip));
+                            esp_ip4_addr2_16(&event_data->ip_info.ip),
+                            esp_ip4_addr3_16(&event_data->ip_info.ip),
+                            esp_ip4_addr4_16(&event_data->ip_info.ip));
             lua_call(L, 2, 0);
             break;
         default:
