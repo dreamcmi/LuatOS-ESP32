@@ -6,14 +6,23 @@ local sys = require "sys"
 
 sys.taskInit(
     function()
-        ret = wlan.init()
-        log.info("wlan", "wlan_init:", ret)
+        log.info("wlan", "wlan_init:", wlan.init())
+
+        sys.waitUntil("WLAN_READY", 1000)
+        log.info("wlan", "WLAN_READY")
+
         wlan.setMode(wlan.STATION)
         wlan.connect("xxxx", "123456789")
-        sys.wait(10 * 1000)
+        result, _ = sys.waitUntil("WLAN_STA_CONNECTED", 3000)
+        log.info("wlan", "WLAN_STA_CONNECTED", result)
+
+        sys.wait(5000)
+
         wlan.disconnect()
-        ret2 = wlan.deinit()
-        log.info("wlan", "wlan_deinit", ret2)
+        result, _ = sys.waitUntil("WLAN_STA_DISCONNECTED", 3000)
+        log.info("wlan", "WLAN_STA_DISCONNECTED", result)
+
+        log.info("wlan", "wlan_deinit", wlan.deinit())
     end
 )
 -- 用户代码已结束---------------------------------------------

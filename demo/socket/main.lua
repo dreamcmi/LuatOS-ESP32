@@ -12,10 +12,9 @@ sys.taskInit(
         ret = wlan.init()
         log.info("wlan", "wlan_init:", ret)
         wlan.setMode(wlan.STATION)
-        werr = wlan.connect("lua123456", "lua123456")
-        log.info("wlan", "wait connect",werr)
-        
-        sys.wait(2 * 1000) -- 稍微延时下
+        wlan.connect("xxxx", "123456789")
+        result, _ = sys.waitUntil("WLAN_STA_CONNECTED", 3000)
+        log.info("wlan", "WLAN_STA_CONNECTED", result)
 
         log.info("socket", "begin socket")
         local sock = socket.creat(socket.TCP) -- tcp
