@@ -6,11 +6,14 @@ local sys = require "sys"
 
 sys.taskInit(
     function()
-        local G8 = gpio.setup(8, 0) -- 输出模式
+        local LED_D4 = gpio.setup(12, 0)
+        local LED_D5 = gpio.setup(13, 0)
         while 1 do
-            G8(0)
+            LED_D4(0)
+            LED_D5(1)
             sys.wait(1000)
-            G8(1)
+            LED_D4(1)
+            LED_D5(0)
             sys.wait(1000)
         end
     end
