@@ -8,11 +8,12 @@ sys.taskInit(
     function()
         log.info("wlan", "wlan_init:", wlan.init())
 
-        sys.waitUntil("WLAN_READY", 1000)
-        log.info("wlan", "WLAN_READY")
-
         wlan.setMode(wlan.STATION)
         wlan.connect("xxxx", "123456789")
+
+        -- 参数已配置完成，后台将自动开始连接wifi
+        result, _ = sys.waitUntil("WLAN_READY")
+        log.info("wlan", "WLAN_READY", result)
         -- 等待连上路由,此时还没获取到ip
         result, _ = sys.waitUntil("WLAN_STA_CONNECTED")
         log.info("wlan", "WLAN_STA_CONNECTED", result)
