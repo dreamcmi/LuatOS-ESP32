@@ -18,7 +18,7 @@ sys.taskInit(
         log.info("wlan", "IP_READY", result, data)
 
         log.info("socket", "begin socket")
-        local sock = socket.creat(socket.TCP) -- tcp
+        local sock = socket.create(socket.TCP) -- tcp
 
         repeat
             err = socket.connect(sock, "112.125.89.8", 35227)

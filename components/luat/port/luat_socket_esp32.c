@@ -19,7 +19,7 @@ static const char *TAG = "lsocket";
 @usage
 sock = socket.creat(socket.TCP)
 */
-static int l_socket_creat(lua_State *L)
+static int l_socket_create(lua_State *L)
 {
     int sockType = luaL_checkinteger(L, 1);
     int sock = socket(AF_INET, sockType, IPPROTO_IP);
@@ -121,7 +121,7 @@ static int l_socket_close(lua_State *L)
 #include "rotable.h"
 static const rotable_Reg reg_socket[] =
     {
-        {"creat", l_socket_creat, 0},
+        {"create", l_socket_create, 0},
         {"connect", l_socket_connect, 0},
         {"send", l_socket_send, 0},
         {"recv", l_socket_recv, 0},
