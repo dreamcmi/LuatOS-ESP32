@@ -7,6 +7,8 @@
 #include "driver/uart.h"
 #include "esp_log.h"
 static const char *TAG = "LUART";
+extern xQueueHandle uart1_evt_queue;
+extern xQueueHandle uart2_evt_queue;
 
 int luat_uart_setup(luat_uart_t *uart)
 {
@@ -42,10 +44,20 @@ int luat_uart_setup(luat_uart_t *uart)
     }
 
     uart_config.stop_bits = uart->stop_bits;
-    uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-    uart_config.source_clk = UART_SCLK_APB,
+    uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
+    uart_config.source_clk = UART_SCLK_APB;
 
-    uart_driver_install(uart->id, uart->bufsz, 0, 0, NULL, 0);
+    switch (uart->id)
+    {
+    case 1:
+        uart_driver_install(uart->id, uart->bufsz, 1024 * 2, 20, &uart1_evt_queue, 0);
+        break;
+    case 2:
+        uart_driver_install(uart->id, uart->bufsz, 1024 * 2, 20, &uart2_evt_queue, 0);
+        break;
+    default:
+        break;
+    }
     uart_param_config(uart->id, &uart_config);
 
     switch (uart->id)
@@ -56,6 +68,11 @@ int luat_uart_setup(luat_uart_t *uart)
         uart_set_pin(1, _S3_U1TX, _S3_U1TX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 #endif
         break;
+#if CONFIG_IDF_TARGET_ESP32S3
+    case 2:
+        uart_set_pin(2, _S3_U2TX, _S3_U2RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+        break;
+#endif
     default:
         ESP_LOGE(TAG, "UARTID:%d not found", uart->id);
         return -1;

@@ -1,5 +1,7 @@
 #include "luat_base.h"
 #include "luat_gpio.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 
 #include "driver/gpio.h"
 
@@ -11,17 +13,13 @@ int gpio_exist(int pin)
         return 0;
 }
 
-//中断回调
-static void gpio_cb(void *ctx)
+extern xQueueHandle gpio_evt_queue;
+static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
-    int pin = (int)ctx;
-    rtos_msg_t msg = {0};
-    msg.handler = l_gpio_handler;
-    msg.ptr = NULL;
-    msg.arg1 = pin;
-    msg.arg2 = luat_gpio_get(pin);
-    luat_msgbus_put(&msg, 0);
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
+
 
 int luat_gpio_setup(luat_gpio_t *gpio)
 {
@@ -42,6 +40,7 @@ int luat_gpio_setup(luat_gpio_t *gpio)
     }
     else if (gpio->mode == Luat_GPIO_IRQ)
     {
+        gpio_set_direction(gpio->pin, GPIO_MODE_INPUT);
         // //设置中断
         switch (gpio->irq)
         {
@@ -56,7 +55,8 @@ int luat_gpio_setup(luat_gpio_t *gpio)
             gpio_set_intr_type(gpio->pin, GPIO_INTR_ANYEDGE);
             break;
         }
-        gpio_isr_register(gpio_cb, (void *)(gpio->pin), ESP_INTR_FLAG_LEVEL1, NULL);
+        gpio_install_isr_service(0);
+        gpio_isr_handler_add(gpio->pin, gpio_isr_handler, (void *)gpio->pin);
     }
 
     //设置上下拉
