@@ -142,7 +142,7 @@ def pkgRom(chip):
 
         # 进入合并流程
         base_offset = 0x0
-        with open("luatos-esp32.bin", "wb") as fout:
+        with open("luatos_esp32.bin", "wb") as fout:
             for offset, name in ss:
                 fout.write(b"\xff" * (int(offset, 16) - base_offset))
                 base_offset = int(offset, 16)
@@ -159,7 +159,7 @@ def pkgRom(chip):
             else:
                 shutil.rmtree('tmp')
                 os.mkdir('tmp')
-            shutil.move("luatos-esp32.bin", 'tmp/')
+            shutil.move("luatos_esp32.bin", 'tmp/')
             shutil.copy(config["pkg"]["Repo"] + "soc_tools/soc_download.exe", 'tmp/')
             if chip == "esp32c3":
                 shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_c3.json", 'tmp/')
@@ -189,7 +189,7 @@ def pkgRom(chip):
             shutil.rmtree("tmp")
             config[chip]['Firmware'] = firmware_name + ".soc"
         else:
-            os.rename("luatos-esp32.bin", firmware_name + ".bin")
+            os.rename("luatos_esp32.bin", firmware_name + ".bin")
             config[chip]['Firmware'] = firmware_name + ".bin"
         # 写入配置
         with open('config.toml', "w", encoding='utf-8') as f:
@@ -216,7 +216,7 @@ def flashRom(rom, port, baud, chip):
                 os.mkdir('tmp')
             zfile = zipfile.ZipFile(config[ChipName]['Firmware'], "r")
             zfile.extractall('./tmp')
-            command[-1] = "./tmp/luatos-esp32.bin"
+            command[-1] = "./tmp/luatos_esp32.bin"
         else:
             pass
         if config[chip]["Type"] == "uart":
