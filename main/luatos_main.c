@@ -35,8 +35,6 @@
 uint8_t luavm_heap[LUAT_HEAP_SIZE] = {0};
 
 xQueueHandle gpio_evt_queue = NULL;
-xQueueHandle uart1_evt_queue = NULL;
-xQueueHandle uart2_evt_queue = NULL;
 
 #ifdef LUAT_USE_LVGL
 static int luat_lvgl_cb(lua_State *L, void *ptr)
@@ -75,60 +73,7 @@ static void gpio_irq_task(void *arg)
     vTaskDelete(NULL);
 }
 
-static void uart1_irq_task(void *arg)
-{
-    uart_event_t event = {0};
-    rtos_msg_t msg = {0};
-    while (true)
-    {
-        if (xQueueReceive(uart1_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
-        {
-            switch (event.type)
-            {
-            case UART_DATA:
-                printf("uart1 data\n");
-                msg.handler = l_uart_handler;
-                msg.ptr = NULL;
-                msg.arg1 = 1; //uart1
-                msg.arg2 = 1; //recv
-                luat_msgbus_put(&msg, 0);
-                break;
-            //Others
-            default:
-                ESP_LOGE("uart", "uart1 event type: %d", event.type);
-                break;
-            }
-        }
-    }
-    vTaskDelete(NULL);
-}
 
-static void uart2_irq_task(void *arg)
-{
-    uart_event_t event = {0};
-    rtos_msg_t msg = {0};
-    while (true)
-    {
-        if (xQueueReceive(uart2_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
-        {
-            switch (event.type)
-            {
-            case UART_DATA:
-                msg.handler = l_uart_handler;
-                msg.ptr = NULL;
-                msg.arg1 = 2; //uart2
-                msg.arg2 = 1; //recv
-                luat_msgbus_put(&msg, 0);
-                break;
-            //Others
-            default:
-                ESP_LOGE("uart", "uart2 event type: %d", event.type);
-                break;
-            }
-        }
-    }
-    vTaskDelete(NULL);
-}
 
 void app_main(void)
 {
@@ -171,11 +116,7 @@ void app_main(void)
     ESP_ERROR_CHECK(ret);
 
     gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    uart1_evt_queue = xQueueCreate(10, sizeof(uart_event_t));
-    uart2_evt_queue = xQueueCreate(10, sizeof(uart_event_t));
     xTaskCreate(gpio_irq_task, "gpio_irq_task", 2048, NULL, 10, NULL);
-    xTaskCreate(uart1_irq_task, "uart1_irq_task", 2048, NULL, 11, NULL);
-    xTaskCreate(uart2_irq_task, "uart2_irq_task", 2048, NULL, 11, NULL);
 
 #ifdef LUAT_USE_LVGL
     lv_init();

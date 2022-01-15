@@ -7,8 +7,63 @@
 #include "driver/uart.h"
 #include "esp_log.h"
 static const char *TAG = "LUART";
-extern xQueueHandle uart1_evt_queue;
-extern xQueueHandle uart2_evt_queue;
+static xQueueHandle uart1_evt_queue = NULL;
+static xQueueHandle uart2_evt_queue = NULL;
+
+static void uart1_irq_task(void *arg)
+{
+    uart_event_t event = {0};
+    rtos_msg_t msg = {0};
+    while (true)
+    {
+        if (xQueueReceive(uart1_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
+        {
+            switch (event.type)
+            {
+            case UART_DATA:
+                // printf("uart1 data\n");
+                msg.handler = l_uart_handler;
+                msg.ptr = NULL;
+                msg.arg1 = 1; //uart1
+                msg.arg2 = 1; //recv
+                luat_msgbus_put(&msg, 0);
+                break;
+            //Others
+            default:
+                ESP_LOGE("uart", "uart1 event type: %d", event.type);
+                break;
+            }
+        }
+    }
+    vTaskDelete(NULL);
+}
+
+static void uart2_irq_task(void *arg)
+{
+    uart_event_t event = {0};
+    rtos_msg_t msg = {0};
+    while (true)
+    {
+        if (xQueueReceive(uart2_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
+        {
+            switch (event.type)
+            {
+            case UART_DATA:
+                msg.handler = l_uart_handler;
+                msg.ptr = NULL;
+                msg.arg1 = 2; //uart2
+                msg.arg2 = 1; //recv
+                luat_msgbus_put(&msg, 0);
+                break;
+            //Others
+            default:
+                ESP_LOGE("uart", "uart2 event type: %d", event.type);
+                break;
+            }
+        }
+    }
+    vTaskDelete(NULL);
+}
 
 int luat_uart_setup(luat_uart_t *uart)
 {
@@ -59,7 +114,18 @@ int luat_uart_setup(luat_uart_t *uart)
         break;
     }
     uart_param_config(uart->id, &uart_config);
-
+    uart_pattern_queue_reset(uart->id, 20);
+    switch (uart->id)
+    {
+    case 1:
+        xTaskCreate(uart1_irq_task, "uart1_irq_task", 4096, NULL, 10, NULL);
+        break;
+    case 2:
+        xTaskCreate(uart2_irq_task, "uart2_irq_task", 4096, NULL, 10, NULL);
+        break;
+    default:
+        break;
+    }
     switch (uart->id)
     {
     case 1:
@@ -99,7 +165,7 @@ int luat_uart_read(int uartid, void *buffer, size_t length)
 {
     if (luat_uart_exist(uartid))
     {
-        int err = uart_read_bytes(uartid, buffer, length, 20 / portTICK_RATE_MS);
+        int err = uart_read_bytes(uartid, buffer, length, portMAX_DELAY);
         if (err == -1)
             return -1;
         else
