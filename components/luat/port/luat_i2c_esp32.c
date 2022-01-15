@@ -95,7 +95,14 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
 #endif
         conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-        conf.master.clk_speed = speed;
+        if (speed == 0)
+        {
+            conf.master.clk_speed = 100 * 1000;
+        }
+        else if (speed == 1)
+        {
+            conf.master.clk_speed = 400 * 1000;
+        }
         conf.clk_flags = I2C_SCLK_DEFAULT;
         ESP_ERROR_CHECK(i2c_param_config(id, &conf));
         ESP_ERROR_CHECK(i2c_driver_install(id, conf.mode, 0, 0, 0));
