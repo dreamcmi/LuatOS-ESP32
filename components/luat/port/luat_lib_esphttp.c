@@ -59,8 +59,8 @@ local httpc = esphttp.init("GET", "http://httpbin.org/get")
 if httpc then
     local ok, err = esphttp.perform(httpc)
     if ok then
-        local code = esphttp.state_code(httpc)
-        log.info("esphttp", "code", code, "len", esphttp.content_length())
+        local code = esphttp.status_code(httpc)
+        log.info("esphttp", "code", code, "len", esphttp.content_length(httpc))
         if code == 200 then
             log.info("esphttp", "data", esphttp.read_response(httpc, 1024))
         end
@@ -71,23 +71,23 @@ if httpc then
 end
 
 -- 异步写法
-local httpc = esphttp.init("GET", "http://httpbin.org/get")
+local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
 if httpc then
     local ok, err = esphttp.perform(httpc, true)
     if ok then
         local timeout = 120
         ok = false
         while timeout > 0 do
-            timeout = timeout = 20
-            local result, c, ret = sys.waitUntil("ESPHTTP_EVT", 20)
+            timeout = timeout - 20
+            local result, c, ret = sys.waitUntil("ESPHTTP_EVT", 20000)
             if c == httpc and ret == 5 then -- HTTP_EVENT_ON_FINISH
                 ok = true
                 break
             end
         end
         if ok then
-            local code = esphttp.state_code(httpc)
-            log.info("esphttp", "code", code, "len", esphttp.content_length())
+            local code = esphttp.status_code(httpc)
+            log.info("esphttp", "code", code, "len", esphttp.content_length(httpc))
             if code == 200 then
                 log.info("esphttp", "data", esphttp.read_response(httpc, 1024))
             end
@@ -155,6 +155,7 @@ static void esphttp_client_perform_t(void* ptr) {
     if (err != ESP_OK) {
 
     }
+    vTaskDelete(NULL);
 }
 
 /*
@@ -176,7 +177,7 @@ static int l_esphttp_perform(lua_State *L) {
         return 0;
     }
     if (lua_isboolean(L, 2) && lua_toboolean(L, 2)) {
-        int ret = xTaskCreate(esphttp_client_perform_t, "esphttp", 2*1024, client, 20, NULL);
+        int ret = xTaskCreate(esphttp_client_perform_t, "esphttp", 8*1024, client, 20, NULL);
         if (pdPASS == ret)
         {
             lua_pushboolean(L, 1);
@@ -282,7 +283,8 @@ static int l_esp_http_client_read_response(lua_State *L) {
     int len = luaL_checkinteger(L, 2);
     luaL_Buffer buff;
     luaL_buffinitsize(L, &buff, len);
-    len = esp_http_client_read_response(client, buff.b, len);
+    len = esp_http_client_read(client, buff.b, len);
+    LLOGD("resp read %d", len);
     luaL_pushresultsize(&buff, len);
     return 1;
 }
