@@ -27,6 +27,7 @@ static void uart1_irq_task(void *arg)
                 msg.arg1 = 1; //uart1
                 msg.arg2 = 1; //recv
                 luat_msgbus_put(&msg, 0);
+                xQueueReset(uart1_evt_queue);
                 break;
             //Others
             default:
@@ -54,6 +55,7 @@ static void uart2_irq_task(void *arg)
                 msg.arg1 = 2; //uart2
                 msg.arg2 = 1; //recv
                 luat_msgbus_put(&msg, 0);
+                xQueueReset(uart2_evt_queue);
                 break;
             //Others
             default:
@@ -165,11 +167,11 @@ int luat_uart_read(int uartid, void *buffer, size_t length)
 {
     if (luat_uart_exist(uartid))
     {
-        int err = uart_read_bytes(uartid, buffer, length, portMAX_DELAY);
+        int err = uart_read_bytes(uartid, buffer, length, 10 / portTICK_RATE_MS);
         if (err == -1)
             return -1;
         else
-            return 0;
+            return err;
     }
     else
         return -1;
