@@ -153,11 +153,8 @@ int luat_uart_write(int uartid, void *data, size_t length)
 {
     if (luat_uart_exist(uartid))
     {
-        int err = uart_write_bytes(uartid, (const char *)data, length);
-        if (err == -1)
-            return -1;
-        else
-            return 0;
+        int len = uart_write_bytes(uartid, (const char *)data, length);
+        return len;
     }
     else
         return -1;
@@ -167,11 +164,8 @@ int luat_uart_read(int uartid, void *buffer, size_t length)
 {
     if (luat_uart_exist(uartid))
     {
-        int err = uart_read_bytes(uartid, buffer, length, 10 / portTICK_RATE_MS);
-        if (err == -1)
-            return -1;
-        else
-            return err;
+        int len = uart_read_bytes(uartid, buffer, length, 10 / portTICK_RATE_MS);
+        return len;
     }
     else
         return -1;
