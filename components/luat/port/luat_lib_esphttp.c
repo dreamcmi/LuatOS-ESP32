@@ -25,24 +25,47 @@
 #define LUAT_LOG_TAG "esphttp"
 #include "luat_log.h"
 
-static int l_esphttp_event_finish_cb(lua_State *L, void* ptr) {
+typedef struct resp_data {
+    size_t len;
+    char buff[4];
+}resp_data_t;
+
+static int l_esphttp_event_cb(lua_State *L, void* ptr) {
+    rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     lua_getglobal(L, "sys_pub");
     if (lua_isfunction(L, -1)) {
         lua_pushstring(L, "ESPHTTP_EVT");
         lua_pushlightuserdata(L, ptr);
-        lua_pushinteger(L, HTTP_EVENT_ON_FINISH);
-        lua_call(L, 3, 0);
+        lua_pushinteger(L, msg->arg1);
+        if (msg->arg1 == HTTP_EVENT_ON_DATA) {
+            resp_data_t* re = (resp_data_t*)msg->arg2;
+            lua_pushlstring(L, re->buff, re->len);
+            lua_call(L, 4, 0);
+        }
+        else {
+            lua_call(L, 3, 0);
+        }
     }
     return 0;
 }
 
 static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
     rtos_msg_t msg = {0};
-    if (evt->event_id == HTTP_EVENT_ON_FINISH) {
-        msg.handler = l_esphttp_event_finish_cb;
-        msg.ptr = evt->client;
+    msg.handler = l_esphttp_event_cb;
+    msg.arg1 = evt->event_id;
+    msg.ptr = evt->client;
+    if (evt->event_id == HTTP_EVENT_ON_DATA)
+    {
+        resp_data_t* re = luat_heap_malloc(evt->data_len + 4);
+        re->len = evt->data_len;
+        memcpy(re->buff, evt->data, evt->data_len);
+        msg.arg2 = (uint32_t) re;
         luat_msgbus_put(&msg, 0);
     }
+    else { // 缺省, 直接给
+        luat_msgbus_put(&msg, 0);
+    }
+    LLOGD("event %d", evt->event_id);
     return ESP_OK;
 }
 
@@ -54,45 +77,21 @@ static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
 @return userdata 如果成功就返回client指针,否则返回nil
 @usage
 
--- 同步写法, 会阻塞
-local httpc = esphttp.init("GET", "http://httpbin.org/get")
-if httpc then
-    local ok, err = esphttp.perform(httpc)
-    if ok then
-        local code = esphttp.status_code(httpc)
-        log.info("esphttp", "code", code, "len", esphttp.content_length(httpc))
-        if code == 200 then
-            log.info("esphttp", "data", esphttp.read_response(httpc, 1024))
-        end
-    else
-        log.warn("esphttp", "bad perform", err)
-    end
-    esphttp.cleanup(httpc)
-end
-
 -- 异步写法
 local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
 if httpc then
     local ok, err = esphttp.perform(httpc, true)
     if ok then
-        local timeout = 120
-        ok = false
-        while timeout > 0 do
-            timeout = timeout - 20
-            local result, c, ret = sys.waitUntil("ESPHTTP_EVT", 20000)
-            if c == httpc and ret == 5 then -- HTTP_EVENT_ON_FINISH
-                ok = true
-                break
+        while 1 do
+            local result, c, ret, data = sys.waitUntil("ESPHTTP_EVT", 20000)
+            if c == httpc then
+                if ret == esphttp.EVENT_ERROR or ret == esphttp.EVENT_DISCONNECTED then
+                    break
+                end
+                if ret == esphttp.EVENT_ON_DATA and esphttp.status_code(httpc) == 200 then
+                    log.info("data", "resp", data)
+                end
             end
-        end
-        if ok then
-            local code = esphttp.status_code(httpc)
-            log.info("esphttp", "code", code, "len", esphttp.content_length(httpc))
-            if code == 200 then
-                log.info("esphttp", "data", esphttp.read_response(httpc, 1024))
-            end
-        else
-            log.info("esphttp", "http wait timeout")
         end
     else
         log.warn("esphttp", "bad perform", err)
@@ -108,7 +107,9 @@ static int l_esphttp_init(lua_State *L) {
     }
     conf.method = luaL_checkinteger(L, 1);
     conf.url = luaL_checkstring(L, 2);
-    conf.event_handler = l_esphttp_event_handler; // TODO 仅https支持异步,这就很尴尬了
+    conf.event_handler = l_esphttp_event_handler;
+    conf.keep_alive_enable = false;
+    conf.user_data = (void*)0;
     esp_http_client_handle_t client = esp_http_client_init(&conf);
     if (client != NULL) {
         lua_pushlightuserdata(L, client);
@@ -152,9 +153,7 @@ static int l_esphttp_set_post_field(lua_State *L) {
 static void esphttp_client_perform_t(void* ptr) {
     esp_http_client_handle_t client = (esp_http_client_handle_t)ptr;
     esp_err_t err = esp_http_client_perform(client);
-    if (err != ESP_OK) {
-
-    }
+    LLOGD("esphttp_client_perform async ret %d", err);
     vTaskDelete(NULL);
 }
 
@@ -283,8 +282,9 @@ static int l_esp_http_client_read_response(lua_State *L) {
     int len = luaL_checkinteger(L, 2);
     luaL_Buffer buff;
     luaL_buffinitsize(L, &buff, len);
+    //LLOGD("try read %d %p", len, client);
     len = esp_http_client_read(client, buff.b, len);
-    LLOGD("resp read %d", len);
+    //LLOGD("resp read %d %p", len, client);
     luaL_pushresultsize(&buff, len);
     return 1;
 }
@@ -343,6 +343,26 @@ static int l_esp_http_client_get_header(lua_State* L) {
     return 0;
 }
 
+static int l_esphttp_is_done(lua_State* L) {
+    if (!lua_islightuserdata(L, 1)) {
+        LLOGW("check your client , which is init by esphttp.init");
+        return 0;
+    }
+    esp_http_client_handle_t client = lua_touserdata(L, 1);
+    if (client == NULL) {
+        LLOGW("check your client , which is init by esphttp.init");
+        return 0;
+    }
+    int event_id = luaL_checkinteger(L, 2);
+    if (event_id == HTTP_EVENT_ON_FINISH || event_id == HTTP_EVENT_DISCONNECTED || event_id == HTTP_EVENT_ERROR) {
+        lua_pushboolean(L, 1);
+    }
+    else {
+        lua_pushboolean(L, 0);
+    }
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_esphttp[] =
 {
@@ -355,6 +375,7 @@ static const rotable_Reg reg_esphttp[] =
     { "set_header", l_esp_http_client_set_header, 0},
     { "get_header", l_esp_http_client_get_header, 0},
     { "cleanup", l_esphttp_cleanup, 0},
+    { "is_done", l_esphttp_is_done, 0},
 
     // METHODS
     { "GET", NULL, HTTP_METHOD_GET},
@@ -362,6 +383,11 @@ static const rotable_Reg reg_esphttp[] =
     { "PUT", NULL, HTTP_METHOD_PUT},
     { "PATCH", NULL, HTTP_METHOD_PATCH},
     { "DELETE", NULL, HTTP_METHOD_DELETE},
+
+    { "EVENT_ON_FINISH", NULL, HTTP_EVENT_ON_FINISH},
+    { "EVENT_ERROR", NULL, HTTP_EVENT_ERROR},
+    { "EVENT_DISCONNECTED", NULL, HTTP_EVENT_DISCONNECTED},
+    { "EVENT_ON_DATA", NULL, HTTP_EVENT_ON_DATA},
 
 	{ NULL,          NULL ,          0}
 };

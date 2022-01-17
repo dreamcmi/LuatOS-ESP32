@@ -4,6 +4,8 @@ VERSION = "1.0.0"
 -- 引入必要的库文件(lua编写), 内部库不需要require
 local sys = require "sys"
 
+log.info("main", "ask for help", "https://wiki.luatos.com")
+
 sys.taskInit(
     function()
         log.info("wlan", "wlan_init:", wlan.init())
@@ -25,32 +27,23 @@ sys.taskInit(
             local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
             if httpc then
                 local ok, err = esphttp.perform(httpc, true)
-                log.info("httpc", "perform", ok, err)
                 if ok then
-                    local timeout = 120
-                    ok = false
-                    while timeout > 0 do
-                        timeout = timeout - 20
-                        local result, c, ret = sys.waitUntil("ESPHTTP_EVT", 20000)
-                        log.info("httpc", "ESPHTTP_EVT", result, c, ret)
-                        if c == httpc and ret == 5 then -- HTTP_EVENT_ON_FINISH
-                            ok = true
-                            break
+                    while 1 do
+                        local result, c, ret, data = sys.waitUntil("ESPHTTP_EVT", 20000)
+                        log.info("httpc", result, c, ret)
+                        if c == httpc then
+                            if esphttp.is_done(httpc, ret) then
+                                break
+                            end
+                            if ret == esphttp.EVENT_ON_DATA and esphttp.status_code(httpc) == 200 then
+                                log.info("data", "resp", data)
+                            end
                         end
                     end
-                    if ok then
-                        local code = esphttp.status_code(httpc)
-                        log.info("esphttp", "code", code, "len", esphttp.content_length(httpc))
-                        if code == 200 then
-                            sys.wait(100)
-                            log.info("esphttp", "data", esphttp.read_response(httpc, 1024))
-                        end
-                    else
-                        log.info("esphttp", "http wait timeout")
-                    end
+                else
+                    log.warn("esphttp", "bad perform", err)
                 end
-            else
-                log.warn("http", "can't create httpc")
+                esphttp.cleanup(httpc)
             end
             sys.wait(5000)
         end
