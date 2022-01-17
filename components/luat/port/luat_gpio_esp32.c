@@ -5,6 +5,15 @@
 
 #include "driver/gpio.h"
 
+static uint8_t uart_isr_sta = 0;
+
+extern xQueueHandle gpio_evt_queue;
+static void IRAM_ATTR gpio_isr_handler(void *arg)
+{
+    uint32_t gpio_num = (uint32_t)arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+
 int gpio_exist(int pin)
 {
     if (pin >= 0 && pin < GPIO_NUM_MAX)
@@ -12,14 +21,6 @@ int gpio_exist(int pin)
     else
         return 0;
 }
-
-extern xQueueHandle gpio_evt_queue;
-static void IRAM_ATTR gpio_isr_handler(void* arg)
-{
-    uint32_t gpio_num = (uint32_t) arg;
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
-}
-
 
 int luat_gpio_setup(luat_gpio_t *gpio)
 {
@@ -55,7 +56,11 @@ int luat_gpio_setup(luat_gpio_t *gpio)
             gpio_set_intr_type(gpio->pin, GPIO_INTR_ANYEDGE);
             break;
         }
-        gpio_install_isr_service(0);
+        if (uart_isr_sta == 0)
+        {
+            gpio_install_isr_service(0);
+            uart_isr_sta = 1;
+        }
         gpio_isr_handler_add(gpio->pin, gpio_isr_handler, (void *)gpio->pin);
     }
 
