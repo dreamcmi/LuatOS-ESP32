@@ -31,7 +31,7 @@
 #define LUAT_USE_ESP32LIB 1
 #define LUAT_USE_SOCKET 1
 #define LUAT_USE_NTP 1
-#define LUAT_USE_LWIP 1
+// #define LUAT_USE_LWIP 1
 // #define LUAT_USE_BLE 1
 #define LUAT_USE_ESPHTTP 1
 #define LUAT_USE_ESPMQTT 1
