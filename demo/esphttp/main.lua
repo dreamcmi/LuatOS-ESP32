@@ -11,7 +11,7 @@ sys.taskInit(
         log.info("wlan", "wlan_init:", wlan.init())
 
         wlan.setMode(wlan.STATION)
-        wlan.connect("uiot", "czcjhp1985cbm")
+        wlan.connect("uiot", "1234567890")
 
         -- 参数已配置完成，后台将自动开始连接wifi
         result, _ = sys.waitUntil("WLAN_READY")
@@ -24,7 +24,8 @@ sys.taskInit(
         log.info("wlan", "IP_READY", result, data)
 
         while true do
-            local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
+            --local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
+            local httpc = esphttp.init(esphttp.GET, "https://httpbin.org/get")
             if httpc then
                 local ok, err = esphttp.perform(httpc, true)
                 if ok then
