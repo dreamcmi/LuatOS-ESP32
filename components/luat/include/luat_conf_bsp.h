@@ -31,7 +31,7 @@
 #define LUAT_USE_ESP32LIB 1
 #define LUAT_USE_SOCKET 1
 #define LUAT_USE_NTP 1
-#define LUAT_USE_LWIP 1
+// #define LUAT_USE_LWIP 1
 // #define LUAT_USE_BLE 1
 #define LUAT_USE_ESPHTTP 1
 #define LUAT_USE_ESPMQTT 1
@@ -39,7 +39,7 @@
 // #define LUAT_USE_MCU  1
 // hwtimer库对lua代码没多少用处,通常禁用
 // #define LUAT_USE_HWTIMER  1
-// #define LUAT_USE_RTC 1
+#define LUAT_USE_RTC 1
 
 
 //----------------------------
@@ -48,7 +48,7 @@
 #define LUAT_USE_CJSON  1
 #define LUAT_USE_ZBUFF  1
 #define LUAT_USE_PACK  1
-// #define LUAT_USE_GNSS  1
+// #define LUAT_USE_LIBGNSS  1
 #define LUAT_USE_FS  1
 #define LUAT_USE_SENSOR  1
 #define LUAT_USE_SFUD  1

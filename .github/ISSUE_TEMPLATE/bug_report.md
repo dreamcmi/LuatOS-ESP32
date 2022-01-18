@@ -1,9 +1,10 @@
-```undefined
 ---
-name: BUG REPORT
-about: 报告项目bug
+name: Bug Report
+about: 报告bug
+title: "“
+labels: “”
+assignees: “”
 ---
-```
 
 > 如果不按该格式进行填写，开发者可能会忽略或直接关闭该issue。
 
