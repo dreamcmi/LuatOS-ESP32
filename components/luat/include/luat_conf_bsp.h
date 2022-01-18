@@ -34,6 +34,7 @@
 #define LUAT_USE_LWIP 1
 // #define LUAT_USE_BLE 1
 #define LUAT_USE_ESPHTTP 1
+#define LUAT_USE_ESPMQTT 1
 
 // #define LUAT_USE_MCU  1
 // hwtimer库对lua代码没多少用处,通常禁用

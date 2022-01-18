@@ -25,12 +25,11 @@
 LUAMOD_API int luaopen_espnow(lua_State *L);
 LUAMOD_API int luaopen_rmt(lua_State *L);
 LUAMOD_API int luaopen_esp32(lua_State *L);
-LUAMOD_API int luaopen_espnow(lua_State *L);
 LUAMOD_API int luaopen_pwm2(lua_State *L);
-LUAMOD_API int luaopen_esphttp(lua_State *L);
 LUAMOD_API int luaopen_ble(lua_State *L);
 LUAMOD_API int luaopen_ntp(lua_State *L);
 LUAMOD_API int luaopen_esphttp(lua_State *L);
+LUAMOD_API int luaopen_espmqtt(lua_State *L);
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -136,6 +135,9 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_ESPHTTP
     {"esphttp", luaopen_esphttp}, // esphttp
+#endif
+#ifdef LUAT_USE_ESPMQTT
+    {"espmqtt", luaopen_espmqtt}, // espmqtt
 #endif
 #ifdef LUAT_USE_LVGL
     {"lvgl", luaopen_lvgl}, // lvgl
