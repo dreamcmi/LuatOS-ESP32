@@ -1,4 +1,4 @@
-cryptoTest = {}
+local cryptoTest = {}
 
 local tag = "cryptoTest"
 local testData = string.rep("cryptoTest", 10)

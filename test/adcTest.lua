@@ -1,4 +1,4 @@
-adcTest = {}
+local adcTest = {}
 
 local tag = "adcTest"
 

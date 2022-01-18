@@ -1,4 +1,4 @@
-fsTest = {}
+local fsTest = {}
 
 local tag = "fsTest"
 
@@ -8,8 +8,8 @@ function fsTest.test()
         return
     end
     log.info(tag, "START")
-    log.info(tag .. ".fsstat", fs.fsstat("/"))
-    log.info(tag .. ".fsize", fs.fsize("/main.luac"))
+    log.info(tag .. ".fsstat", fs.fsstat("/luadb"))
+    log.info(tag .. ".fsize", fs.fsize("/luadb/main.luac"))
     log.info(tag, "DONE")
 end
 

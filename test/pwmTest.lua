@@ -1,4 +1,4 @@
-pwmTest = {}
+local pwmTest = {}
 
 local tag = "pwmTest"
 if MOD_TYPE == "air101" then

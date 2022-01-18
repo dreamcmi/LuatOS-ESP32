@@ -1,4 +1,4 @@
-stringTest = {}
+local stringTest = {}
 
 local tag = "stringTest"
 

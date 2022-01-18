@@ -1,4 +1,4 @@
-zbuffTest = {}
+local zbuffTest = {}
 
 local tag = "zbuffTest"
 

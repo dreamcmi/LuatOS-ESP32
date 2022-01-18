@@ -1,4 +1,4 @@
-espnowTest = {}
+local espnowTest = {}
 
 local tag = "espnowTest"
 

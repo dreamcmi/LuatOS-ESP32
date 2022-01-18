@@ -1,4 +1,4 @@
-gpioTest = {}
+local gpioTest = {}
 
 local tag = "gpioTest"
 local gpioList = {}
@@ -21,25 +21,25 @@ function gpioTest.test()
     end
     log.info(tag, "START")
     for _, v in pairs(gpioList) do
-        assert(gpio.setDefaultPull(1) == true, tag .. ".setDefaultPull ERROR")
-        gpio.setup(v, 1)
-        assert(gpio.get(v) == 1, tag .. ".get ERROR " .. v)
-        gpio.set(v, 0)
-        assert(gpio.get(v) == 0, tag .. ".get ERROR " .. v)
-        assert(gpio.setDefaultPull(2) == true, tag .. ".setDefaultPull ERROR")
-        gpio.setup(v, 0)
-        assert(gpio.get(v) == 0, tag .. ".get ERROR " .. v)
-        assert(gpio.setDefaultPull(1) == true, tag .. ".setDefaultPull ERROR")
-        gpio.setup(v, nil)
-        assert(gpio.get(v) == 1, tag .. ".get ERROR " .. v)
-        assert(gpio.setDefaultPull(2) == true, tag .. ".setDefaultPull ERROR")
-        gpio.setup(v, nil)
-        assert(gpio.get(v) == 0, tag .. ".get ERROR " .. v)
-        assert(gpio.setDefaultPull(1) == true, tag .. ".setDefaultPull ERROR")
+        -- assert(gpio.setDefaultPull(1) == true, tag .. ".setDefaultPull ERROR")
+        -- gpio.setup(v, 1)
+        -- assert(gpio.get(v) == 1, tag .. ".get ERROR " .. v)
+        -- gpio.set(v, 0)
+        -- assert(gpio.get(v) == 0, tag .. ".get ERROR " .. v)
+        -- assert(gpio.setDefaultPull(2) == true, tag .. ".setDefaultPull ERROR")
+        -- gpio.setup(v, 0)
+        -- assert(gpio.get(v) == 0, tag .. ".get ERROR " .. v)
+        -- assert(gpio.setDefaultPull(1) == true, tag .. ".setDefaultPull ERROR")
+        -- gpio.setup(v, nil)
+        -- assert(gpio.get(v) == 1, tag .. ".get ERROR " .. v)
+        -- assert(gpio.setDefaultPull(2) == true, tag .. ".setDefaultPull ERROR")
+        -- gpio.setup(v, nil)
+        -- assert(gpio.get(v) == 0, tag .. ".get ERROR " .. v)
+        -- assert(gpio.setDefaultPull(1) == true, tag .. ".setDefaultPull ERROR")
         gpio.setup(v, function()
             log.info(tag .. ".int-" .. v, gpio.get(v))
-        end)
-        gpio.close(v)
+        end, gpio.PULLUP)
+        -- gpio.close(v)
     end
     log.info(tag, "DONE")
 end

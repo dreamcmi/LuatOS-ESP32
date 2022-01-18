@@ -1,4 +1,4 @@
-rtcTest = {}
+local rtcTest = {}
 
 local tag = "rtcTest"
 

@@ -1,4 +1,4 @@
-esp32Test = {}
+local esp32Test = {}
 
 local tag = "esp32Test"
 
@@ -27,10 +27,8 @@ function esp32Test.test()
     ethmac = esp32.getmac(3)
     log.info("ethmac", string.toHex(ethmac))
 
-    while 1 do
-        log.info("esp32", "random", esp32.random())
-        sys.wait(3000)
-    end
+    log.info("esp32", "random", esp32.random())
+
     log.info(tag, "DONE")
 end
 

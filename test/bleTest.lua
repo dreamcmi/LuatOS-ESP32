@@ -1,4 +1,4 @@
-bleTest = {}
+local bleTest = {}
 
 local tag = "bleTest"
 

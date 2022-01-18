@@ -1,6 +1,8 @@
-pinTest = {}
+local pinTest = {}
 
 local tag = "pinTest"
+
+local pinList = {}
 
 if MOD_TYPE == "air101" then
     pinList = {

@@ -1,4 +1,4 @@
-rtosTest = {}
+local rtosTest = {}
 
 local tag = "rtosTest"
 

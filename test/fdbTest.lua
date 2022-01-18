@@ -1,4 +1,4 @@
-fdbTest = {}
+local fdbTest = {}
 
 local tag = "fdbTest"
 

@@ -1,4 +1,4 @@
-jsonTest = {}
+local jsonTest = {}
 
 local tag = "jsonTest"
 

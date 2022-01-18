@@ -3,47 +3,51 @@ VERSION = "1.0.0"
 MOD_TYPE = rtos.bsp()
 log.info("MOD_TYPE", MOD_TYPE)
 
+function printTable(tbl, lv)
+    lv = lv and lv .. "\t" or ""
+    print(lv .. "{")
+    for k, v in pairs(tbl) do
+        if type(k) == "string" then k = "\"" .. k .. "\"" end
+        if "string" == type(v) then
+            local qv = string.match(string.format("%q", v), ".(.*).")
+            v = qv == v and '"' .. v .. '"' or "'" .. v:toHex() .. "'"
+        end
+        if type(v) == "table" then
+            print(lv .. "\t" .. tostring(k) .. " = ")
+            printTable(v, lv)
+        else
+
+            print(lv .. "\t" .. tostring(k) .. " = " .. tostring(v) .. ",")
+        end
+    end
+    print(lv .. "},")
+end
+
 sys = require("sys")
-adcTest = require("adcTest")
-cryptoTest = require("cryptoTest")
-fdbTest = require("fdbTest")
-i2cTest = require("i2cTest")
-fsTest = require("fsTest")
-gpioTest = require("gpioTest")
-jsonTest = require("jsonTest")
-pwmTest = require("pwmTest")
-mcuTest = require("mcuTest")
-pinTest = require("pinTest")
-rtcTest = require("rtcTest")
-rtosTest = require("rtosTest")
-stringTest = require("stringTest")
-zbuffTest = require("zbuffTest")
-wlanTest = require("wlanTest")
-socketTest = require("socketTest")
-bleTest = require("bleTest")
-esp32Test = require("esp32Test")
-espnowTest = require("espnowTest")
 
-if mcu then mcu.setClk(240) end
-
-adcTest.test()
-cryptoTest.test()
-fdbTest.test()
-i2cTest.test()
-fsTest.test()
-gpioTest.test()
-jsonTest.test()
-pwmTest.test()
-mcuTest.test()
-pinTest.test()
-rtcTest.test()
-rtosTest.test()
-stringTest.test()
-zbuffTest.test()
-wlanTest.test()
-bleTest.test()
-socketTest.test()
-esp32Test.test()
-espnowTest.test()
+sys.taskInit(function()
+    require("adcTest").test()
+    require("cryptoTest").test()
+    require("fdbTest").test()
+    require("i2cTest").test()
+    require("fsTest").test()
+    require("gpioTest").test()
+    require("jsonTest").test()
+    require("pwmTest").test()
+    require("mcuTest").test()
+    require("pinTest").test()
+    require("rtcTest").test()
+    require("rtosTest").test()
+    require("stringTest").test()
+    require("zbuffTest").test()
+    require("wlanTest").test()
+    require("socketTest").test()
+    require("mqttTest").test()
+    require("bleTest").test()
+    require("esp32Test").test()
+    require("espnowTest").test()
+    require("cameraTest").test()
+    require("uartTest").test()
+end)
 
 sys.run()
