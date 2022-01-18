@@ -100,7 +100,7 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_PACK
     {"pack", luaopen_pack}, // pack.pack/pack.unpack
 #endif
-#ifdef LUAT_USE_GNSS
+#ifdef LUAT_USE_LIBGNSS
     {"libgnss", luaopen_libgnss}, // 处理GNSS定位数据
 #endif
 #ifdef LUAT_USE_FS
