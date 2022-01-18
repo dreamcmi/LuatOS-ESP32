@@ -1,0 +1,8 @@
+blank_issues_enabled:false
+contact_links:
+- name: GitHub Repo
+url: https://github.com/dreamcmi/LuatOS-ESP32
+about: GitHub Repo
+- name: Gitee Repo
+url: https://gitee.com/dreamcmi/LuatOS-ESP32
+about: Gitee Repo
