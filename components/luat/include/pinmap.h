@@ -13,8 +13,8 @@
 // ESP32S3
 #define _S3_U1TX        (17)
 #define _S3_U1RX        (18)
-#define _S3_U2TX        (33)
-#define _S3_U2RX        (34)
+#define _S3_U2TX        (41)
+#define _S3_U2RX        (42)
 #define _S3_SCL0        (5)
 #define _S3_SDA0        (4)
 #define _S3_SCL1        (7)
