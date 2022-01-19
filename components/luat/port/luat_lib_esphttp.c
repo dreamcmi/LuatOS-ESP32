@@ -40,6 +40,7 @@ static int l_esphttp_event_cb(lua_State *L, void* ptr) {
         if (msg->arg1 == HTTP_EVENT_ON_DATA) {
             resp_data_t* re = (resp_data_t*)msg->arg2;
             lua_pushlstring(L, re->buff, re->len);
+            luat_heap_free(re);
             lua_call(L, 4, 0);
         }
         else {
@@ -61,7 +62,6 @@ static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
         memcpy(re->buff, evt->data, evt->data_len);
         msg.arg2 = (uint32_t) re;
         luat_msgbus_put(&msg, 0);
-        luat_heap_free(re);
     }
     else { // 缺省, 直接给
         luat_msgbus_put(&msg, 0);
