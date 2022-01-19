@@ -131,12 +131,12 @@ int luat_uart_setup(luat_uart_t *uart)
     switch (uart->id)
     {
     case 1:
+#if CONFIG_IDF_TARGET_ESP32C3
         uart_set_pin(1, _C3_U1TX, _C3_U1RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-#if CONFIG_IDF_TARGET_ESP32S3
-        uart_set_pin(1, _S3_U1TX, _S3_U1TX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-#endif
         break;
-#if CONFIG_IDF_TARGET_ESP32S3
+#elif CONFIG_IDF_TARGET_ESP32S3
+        uart_set_pin(1, _S3_U1TX, _S3_U1RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+        break;
     case 2:
         uart_set_pin(2, _S3_U2TX, _S3_U2RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
         break;
