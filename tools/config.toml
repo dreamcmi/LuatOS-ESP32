@@ -5,22 +5,22 @@ SocSupport = true
 
 [esp32c3]
 Type = "uart"
-COM = "COM176"
-Baud = "921600"
+COM = "COM3"
+Baud = "2000000"
 Luadb = true
-Firmware = ""
-FsPath = "../demo/esp32"
+Firmware = "LuatOS-SoC_esp32c3_68c6235_20220119142501.soc"
+FsPath = "../demo/pwm2"
 FsOffset = "0x390000"
 FsSize = "0x70000"
 LuadbOffset = "0x310000"
 
 [esp32s3]
 Type = "uart"
-COM = "COM80"
+COM = "COM4"
 Baud = "921600"
 Luadb = true
-Firmware = ""
-FsPath = "../demo/esp32"
+Firmware = "LuatOS-SoC_esp32s3_fcb54ad_20220111002544.soc"
+FsPath = "../demo/uart"
 FsOffset = "0x770000"
 FsSize = "0x90000"
 LuadbOffset = "0x670000"

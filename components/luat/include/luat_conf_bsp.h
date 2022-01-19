@@ -24,6 +24,7 @@
 #define LUAT_USE_SPI  1
 #define LUAT_USE_ADC  1
 #define LUAT_USE_PWM  1
+#define LUAT_USE_PWM2  1
 // #define LUAT_USE_RMT 1
 
 #define LUAT_USE_WLAN 1

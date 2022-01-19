@@ -72,6 +72,9 @@ static const luaL_Reg loadedlibs[] = {
     {"sdio", luaopen_sdio}, // SDIO模块
 #endif
 #ifdef LUAT_USE_PWM
+    {"pwm", luaopen_pwm}, // PWM模块
+#endif
+#ifdef LUAT_USE_PWM2
     {"pwm2", luaopen_pwm2}, // PWM模块
 #endif
 #ifdef LUAT_USE_RMT
