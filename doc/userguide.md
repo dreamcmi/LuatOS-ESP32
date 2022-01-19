@@ -62,6 +62,13 @@
 
 ![config](../img/03configesp.png)
 
+```shell
+命令行：
+idf.py set-target esp32c3	// 设置编译目标为esp32c3
+idf.py build				// 编译
+idf.py -p COM3 flash		// 刷写
+```
+
 2、sdkconfig文件非必要不要修改，已经给出default文件作为默认
 
 3、欢迎提pull request 和issue
