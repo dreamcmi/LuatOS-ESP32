@@ -361,6 +361,13 @@ static void smartconfig_task(void *parm)
     }
 }
 
+/*
+smartconfig配网(默认esptouch)
+@api wlan.smartconfig()
+@return int 创建成功0 失败1
+@usage 
+wlan.smartconfigStop()
+*/
 static int l_wlan_smartconfig(lua_State *L)
 {
     esp_wifi_start();
@@ -369,6 +376,13 @@ static int l_wlan_smartconfig(lua_State *L)
     return 1;
 }
 
+/*
+smartconfig配网停止
+@api wlan.smartconfigStop()
+@return int esp_err
+@usage 
+wlan.smartconfig()
+*/
 static int l_wlan_smartconfig_stop(lua_State *L)
 {
     esp_err_t err = esp_smartconfig_stop();
