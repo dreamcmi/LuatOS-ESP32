@@ -31,7 +31,7 @@ static void uart1_irq_task(void *arg)
                 break;
             //Others
             default:
-                ESP_LOGE("uart", "uart1 event type: %d", event.type);
+                // ESP_LOGE("uart", "uart1 event type: %d", event.type);
                 break;
             }
         }
@@ -59,7 +59,7 @@ static void uart2_irq_task(void *arg)
                 break;
             //Others
             default:
-                ESP_LOGE("uart", "uart2 event type: %d", event.type);
+                // ESP_LOGE("uart", "uart2 event type: %d", event.type);
                 break;
             }
         }
