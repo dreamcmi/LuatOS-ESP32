@@ -8,6 +8,8 @@
 #include "esp_netif.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
+#include "lwip/dns.h"
+#include "lwip/netdb.h"
 
 static const char *TAG = "lsocket";
 
@@ -118,6 +120,38 @@ static int l_socket_close(lua_State *L)
     return 0;
 }
 
+/*
+解析域名
+@api socket.dns(addr,port,sockType)
+@string 域名
+@string 端口,默认80
+@int socket类型,默认tcp
+@return ip
+@usage
+socket.dns("wiki.luatos.com")
+*/
+static int l_socket_dns(lua_State *L)
+{
+    const char *gaddr = luaL_checkstring(L, 1);
+    const char *gport = luaL_optstring(L, 2, "80");
+
+    char buf[100];
+    struct sockaddr_in *ipv4 = NULL;
+    struct addrinfo *result;
+
+    const struct addrinfo hints = {
+        .ai_family = AF_INET,
+        .ai_socktype = luaL_optinteger(L, 3, SOCK_STREAM),
+    };
+
+    getaddrinfo(gaddr, gport, &hints, &result);
+    ipv4 = (struct sockaddr_in *)result->ai_addr;
+    inet_ntop(result->ai_family, &ipv4->sin_addr, buf, sizeof(buf));
+
+    lua_pushlstring(L, buf, strlen(buf));
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_socket[] =
     {
@@ -126,6 +160,7 @@ static const rotable_Reg reg_socket[] =
         {"send", l_socket_send, 0},
         {"recv", l_socket_recv, 0},
         {"close", l_socket_close, 0},
+        {"dns", l_socket_dns, 0},
 
         {"TCP", NULL, SOCK_STREAM},
         {"UDP", NULL, SOCK_DGRAM},
