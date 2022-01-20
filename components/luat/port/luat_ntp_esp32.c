@@ -33,6 +33,14 @@ void time_sync_notification_cb(struct timeval *tv)
     luat_msgbus_put(&msg, 1);
 }
 
+/*
+ntp初始化
+@api ntp.init(servername)
+@string ntp服务器地址
+@return 0
+@usage
+ntp.init("ntp.ntsc.ac.cn")
+*/
 static int l_ntp_init(lua_State *L)
 {
     size_t len = 0;
@@ -45,6 +53,14 @@ static int l_ntp_init(lua_State *L)
     return 0;
 }
 
+/*
+ntp设置时区
+@api ntp.settz(tz)
+#string 时区 具体参数请看(https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html)
+@return 0
+@usage
+ntp.settz("CST-8")
+*/
 static int l_ntp_settz(lua_State *L)
 {
     size_t len = 0;

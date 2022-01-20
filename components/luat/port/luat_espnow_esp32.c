@@ -123,8 +123,8 @@ static int l_espnow_init(lua_State *L)
 
 /*
 设置pmk
-@api espnow.setPmk()
-@string pmk
+@api espnow.setPmk(pmk)
+@string pmk primary master key
 @return int esp_err
 @usage 
 espnow.setPmk("pmk1234567890123")
@@ -140,7 +140,7 @@ static int l_espnow_set_pmk(lua_State *L)
 
 /*
 增加espnow peer
-@api espnow.addPeer()
+@api espnow.addPeer(mac,lmk)
 @string mac地址
 @string lmk
 @return int esp_err
@@ -186,7 +186,7 @@ static int l_espnow_add_peer(lua_State *L)
 
 /*
 espnow发送
-@api espnow.send()
+@api espnow.send(mac,data)
 @string mac地址
 @string 发送的数据
 @return int  err
@@ -214,10 +214,8 @@ espnow.deinit()
 static int l_espnow_deinit(lua_State *L)
 {
     esp_err_t err = -1;
-    err = esp_wifi_stop();
-    ESP_ERROR_CHECK(err);
-    err = esp_event_loop_delete_default();
-    ESP_ERROR_CHECK(err);
+    ESP_ERROR_CHECK(esp_wifi_stop());
+    ESP_ERROR_CHECK(esp_event_loop_delete_default());
     err = esp_now_deinit();
     lua_pushinteger(L, err);
     return 1;

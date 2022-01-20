@@ -12,7 +12,7 @@
 
 /*
 获取mac
-@api esp32.getmac()
+@api esp32.getmac(id)
 @int mac地址来源 0:ESP_MAC_WIFI_STA 1:ESP_MAC_WIFI_SOFTAP 2:ESP_MAC_BT 3:ESP_MAC_ETH
 @return string mac地址
 @usage
@@ -29,7 +29,7 @@ static int l_esp32_getmac(lua_State *L)
 
 /*
 获取重启原因
-@api esp32.getRstReason()
+@api esp32.getRstReason(id)
 @return int esp_reset_reason_t
 @usage
 esp32.getRstReason()
@@ -203,14 +203,14 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
     return 0;
 }
 
+#if CONFIG_IDF_TARGET_ESP32C3
 /*
-temp
+esp32c3芯片温度
 @api esp32.temp()
 @return float temp 
 @usage
 log.info("esp32","temp",esp32.temp())
 */
-#if CONFIG_IDF_TARGET_ESP32C3
 static int l_esp32_temp(lua_State *L)
 {
     float tsens_out = 0;
