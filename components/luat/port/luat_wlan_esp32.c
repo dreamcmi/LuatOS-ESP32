@@ -223,7 +223,7 @@ static int l_wlan_set_mode(lua_State *L)
 /*
 初始化wifi
 @api wlan.init()
-@return int   返回esp_err
+@return int esp_err
 @usage 
 -- 在使用wifi前初始化一下
 wlan.init()
@@ -245,9 +245,9 @@ static int l_wlan_init(lua_State *L)
 /*
 连接wifi,成功启动联网线程不等于联网成功!!
 @api wlan.connect(ssid,password)
-@string  ssid  wifi的SSID
+@string ssid  wifi的SSID
 @string password wifi的密码,可选
-@return int 返回esp_err
+@return int esp_err
 @usage 
 -- 连接到uiot,密码1234567890
 wlan.connect("uiot", "1234567890")
@@ -278,7 +278,7 @@ static int l_wlan_connect(lua_State *L)
 /*
 断开wifi
 @api wlan.disconnect()
-@return int 返回esp_err
+@return int esp_err
 @usage
 -- 断开wifi连接 
 wlan.disconnect()
@@ -293,7 +293,7 @@ static int l_wlan_disconnect(lua_State *L)
 /*
 去初始化wifi
 @api wlan.deinit()
-@return int 返回esp_err
+@return int esp_err
 @usage
 -- 去初始化wifi
 wlan.deinit()
@@ -301,10 +301,8 @@ wlan.deinit()
 static int l_wlan_deinit(lua_State *L)
 {
     esp_err_t err = -1;
-    err = esp_wifi_stop();
-    ESP_ERROR_CHECK(err);
-    err = esp_event_loop_delete_default();
-    ESP_ERROR_CHECK(err);
+    ESP_ERROR_CHECK(esp_wifi_stop());
+    ESP_ERROR_CHECK(esp_event_loop_delete_default());
     err = esp_wifi_deinit();
     lua_pushinteger(L, err);
     return 1;
@@ -312,9 +310,9 @@ static int l_wlan_deinit(lua_State *L)
 
 /*
 设置wifi省电
-@api wlan.setps()
-@int 省电等级 0:WIFI_PS_NONE  1:WIFI_PS_MIN_MODEM 2:WIFI_PS_MAX_MODEM
-@return int 返回esp_err
+@api wlan.setps(ID)
+@int 省电等级 省电等级 wlan.PS_NONE  wlan.PS_MIN_MODEM wlan.PS_MAX_MODEM
+@return int esp_err
 @usage
 wlan.setps(1)
 */
@@ -330,7 +328,7 @@ static int l_wlan_set_ps(lua_State *L)
 获取wifi省电模式
 @api wlan.getps()
 @return int esp_err
-@usage  省电等级 0:WIFI_PS_NONE  1:WIFI_PS_MIN_MODEM 2:WIFI_PS_MAX_MODEM
+@usage  省电等级 wlan.PS_NONE  wlan.PS_MIN_MODEM wlan.PS_MAX_MODEM
 wlan.getps()
 */
 static int l_wlan_get_ps(lua_State *L)
@@ -345,15 +343,18 @@ static int l_wlan_get_ps(lua_State *L)
 static void smartconfig_task(void *parm)
 {
     EventBits_t uxBits;
-    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_ESPTOUCH) );
+    ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH));
     smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK( esp_smartconfig_start(&cfg) );
-    while (1) {
+    ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
+    while (1)
+    {
         uxBits = xEventGroupWaitBits(s_wifi_event_group, BIT0 | BIT1, true, false, portMAX_DELAY);
-        if(uxBits & BIT0) {
+        if (uxBits & BIT0)
+        {
             ESP_LOGI(TAG, "WiFi Connected to ap");
         }
-        if(uxBits & BIT1) {
+        if (uxBits & BIT1)
+        {
             ESP_LOGI(TAG, "smartconfig over");
             esp_smartconfig_stop();
             vTaskDelete(NULL);
@@ -386,7 +387,7 @@ wlan.smartconfig()
 static int l_wlan_smartconfig_stop(lua_State *L)
 {
     esp_err_t err = esp_smartconfig_stop();
-    lua_pushinteger(L,err);
+    lua_pushinteger(L, err);
     return 1;
 }
 
@@ -402,12 +403,15 @@ static const rotable_Reg reg_wlan[] =
         {"setps", l_wlan_set_ps, 0},
         {"getps", l_wlan_get_ps, 0},
         {"smartconfig", l_wlan_smartconfig, 0},
-        {"smartconfigStop",l_wlan_smartconfig_stop,0},
+        {"smartconfigStop", l_wlan_smartconfig_stop, 0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
         {"STATION", NULL, WIFI_MODE_STA},
         {"AP", NULL, WIFI_MODE_AP},
         {"STATIONAP", NULL, WIFI_MODE_APSTA},
+        {"PS_NONE", NULL, WIFI_PS_NONE},
+        {"PS_MIN_MODEM", NULL, WIFI_PS_MIN_MODEM},
+        {"PS_MAX_MODEM", NULL, WIFI_PS_MAX_MODEM},
         {NULL, NULL, 0}};
 
 LUAMOD_API int luaopen_wlan(lua_State *L)
