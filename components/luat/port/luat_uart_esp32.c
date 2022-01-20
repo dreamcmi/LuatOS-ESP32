@@ -7,8 +7,36 @@
 #include "driver/uart.h"
 #include "esp_log.h"
 static const char *TAG = "LUART";
+static xQueueHandle uart0_evt_queue = NULL;
 static xQueueHandle uart1_evt_queue = NULL;
 static xQueueHandle uart2_evt_queue = NULL;
+
+static void uart0_irq_task(void *arg)
+{
+    uart_event_t event = {0};
+    rtos_msg_t msg = {0};
+    while (true)
+    {
+        if (xQueueReceive(uart0_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
+        {
+            switch (event.type)
+            {
+            case UART_DATA:
+                msg.handler = l_uart_handler;
+                msg.ptr = NULL;
+                msg.arg1 = 0; //uart1
+                msg.arg2 = 1; //recv
+                luat_msgbus_put(&msg, 0);
+                xQueueReset(uart0_evt_queue);
+                break;
+            default:
+                // ESP_LOGE("uart", "uart1 event type: %d", event.type);
+                break;
+            }
+        }
+    }
+    vTaskDelete(NULL);
+}
 
 static void uart1_irq_task(void *arg)
 {
@@ -29,7 +57,6 @@ static void uart1_irq_task(void *arg)
                 luat_msgbus_put(&msg, 0);
                 xQueueReset(uart1_evt_queue);
                 break;
-            //Others
             default:
                 // ESP_LOGE("uart", "uart1 event type: %d", event.type);
                 break;
@@ -57,7 +84,6 @@ static void uart2_irq_task(void *arg)
                 luat_msgbus_put(&msg, 0);
                 xQueueReset(uart2_evt_queue);
                 break;
-            //Others
             default:
                 // ESP_LOGE("uart", "uart2 event type: %d", event.type);
                 break;
@@ -106,11 +132,14 @@ int luat_uart_setup(luat_uart_t *uart)
 
     switch (uart->id)
     {
+    case 0:
+        uart_driver_install(0, uart->bufsz, 1024 * 2, 20, &uart0_evt_queue, 0);
+        break;
     case 1:
-        uart_driver_install(uart->id, uart->bufsz, 1024 * 2, 20, &uart1_evt_queue, 0);
+        uart_driver_install(1, uart->bufsz, 1024 * 2, 20, &uart1_evt_queue, 0);
         break;
     case 2:
-        uart_driver_install(uart->id, uart->bufsz, 1024 * 2, 20, &uart2_evt_queue, 0);
+        uart_driver_install(2, uart->bufsz, 1024 * 2, 20, &uart2_evt_queue, 0);
         break;
     default:
         break;
@@ -119,6 +148,9 @@ int luat_uart_setup(luat_uart_t *uart)
     uart_pattern_queue_reset(uart->id, 20);
     switch (uart->id)
     {
+    case 0:
+        xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 10, NULL);
+        break;
     case 1:
         xTaskCreate(uart1_irq_task, "uart1_irq_task", 4096, NULL, 10, NULL);
         break;
@@ -184,18 +216,10 @@ int luat_uart_close(int uartid)
 
 int luat_uart_exist(int uartid)
 {
-#if CONFIG_IDF_TARGET_ESP32C3
-    if (uartid == 1)
+    if (uartid < SOC_UART_NUM)
         return 1;
-#elif CONFIG_IDF_TARGET_ESP32S3
-    if (uartid >= 1 && uartid <= 2)
-        return 1;
-#else
-    if (uartid == 1)
-        return 1;
-#endif
-    ESP_LOGE(TAG, "uart%d not exist", uartid);
-    return 0;
+    else
+        return 0;
 }
 
 int luat_setup_cb(int uartid, int received, int sent)
