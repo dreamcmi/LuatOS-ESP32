@@ -135,3 +135,38 @@ Update:
 3. 规范部分底层log
 4. 源码依赖LuatOS主仓库,本仓库只包含接口文件和工具
 
+## 2022.1.20
+
+### ESP32 V0001-RC1
+
+Fix:
+
+1. GPIO中断
+2. UART中断
+3. socket阻塞问题
+4. 打包格式文件名错误
+5. TASK_WDT_TIMEOUT改为10s
+6. i2c多字节读取数据错乱
+7. uart读取阻塞问题
+8. C3 io18和19不可用问题
+
+Add:
+
+1. ESPHTTP
+2. ESPMQTT
+3. PWM(仅做兼容)
+4. socket支持dns解析域名
+5. 启用libgnss
+6. uart0开放使用,115200 8n1
+7. smartconfig
+8. 开机打印mac,便于分辨模组
+9. C3支持获取芯片温度
+
+Update:
+
+1. esp-idf更新到v4.4
+
+Feature:
+
+1. 支持调试,预计正式版加入
+2. BLE,预计v0002或v0003可用
