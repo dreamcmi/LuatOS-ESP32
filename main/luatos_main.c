@@ -15,6 +15,7 @@
 #include "luat_msgbus.h"
 #include "luat_gpio.h"
 #include "luat_uart.h"
+#include "luat_shell.h"
 
 #ifdef LUAT_USE_LVGL
 #include "lvgl.h"
@@ -73,7 +74,30 @@ static void gpio_irq_task(void *arg)
     vTaskDelete(NULL);
 }
 
-
+static xQueueHandle uart0_evt_queue = NULL;
+static void uart0_irq_task(void *arg)
+{
+    uart_event_t event = {0};
+    char buffer[1024] = {0};
+    int len = 0;
+    while (true)
+    {
+        if (xQueueReceive(uart0_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
+        {
+            switch (event.type)
+            {
+            case UART_DATA:
+                len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
+                luat_shell_push(buffer, len);
+                xQueueReset(uart0_evt_queue);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    vTaskDelete(NULL);
+}
 
 void app_main(void)
 {
@@ -114,6 +138,10 @@ void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
+
+    uart_driver_install(0, 1024 * 2, 1024 * 2, 20, &uart0_evt_queue, 0);
+    uart_pattern_queue_reset(0, 20);
+    xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 10, NULL);
 
     gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
     xTaskCreate(gpio_irq_task, "gpio_irq_task", 2048, NULL, 10, NULL);
