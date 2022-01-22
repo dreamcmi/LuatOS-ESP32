@@ -133,12 +133,12 @@ def pkgRom(chip):
         if not config['pkg']['Release']:
             logging.warning("user build")
             git_sha1 = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
-            firmware_name = "LuatOS-SoC_" + chip + '_' + \
+            firmware_name = "LuatOS-SoC_" + str(chip).upper() + '_' + \
                             git_sha1.decode() + "_" + \
                             time.strftime("%Y%m%d%H%M%S", time.localtime())
         else:
             logging.warning("Release build")
-            firmware_name = "LuatOS-SoC_" + chip + '_' + versionBsp
+            firmware_name = "LuatOS-SoC_" + str(chip).upper() + '_' + versionBsp
 
         # 进入合并流程
         base_offset = 0x0
@@ -180,7 +180,6 @@ def pkgRom(chip):
             #     else:
             #         pass
             # f.close()
-            
             z = zipfile.ZipFile(firmware_name + ".soc", "w")
             if os.path.isdir("tmp"):
                 for d in os.listdir("tmp"):
