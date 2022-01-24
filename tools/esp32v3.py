@@ -138,7 +138,7 @@ def pkgRom(chip):
                             time.strftime("%Y%m%d%H%M%S", time.localtime())
         else:
             logging.warning("Release build")
-            firmware_name = "LuatOS-SoC_" + str(chip).upper() + '_' + versionBsp
+            firmware_name = "LuatOS-SoC_" + versionBsp+ '_'  +str(chip).upper() 
 
         # 进入合并流程
         base_offset = 0x0
