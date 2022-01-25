@@ -15,7 +15,7 @@
 #define LUAT_USE_VFS_INLINE_LIB 1
 #define LUAT_COMPILER_NOWEAK 1
 //----------------------------------
-#define LUAT_USE_SHELL 1
+
 //----------------------------
 // 外设,按需启用, 最起码启用uart
 #define LUAT_USE_UART 1
@@ -36,10 +36,7 @@
 // #define LUAT_USE_BLE 1
 #define LUAT_USE_ESPHTTP 1
 #define LUAT_USE_ESPMQTT 1
-
 // #define LUAT_USE_MCU  1
-// hwtimer库对lua代码没多少用处,通常禁用
-// #define LUAT_USE_HWTIMER  1
 #define LUAT_USE_RTC 1
 
 
@@ -64,14 +61,10 @@
 //----------------------------
 // 高级功能, 其中shell是推荐启用, 除非你打算uart0也读数据
 // #define LUAT_USE_SHELL 1
-// NIMBLE 是蓝牙功能, 名为BLE, 但绝非低功耗.
-// #define LUAT_USE_NIMBLE 1
+// 高级功能, debug
+// #define LUAT_USE_DBG 1
 // FDB 提供kv数据库, 与nvm库类似
 // #define LUAT_USE_FDB 1
-// 多虚拟机支持,实验性,一般不启用
-// #define LUAT_USE_VMX 1
-
-#define LUAT_USE_DBG
 
 //---------------------
 // UI

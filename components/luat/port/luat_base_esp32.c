@@ -48,7 +48,7 @@ static const luaL_Reg loadedlibs[] = {
 #ifndef LUAT_USE_SHELL
 #define LUAT_USE_SHELL
 #endif
-    {"dbg",  luaopen_dbg},               // 调试库
+    {"dbg", luaopen_dbg}, // 调试库
 #endif
     // 往下是LuatOS定制的库, 如需精简请仔细测试
     //----------------------------------------------------------------------
@@ -212,6 +212,7 @@ void luat_timer_us_delay(size_t us)
 //esp32重启函数
 void luat_os_reboot(int code)
 {
+    fflush(stdout);
     esp_restart();
 }
 
@@ -222,7 +223,7 @@ const char *luat_os_bsp(void)
 #elif CONFIG_IDF_TARGET_ESP32S3
     return "ESP32S3";
 #else
-    return "ESP32";
+    return "ESP32-UNKNOW";
 #endif
 }
 
