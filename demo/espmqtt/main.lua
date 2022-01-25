@@ -42,7 +42,7 @@ sys.taskInit(
                         log.info("mqttc", "wait ESPMQTT_EVT 30s")
                         local result, c, ret, topic, data = sys.waitUntil("ESPMQTT_EVT", 30000)
                         log.info("mqttc", result, c, ret)
-                        if result then
+                        if result == false then
                             -- 没消息, 没动静
                             log.info("mqttc", "wait timeout")
                             -- 这里演示给自己发一条. 按实际业务来定
