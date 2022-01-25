@@ -16,6 +16,7 @@
 #include "luat_gpio.h"
 #include "luat_uart.h"
 #include "luat_shell.h"
+#include "luat_cmux.h"
 
 #ifdef LUAT_USE_LVGL
 #include "lvgl.h"
@@ -89,6 +90,7 @@ static void uart0_irq_task(void *arg)
             case UART_DATA:
                 len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
                 luat_shell_push(buffer, len);
+                // luat_cmux_write(LUAT_CMUX_CH_LOG,  CMUX_FRAME_UIH & ~ CMUX_CONTROL_PF,buffer, len);
                 xQueueReset(uart0_evt_queue);
                 break;
             default:
@@ -101,6 +103,7 @@ static void uart0_irq_task(void *arg)
 
 void app_main(void)
 {
+    uart_set_baudrate(0, 2000000);
     uint8_t mac[6] = {0};
     esp_read_mac(&mac, ESP_MAC_WIFI_STA);
     printf("\nMac:%02x%02x%02x%02x%02x%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);

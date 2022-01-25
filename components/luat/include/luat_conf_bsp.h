@@ -15,7 +15,7 @@
 #define LUAT_USE_VFS_INLINE_LIB 1
 #define LUAT_COMPILER_NOWEAK 1
 //----------------------------------
-
+#define LUAT_USE_SHELL 1
 //----------------------------
 // 外设,按需启用, 最起码启用uart
 #define LUAT_USE_UART 1
