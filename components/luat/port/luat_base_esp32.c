@@ -44,7 +44,12 @@ static const luaL_Reg loadedlibs[] = {
 #if defined(LUA_COMPAT_BITLIB)
     {LUA_BITLIBNAME, luaopen_bit32}, // 不太可能启用
 #endif
-    {"dbg", luaopen_dbg}, // 调试库
+#ifdef LUAT_USE_DBG
+#ifndef LUAT_USE_SHELL
+#define LUAT_USE_SHELL
+#endif
+    {"dbg",  luaopen_dbg},               // 调试库
+#endif
     // 往下是LuatOS定制的库, 如需精简请仔细测试
     //----------------------------------------------------------------------
     // 核心支撑库, 不可禁用!!

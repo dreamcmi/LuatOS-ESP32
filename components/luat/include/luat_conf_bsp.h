@@ -71,6 +71,8 @@
 // 多虚拟机支持,实验性,一般不启用
 // #define LUAT_USE_VMX 1
 
+#define LUAT_USE_DBG
+
 //---------------------
 // UI
 // LCD  是彩屏, 若使用LVGL就必须启用LCD
