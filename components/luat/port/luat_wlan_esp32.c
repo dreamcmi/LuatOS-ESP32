@@ -276,6 +276,45 @@ static int l_wlan_connect(lua_State *L)
 }
 
 /*
+创建ap
+@api wlan.createAP(ssid,password)
+@string ssid  wifi的SSID
+@string password wifi的密码
+@int channle 信道 默认11
+@int 最大连接数 默认5
+@int authmode 密码验证模式
+@return int esp_err
+@usage 
+wlan.createAP("LuatOS-ESP32","12345678")
+*/
+static int l_wlan_create_ap(lua_State *L)
+{
+    esp_netif_create_default_wifi_ap();
+    wifi_config_t cfg = {0};
+    size_t len = 0;
+
+    const char *Lssid = luaL_checklstring(L, 1, &len);
+    if (len > sizeof(cfg.ap.ssid))
+        len = sizeof(cfg.ap.ssid);
+    strncpy((char *)cfg.ap.ssid, Lssid, len);
+    cfg.ap.ssid_len = len;
+
+    const char *Lpasswd = luaL_checklstring(L, 2, &len);
+    if (len > sizeof(cfg.ap.password))
+        len = sizeof(cfg.ap.password);
+    strncpy((char *)cfg.ap.password, Lpasswd, len);
+
+    cfg.ap.channel = luaL_optinteger(L, 3, 11);
+    cfg.ap.max_connection = luaL_optinteger(L, 4, 5);
+    cfg.ap.authmode = luaL_optinteger(L, 5, WIFI_AUTH_WPA_WPA2_PSK);
+
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &cfg));
+    esp_err_t err = (esp_wifi_start());
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
 断开wifi
 @api wlan.disconnect()
 @return int esp_err
@@ -398,6 +437,7 @@ static const rotable_Reg reg_wlan[] =
         {"getMode", l_wlan_get_mode, 0},
         {"setMode", l_wlan_set_mode, 0},
         {"connect", l_wlan_connect, 0},
+        {"createAP", l_wlan_create_ap, 0},
         {"disconnect", l_wlan_disconnect, 0},
         {"deinit", l_wlan_deinit, 0},
         {"setps", l_wlan_set_ps, 0},
@@ -412,6 +452,18 @@ static const rotable_Reg reg_wlan[] =
         {"PS_NONE", NULL, WIFI_PS_NONE},
         {"PS_MIN_MODEM", NULL, WIFI_PS_MIN_MODEM},
         {"PS_MAX_MODEM", NULL, WIFI_PS_MAX_MODEM},
+
+        {"AUTH_AUTH_OPEN", NULL, WIFI_AUTH_OPEN},
+        {"AUTH_WEP", NULL, WIFI_AUTH_WEP},
+        {"AUTH_WPA_PSK", NULL, WIFI_AUTH_WPA_PSK},
+        {"WIFI_AUTH_WPA2_PSK", NULL, WIFI_AUTH_WPA2_PSK},
+        {"AUTH_WPA_WPA2_PSK", NULL, WIFI_AUTH_WPA_WPA2_PSK},
+        {"AUTH_AUTH_WPA2_ENTERPRISE", NULL, WIFI_AUTH_WPA2_ENTERPRISE},
+        {"AUTH_AUTH_WPA3_PSK", NULL, WIFI_AUTH_WPA3_PSK},
+        {"AUTH_AUTH_WPA3_PSK", NULL, WIFI_AUTH_WPA3_PSK},
+        {"AUTH_AUTH_WPA2_WPA3_PSK", NULL, WIFI_AUTH_WPA2_WPA3_PSK},
+        {"AUTH_AUTH_WAPI_PSK", NULL, WIFI_AUTH_WAPI_PSK},
+
         {NULL, NULL, 0}};
 
 LUAMOD_API int luaopen_wlan(lua_State *L)
