@@ -2,11 +2,8 @@ local i2cTest = {}
 
 local tag = "i2cTest"
 local i2cId
-if MOD_TYPE == "air101" or MOD_TYPE == "air103" then
-    i2cId = 0
-elseif MOD_TYPE == "ESP32C3" then
-    i2cId = 0
-end
+if MOD_TYPE == "air101" or MOD_TYPE == "air103" or MOD_TYPE == "air105" or
+    MOD_TYPE == "ESP32C3" then i2cId = 0 end
 
 function i2cTest.test()
     if i2c == nil then

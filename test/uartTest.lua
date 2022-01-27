@@ -5,15 +5,17 @@ local tag = "uartTest"
 local uartList = {}
 
 if MOD_TYPE == "air101" then
-    uartList = {}
+    uartList = {1, 2, 3, 4}
 elseif MOD_TYPE == "air103" then
-    uartList = {}
+    uartList = {1, 2, 3, 4, 5}
+elseif MOD_TYPE == "air105" then
+    uartList = {1, 2, 3}
 elseif MOD_TYPE == "ESP32C3" then
     uartList = {1}
 end
 
 local receiveBuff = {}
-local testData = string.rep(tag, 1)
+local testData = string.rep(tag, 10)
 
 local function getSerialData(id)
     local tmp = receiveBuff[id]
@@ -36,6 +38,7 @@ function uartTest.test()
         end)
         assert(uart.write(v, testData) == #testData, tag .. ".write ERROR")
         sys.waitUntil("UART_RECEIVE_" .. v)
+        -- printTable(receiveBuff)
         assert(receiveBuff[v] == testData)
         uart.close(v)
     end
