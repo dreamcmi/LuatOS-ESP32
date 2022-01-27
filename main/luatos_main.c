@@ -88,9 +88,8 @@ static void uart0_irq_task(void *arg)
     {
         if (xQueueReceive(uart0_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
         {
-            switch (event.type)
+            if (event.timeout_flag || event.size > (1024 * 2 - 200))
             {
-            case UART_DATA:
 #ifdef LUAT_USE_SHELL
                 len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
                 luat_shell_push(buffer, len);
@@ -102,9 +101,6 @@ static void uart0_irq_task(void *arg)
                 luat_msgbus_put(&msg, 0);
 #endif
                 xQueueReset(uart0_evt_queue);
-                break;
-            default:
-                break;
             }
         }
     }

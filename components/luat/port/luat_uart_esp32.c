@@ -51,9 +51,8 @@ static void uart1_irq_task(void *arg)
     {
         if (xQueueReceive(uart1_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
         {
-            switch (event.type)
+            if (event.timeout_flag || event.size > (1024 * 2 - 200))
             {
-            case UART_DATA:
                 // printf("uart1 data\n");
                 msg.handler = l_uart_handler;
                 msg.ptr = NULL;
@@ -61,10 +60,6 @@ static void uart1_irq_task(void *arg)
                 msg.arg2 = 1; //recv
                 luat_msgbus_put(&msg, 0);
                 xQueueReset(uart1_evt_queue);
-                break;
-            default:
-                // ESP_LOGE("uart", "uart1 event type: %d", event.type);
-                break;
             }
         }
     }
@@ -79,19 +74,14 @@ static void uart2_irq_task(void *arg)
     {
         if (xQueueReceive(uart2_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
         {
-            switch (event.type)
+            if (event.timeout_flag || event.size > (1024 * 2 - 200))
             {
-            case UART_DATA:
                 msg.handler = l_uart_handler;
                 msg.ptr = NULL;
                 msg.arg1 = 2; //uart2
                 msg.arg2 = 1; //recv
                 luat_msgbus_put(&msg, 0);
                 xQueueReset(uart2_evt_queue);
-                break;
-            default:
-                // ESP_LOGE("uart", "uart2 event type: %d", event.type);
-                break;
             }
         }
     }
