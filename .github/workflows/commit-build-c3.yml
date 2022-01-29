@@ -19,7 +19,7 @@ jobs:
           pip3 install --upgrade pip
           mkdir -p ~/esp
           cd ~/esp
-          git clone -b v4.3.2 --recursive https://github.com/espressif/esp-idf.git
+          git clone -b v4.4 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
           ./install.sh esp32c3
       - name: get LuatOS repo
