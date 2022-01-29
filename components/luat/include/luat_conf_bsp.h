@@ -65,6 +65,8 @@
 // #define LUAT_USE_DBG 1
 // FDB 提供kv数据库, 与nvm库类似
 // #define LUAT_USE_FDB 1
+#define LUAT_USE_OTA
+#define UPDATE_BIN_PATH "/spiffs/update.bin"
 
 //---------------------
 // UI
