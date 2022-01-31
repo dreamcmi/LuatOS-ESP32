@@ -4,15 +4,16 @@
 
 int luat_rtc_set(struct tm *tblock)
 {
-    struct tm t = {0};                  // Initalize to all 0's
-    t.tm_year = tblock->tm_year - 1900; // This is year-1900, so 121 = 2021
-    t.tm_mon = tblock->tm_mon;
+    struct tm t = {0}; 
+    t.tm_year = (tblock->tm_year - 1900);
+    t.tm_mon = (tblock->tm_mon - 1);
     t.tm_mday = tblock->tm_mday;
     t.tm_hour = tblock->tm_hour;
     t.tm_min = tblock->tm_min;
     t.tm_sec = tblock->tm_sec;
     time_t timeSinceEpoch = mktime(&t);
-    struct timeval now = {.tv_sec = timeSinceEpoch};
+    struct timeval now = {0};
+    now.tv_sec = timeSinceEpoch;
     settimeofday(&now, NULL);
     return 0;
 }
@@ -29,8 +30,8 @@ int luat_rtc_get(struct tm *tblock)
     tblock->tm_min = timeinfo.tm_min;
     tblock->tm_hour = timeinfo.tm_hour;
     tblock->tm_wday = timeinfo.tm_wday;
-    tblock->tm_year = timeinfo.tm_year + 1900;
-    tblock->tm_mon = timeinfo.tm_mon;
+    tblock->tm_year = (timeinfo.tm_year + 1900);
+    tblock->tm_mon = (timeinfo.tm_mon + 1);
     tblock->tm_mday = timeinfo.tm_mday;
     return 0;
 }
