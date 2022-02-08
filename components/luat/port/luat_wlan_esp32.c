@@ -23,6 +23,8 @@ esp_event_handler_instance_t instance_wifi;
 esp_event_handler_instance_t instance_got_ip;
 esp_event_handler_instance_t instance_scan;
 
+static char wlan_auto_connect = 0;
+
 //回调事件处理
 static int l_wlan_handler(lua_State *L, void *ptr)
 {
@@ -48,6 +50,10 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         case WIFI_EVENT_STA_DISCONNECTED: //已断开wifi
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STA_DISCONNECTED");
+            if (wlan_auto_connect == 1)
+            {
+                esp_wifi_connect();
+            }
             lua_call(L, 1, 0);
             break;
         default:
@@ -198,9 +204,9 @@ static int l_wlan_get_mode(lua_State *L)
 @api wlan.setMode(mode)
 @int 模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP
 @return int   返回esp_err
-@usage 
+@usage
 -- 将wlan设置为wifi客户端模式
-wlan.setMode(wlan.STATION) 
+wlan.setMode(wlan.STATION)
 */
 static int l_wlan_set_mode(lua_State *L)
 {
@@ -224,7 +230,7 @@ static int l_wlan_set_mode(lua_State *L)
 初始化wifi
 @api wlan.init()
 @return int esp_err
-@usage 
+@usage
 -- 在使用wifi前初始化一下
 wlan.init()
 */
@@ -244,11 +250,12 @@ static int l_wlan_init(lua_State *L)
 
 /*
 连接wifi,成功启动联网线程不等于联网成功!!
-@api wlan.connect(ssid,password)
+@api wlan.connect(ssid,password,autoreconnect)
 @string ssid  wifi的SSID
 @string password wifi的密码,可选
+@int 断连自动重连 1:启用 0:不启用
 @return int esp_err
-@usage 
+@usage
 -- 连接到uiot,密码1234567890
 wlan.connect("uiot", "1234567890")
 */
@@ -257,7 +264,7 @@ static int l_wlan_connect(lua_State *L)
     esp_netif_create_default_wifi_sta();
     wifi_config_t cfg;
     memset(&cfg, 0, sizeof(cfg));
-    size_t len;
+    size_t len = 0;
 
     const char *Lssid = luaL_checklstring(L, 1, &len);
     if (len > sizeof(cfg.sta.ssid))
@@ -269,6 +276,7 @@ static int l_wlan_connect(lua_State *L)
         len = sizeof(cfg.sta.password);
     strncpy((char *)cfg.sta.password, Lpasswd, len);
 
+    wlan_auto_connect = luaL_optinteger(L, 3, 0);
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
     esp_err_t err = (esp_wifi_start());
     lua_pushinteger(L, err);
@@ -284,7 +292,7 @@ static int l_wlan_connect(lua_State *L)
 @int 最大连接数 默认5
 @int authmode 密码验证模式
 @return int esp_err
-@usage 
+@usage
 wlan.createAP("LuatOS-ESP32","12345678")
 */
 static int l_wlan_create_ap(lua_State *L)
@@ -319,11 +327,12 @@ static int l_wlan_create_ap(lua_State *L)
 @api wlan.disconnect()
 @return int esp_err
 @usage
--- 断开wifi连接 
+-- 断开wifi连接
 wlan.disconnect()
 */
 static int l_wlan_disconnect(lua_State *L)
 {
+    wlan_auto_connect = 0;  // 人为断开wifi就关掉自动重连
     esp_err_t err = esp_wifi_disconnect();
     lua_pushinteger(L, err);
     return 1;
@@ -405,7 +414,7 @@ static void smartconfig_task(void *parm)
 smartconfig配网(默认esptouch)
 @api wlan.smartconfig()
 @return int 创建成功0 失败1
-@usage 
+@usage
 wlan.smartconfigStop()
 */
 static int l_wlan_smartconfig(lua_State *L)
@@ -420,7 +429,7 @@ static int l_wlan_smartconfig(lua_State *L)
 smartconfig配网停止
 @api wlan.smartconfigStop()
 @return int esp_err
-@usage 
+@usage
 wlan.smartconfig()
 */
 static int l_wlan_smartconfig_stop(lua_State *L)
