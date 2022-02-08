@@ -9,6 +9,11 @@
 #define _C3_SPI2_MISO   (10)
 #define _C3_SPI2_MOSI   (3)
 #define _C3_SPI2_SCLK   (2)
+#define _C3_I2S0_MCLK   (8)
+#define _C3_I2S0_SCLK   (0)
+#define _C3_I2S0_WS     (1)
+#define _C3_I2S0_DO     (18)
+#define _C3_I2S0_DI     (19)
 
 // ESP32S3
 #define _S3_U1TX        (17)
