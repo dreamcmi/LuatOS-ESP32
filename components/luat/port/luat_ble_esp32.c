@@ -202,7 +202,6 @@ static void prvBleGattsEvent(esp_gatts_cb_event_t event, esp_gatt_if_t gattsIf, 
 
 	switch(event)
 	{
-		/*ä¿å­˜è“ç‰™rxæ¶ˆæ¯*/
 		case ESP_GATTS_WRITE_EVT:
 		{
 			if (prvQueueGetFreeSpace(&g_s_bleQueue) > sizeof(esp_ble_gatts_cb_param_t))
@@ -392,7 +391,7 @@ esp_err_t bleGattsRead(esp_ble_gatts_cb_param_t *param)
 
 
 
-/*gap æŽ¥å£*/
+/*gap 接口*/
 
 esp_err_t bleGapExtAdvSetParams(uint8_t instance, uint32_t interval_min, uint32_t interval_max)
 {
@@ -437,7 +436,7 @@ esp_err_t bleGapExtAdvStart(uint8_t instanceNum)
 }
 
 typedef struct luat_uart_cb {
-    int eventCb; //À¶ÑÀ»Øµ÷º¯Êý
+    int eventCb; //蓝牙回调函数
 } luat_ble_cb_t;
 
 static luat_ble_cb_t bt_evevtCb;
@@ -571,7 +570,7 @@ int luat_ble_cb(lua_State *L, void* ptr)
 		esp_ble_gap_cb_param_t *gap = param->eventParam.gap.p;
 
 		//LUAT_BLE_DEBUG("gap event id %d string %s, status %d", eventId, gap_string[eventId], gap->adv_data_cmpl.status);
-		/*gap ÏûÏ¢ÖÁÉÙ2¸ö²ÎÊý*/
+		/*gap 消息至少2个参数*/
 		lua_pushinteger(L, param->event); 
 		lua_pushinteger(L, gap->adv_data_cmpl.status);
 				
@@ -593,9 +592,9 @@ int luat_ble_cb(lua_State *L, void* ptr)
 		int gattsIf = param->eventParam.gatts.gattsIf;
 		//LUAT_BLE_DEBUG("gatts event id %d string %s, status %d", eventId, gatts_string[eventId], gatts->reg.status);
 		
-		/*gatts ÏûÏ¢ÖÁÉÙ3¸ö²ÎÊý*/
+		/*gatts 消息至少3个参数*/
 		lua_pushinteger(L, param->event); 
-		/*²¿·ÖÏûÏ¢Ã»ÓÐstatus£¬Ä¬ÈÏÉÏ´«ESP_GATT_OK*/
+		/*部分消息没有status，默认上传ESP_GATT_OK*/
 		switch(eventId)
 		{
 			case ESP_GATTS_READ_EVT:
@@ -698,9 +697,9 @@ int luat_ble_cb(lua_State *L, void* ptr)
 }
 
 /*
-³õÊ¼»¯ble
+初始化ble
 @api ble.init()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.init()
 */
@@ -726,9 +725,9 @@ static int l_ble_init(lua_State *L)
 }
 
 /*
-È¥³õÊ¼»¯ble
+去初始化ble
 @api ble.deinit()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.deinit()
 */
@@ -744,9 +743,9 @@ static int l_ble_deinit(lua_State *L)
 }
 
 /*
-×¢²áÓ¦ÓÃ³ÌÐò
+注册应用程序
 @api ble.gatts_app_regist()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.l_gatts_app_regist()
 */
@@ -764,9 +763,9 @@ static int l_gatts_app_regist(lua_State *L)
 }
 
 /*
-Ìí¼Ó·þÎñ
+添加服务
 @api ble.gatts_create_server()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.gatts_create_server()
 */
@@ -801,9 +800,9 @@ static int l_gatts_create_service(lua_State *L)
 }
 
 /*
-¿ªÊ¼·þÎñ
+开始服务
 @api ble.gatts_start_service()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.gatts_start_service()
 */
@@ -822,9 +821,9 @@ static int l_gatts_start_service(lua_State *L)
 }
 
 /*
-Ìí¼ÓÌØÕ÷
+添加特征
 @api ble.gatts_add_char()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.gatts_add_char()
 */
@@ -869,9 +868,9 @@ static int l_gatts_add_char(lua_State *L)
 }
 
 /*
-Ìí¼ÓÃèÊö
+添加描述
 @api ble.gatts_add_char_descr()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.gatts_add_char_descr()
 */
@@ -969,9 +968,9 @@ static int l_gatts_read(lua_State *L)
 }
 
 /*
-ÉèÖÃ¹ã²¥·¢²¼²ÎÊý£¬¹ã²¥¼ä¸ô
+设置广播发布参数，广播间隔
 @api ble.l_gap_ext_adv_set_params()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.l_gap_ext_adv_set_params()
 */
@@ -992,9 +991,9 @@ static int l_gap_ext_adv_set_params(lua_State *L)
 }
 
 /*
-ÉèÖÃÉè±¸Ëæ»úµØÖ·
+设置设备随机地址
 @api ble.l_gap_ext_adv_set_rand_addr()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.l_gap_ext_adv_set_rand_addr()
 */
@@ -1033,9 +1032,9 @@ static int l_gap_ext_adv_set_rand_addr(lua_State *L)
 
 
 /*
-ÅäÖÃ¹ã²¥Êý¾Ý
+配置广播数据
 @api ble.l_gap_config_ext_adv_data_raw()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.l_gap_config_ext_adv_data_raw()
 */
@@ -1043,7 +1042,7 @@ static int l_gap_config_ext_adv_data_raw(lua_State *L)
 {
 	esp_err_t ret;
 	int instance;
-	int len; //·µ»ØÊý×éµÄ³¤¶È
+	int len; //返回数组的长度
     char *data;
 
 	instance = luaL_checkinteger(L, 1);
@@ -1071,9 +1070,9 @@ static int l_gap_config_ext_adv_data_raw(lua_State *L)
 }
 
 /*
-¿ªÊ¼¹ã²¥
+开始广播
 @api ble.l_gap_ext_adv_star()
-@return int  esp_err ³É¹¦0
+@return int  esp_err 成功0
 @usage 
 ble.l_gap_ext_adv_star()
 */
@@ -1096,7 +1095,7 @@ static const rotable_Reg reg_ble[] =
 {
     {"init", l_ble_init, 0},
 
-	/*GATTS ½Ó¿Ú*/
+	/*GATTS 接口*/
 	{"gatts_app_regist", l_gatts_app_regist, 0},
     {"gatts_create_service", l_gatts_create_service, 0},
     {"gatts_start_service", l_gatts_start_service, 0},
@@ -1105,7 +1104,7 @@ static const rotable_Reg reg_ble[] =
     {"gatts_send_response", l_gatts_send_response, 0},
     {"gatts_read", l_gatts_read, 0},
 
-	/*GAP ½Ó¿Ú*/
+	/*GAP 接口*/
     {"gap_ext_adv_set_params", l_gap_ext_adv_set_params, 0},
     {"gap_ext_adv_set_rand_addr",l_gap_ext_adv_set_rand_addr,0},
     {"gap_config_ext_adv_data_raw", l_gap_config_ext_adv_data_raw, 0},
