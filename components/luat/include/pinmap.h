@@ -14,6 +14,8 @@
 #define _C3_I2S0_WS     (1)
 #define _C3_I2S0_DO     (18)
 #define _C3_I2S0_DI     (19)
+#define _C3_TWAI_TX     (18)
+#define _C3_TWAI_RX     (19)
 
 // ESP32S3
 #define _S3_U1TX        (17)

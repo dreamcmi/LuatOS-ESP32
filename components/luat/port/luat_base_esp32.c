@@ -31,6 +31,7 @@ LUAMOD_API int luaopen_ntp(lua_State *L);
 LUAMOD_API int luaopen_esphttp(lua_State *L);
 LUAMOD_API int luaopen_espmqtt(lua_State *L);
 LUAMOD_API int luaopen_i2s(lua_State *L);
+LUAMOD_API int luaopen_twai(lua_State *L);
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -70,6 +71,9 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_SPI
     {"spi", luaopen_spi}, // SPI操作
+#endif
+#ifdef LUAT_USE_TWAI    
+    {"twai", luaopen_twai}, // twai操作
 #endif
 #ifdef LUAT_USE_I2S
     {"i2s", luaopen_i2s}, // I2S操作
