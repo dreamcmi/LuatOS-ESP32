@@ -1071,12 +1071,12 @@ static int l_gap_config_ext_adv_data_raw(lua_State *L)
 
 /*
 开始广播
-@api ble.l_gap_ext_adv_star()
+@api ble.l_gap_ext_adv_start()
 @return int  esp_err 成功0
 @usage 
-ble.l_gap_ext_adv_star()
+ble.l_gap_ext_adv_start()
 */
-static int l_gap_ext_adv_star(lua_State *L)
+static int l_gap_ext_adv_start(lua_State *L)
 {
 	esp_err_t ret;
 	int instanceNum;
@@ -1096,19 +1096,20 @@ static const rotable_Reg reg_ble[] =
     {"init", l_ble_init, 0},
 
 	/*GATTS 接口*/
-	{"gatts_app_regist", l_gatts_app_regist, 0},
-    {"gatts_create_service", l_gatts_create_service, 0},
-    {"gatts_start_service", l_gatts_start_service, 0},
-    {"gatts_add_char", l_gatts_add_char, 0},
-    {"gatts_add_char_descr", l_gatts_add_char_descr, 0},
-    {"gatts_send_response", l_gatts_send_response, 0},
-    {"gatts_read", l_gatts_read, 0},
+	{"gattsAppRegist", l_gatts_app_regist, 0},
+    {"gattsCreateService", l_gatts_create_service, 0},
+    {"gattsStartService", l_gatts_start_service, 0},
+    {"gattsAddChar", l_gatts_add_char, 0},
+    {"gattsAddCharDescr", l_gatts_add_char_descr, 0},
+    {"gattsSendResponse", l_gatts_send_response, 0},
+    {"gattsRead", l_gatts_read, 0},
 
 	/*GAP 接口*/
-    {"gap_ext_adv_set_params", l_gap_ext_adv_set_params, 0},
-    {"gap_ext_adv_set_rand_addr",l_gap_ext_adv_set_rand_addr,0},
-    {"gap_config_ext_adv_data_raw", l_gap_config_ext_adv_data_raw, 0},
-    {"gap_ext_adv_star", l_gap_ext_adv_star, 0},
+    {"gapExtAdvSetParams", l_gap_ext_adv_set_params, 0},
+    {"gapExtAdvSetRandAddr",l_gap_ext_adv_set_rand_addr,0},
+    {"gapConfigExtAdvDataRaw", l_gap_config_ext_adv_data_raw, 0},
+    {"gapExtAdvStart", l_gap_ext_adv_start, 0},
+
     {"deinit", l_ble_deinit, 0},
     {NULL, NULL, 0}
 };

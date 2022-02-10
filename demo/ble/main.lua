@@ -117,31 +117,31 @@ local attrCharDescrHandle
 
 local function adv_config()
     --设置广播0发布参数,时间间隔
-	ret = ble.gap_ext_adv_set_params(0, 0x30, 0x30)
+	ret = ble.gapExtAdvSetParams(0, 0x30, 0x30)
 	log.info("ble func gap_ext_adv_set_params:", ret)
 
 	--设置广播0设备随机地址
-	ret = ble.gap_ext_adv_set_rand_addr(0, rand_addr0);
+	ret = ble.gapExtAdvSetRandAddr(0, rand_addr0);
 	log.info("ble func gap_ext_adv_set_rand_addr:", ret)
 	
 	--设置广播0信息
-	ret = ble.gap_config_ext_adv_data_raw(0, adv_data_raw0)
+	ret = ble.gapConfigExtAdvDataRaw(0, adv_data_raw0)
 	log.info("ble func gap_config_ext_adv_data_raw:", ret)
 
 	--设置广播1发布参数,时间间隔
-	ret = ble.gap_ext_adv_set_params(1, 0x40, 0x40)
+	ret = ble.gapExtAdvSetParams(1, 0x40, 0x40)
 	log.info("ble func gap_ext_adv_set_params:", ret)
 
 	--设置广播1设备随机地址
-	ret = ble.gap_ext_adv_set_rand_addr(1, rand_addr1);
+	ret = ble.gapExtAdvSetRandAddr(1, rand_addr1);
 	log.info("ble func gap_ext_adv_set_rand_addr:", ret)
 	
 	--设置广播1信息
-	ret = ble.gap_config_ext_adv_data_raw(1, adv_data_raw1)
+	ret = ble.gapConfigExtAdvDataRaw(1, adv_data_raw1)
 	log.info("ble func gap_config_ext_adv_data_raw:", ret)
 	
 	--打开2个广播
-	ret = ble.gap_ext_adv_star(2)
+	ret = ble.gapExtAdvStart(2)
 	log.info("ble func gap_ext_adv_star:", ret)
 end
 
@@ -185,7 +185,7 @@ local function ble_cb( ... )
                 --arg1 app标识
                 --arg2 服务uuid
                 --arg3 属性的个数包括特征和描述
-                ret = ble.gatts_create_service(gattsIf, uuid, 4)
+                ret = ble.gattsCreateService(gattsIf, uuid, 4)
                 log.info("ble func gatts_create_server:", ret)
             end
         
@@ -194,7 +194,7 @@ local function ble_cb( ... )
         elseif ble.MSG_GATTS_DISCONNECT_EVT == event then
             --断开后需要重新打开广播才能再次链接
             --打开2个广播
-            ret = ble.gap_ext_adv_star(2)
+            ret = ble.gapExtAdvStart(2)
             log.info("ble func gap_ext_adv_star:", ret)
         elseif ble.MSG_GATTS_CREATE_EVT == event then
             --判断服务创建状态
@@ -204,7 +204,7 @@ local function ble_cb( ... )
                 serviceHandle = select(4, ...)
                 --开始服务
                 --arg1 服务句柄
-                ret = ble.gatts_start_service(serviceHandle)
+                ret = ble.gattsStartService(serviceHandle)
                 log.info("ble func gatts_start_service:", ret)
 
                 --添加特征
@@ -213,7 +213,7 @@ local function ble_cb( ... )
                 --arg3 特征数据
                 local attrCharUuid = {0xff, 0x00}
                 local attrCharVal = {1,2,3,4,5}
-                ret = ble.gatts_add_char(serviceHandle, attrCharUuid, attrCharVal)
+                ret = ble.gattsAddChar(serviceHandle, attrCharUuid, attrCharVal)
                 log.info("ble func gatts_add_char:", ret)
 
             end
@@ -232,7 +232,7 @@ local function ble_cb( ... )
                 --添加描述
                 local attrCharDescrUuid = {0xff, 0x02}
                 local attrCharDescrVal = {6,7,8,9,10}
-                ret = ble.gatts_add_char_descr(serviceHandle, attrCharDescrUuid, attrCharDescrVal)
+                ret = ble.gattsAddCharDescr(serviceHandle, attrCharDescrUuid, attrCharDescrVal)
                 log.info("ble func gatts_add_char_descr:", ret)
             end
         elseif ble.MSG_GATTS_ADD_CHAR_DESCR_EVT == event then
@@ -252,7 +252,7 @@ local function ble_cb( ... )
             local transId = select(6, ...)
             local rsp = {0x32,0x30,0x32,0x32,0x72 ,0x65 ,0x61 ,0x64 ,0x20 ,0x74 ,0x65 ,0x73 ,0x74} --2022 read test
             
-            ret = ble.gatts_send_response(gattsIf, attrHandle, connId, transId, rsp)
+            ret = ble.gattsSendResponse(gattsIf, attrHandle, connId, transId, rsp)
             log.info("ble func gatts_send_response:", ret)
             
         elseif ble.MSG_GATTS_WRITE_EVT == event then
@@ -263,9 +263,9 @@ local function ble_cb( ... )
             local rsp = {0}
 	 
              --给一个应答
-            ble.gatts_send_response(gattsIf, attrHandle, connId, transId, rsp)
+            ble.gattsSendResponse(gattsIf, attrHandle, connId, transId, rsp)
 
-            local  ret, handle, connId, transId, data = ble.gatts_read()
+            local  ret, handle, connId, transId, data = ble.gattsRead()
             if ret == 0 then
                 log.info("ble func gatts_read: handle ", handle)
                 log.info("ble func gatts_read: connId ", connId)
@@ -287,7 +287,7 @@ sys.taskInit(function ( ... )
     ret = ble.init(ble_cb)
     log.info("ble func init:", ret)
 	
-    ret = ble.gatts_app_regist(0)
+    ret = ble.gattsAppRegist(0)
     log.info("ble func gatts_app_regist:", ret)
 end)
 
