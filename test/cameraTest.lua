@@ -24,13 +24,10 @@ function cameraTest.test()
     -- 1. 只使用SPI的时钟线(SCK)和数据输出线(MOSI), 其他均为GPIO脚
     -- 2. 数据输入(MISO)和片选(CS), 虽然是SPI, 但已复用为GPIO, 并非固定,是可以自由修改成其他脚
 
-    if wdt then
-        wdt.init(15000) -- 初始化watchdog设置为15s
-        sys.timerLoopStart(wdt.feed, 10000) -- 10s喂一次狗
-    end
+    local spi_lcd = spi.deviceSetup(5, pin.PC14, 0, 0, 8, 48 * 1000 * 1000,
+                                    spi.MSB, 1, 1)
 
-    spi_lcd = spi.deviceSetup(5, pin.PC14, 0, 0, 8, 48 * 1000 * 1000, spi.MSB,
-                              1, 1)
+    assert(spi_lcd ~= nil, tag .. ".deviceSetup ERROR")
 
     -- log.info("lcd.init",
     -- lcd.init("st7735s", {
@@ -45,8 +42,17 @@ function cameraTest.test()
     --     yoffset = 0
     -- }, spi_lcd)
 
-    -- log.info("lcd.init",
-    -- lcd.init("st7789",{port = "device",pin_dc = pin.PE08 ,pin_rst = pin.PC12,pin_pwr = pin.PE09,direction = 0,w = 240,h = 320,xoffset = 0,yoffset = 0},spi_lcd))
+    -- log.info("lcd.init", lcd.init("st7789", {
+    --     port = "device",
+    --     pin_dc = pin.PE08,
+    --     pin_rst = pin.PC12,
+    --     pin_pwr = pin.PE09,
+    --     direction = 0,
+    --     w = 240,
+    --     h = 320,
+    --     xoffset = 0,
+    --     yoffset = 0
+    -- }, spi_lcd))
 
     -- log.info("lcd.init",
     lcd.init("st7735", {
@@ -137,8 +143,7 @@ function cameraTest.test()
             0xd3, 0x38, 0xd6, 0xf4, 0xd7, 0x1d, 0xdd, 0x73, 0xde, 0x84, 0xfe,
             0x01, 0x13, 0x20, 0xfe, 0x00, 0x4f, 0x00, 0x03, 0x00, 0x04, 0xa0,
             0x71, 0x60, 0x72, 0x40, 0x42, 0x80, 0x77, 0x64, 0x78, 0x40, 0x79,
-            0x60, 0xfe, 0x00, 0x44, 0x06, -- RGB565输出
-            0x46, 0x0f
+            0x60, 0xfe, 0x00, 0x44, 0x06, 0x46, 0x0f
         }
     }
 
@@ -206,8 +211,7 @@ function cameraTest.test()
             0xd3, 0x38, 0xd6, 0xf4, 0xd7, 0x1d, 0xdd, 0x73, 0xde, 0x84, 0xfe,
             0x01, 0x13, 0x20, 0xfe, 0x00, 0x4f, 0x00, 0x03, 0x00, 0x04, 0xa0,
             0x71, 0x60, 0x72, 0x40, 0x42, 0x80, 0x77, 0x64, 0x78, 0x40, 0x79,
-            0x60, 0xfe, 0x00, 0x44, 0x90, -- 输出灰度
-            0x46, 0x0f
+            0x60, 0xfe, 0x00, 0x44, 0x90, 0x46, 0x0f
         }
     }
     -- 注册摄像头事件回调
@@ -220,19 +224,17 @@ function cameraTest.test()
         camera_rst(0)
 
         -- 下面两行只开一行！一个是屏幕输出rgb图像,一个是屏幕输出灰度图像并扫码
-        local camera_id = camera.init(GC032A_InitReg) -- 屏幕输出rgb图像
-        -- local camera_id = camera.init(GC032A_InitReg_Gray)--屏幕输出灰度图像并扫码
+        -- local camera_id = camera.init(GC032A_InitReg) -- 屏幕输出rgb图像
+        local cameraID = camera.init(GC032A_InitReg_Gray) -- 屏幕输出灰度图像并扫码
 
-        sys.wait(5000)
-        camera.stop(camera_id) -- 停止指定的camera
-        sys.wait(5000)
-        camera.start(camera_id) -- 开始指定的camera
+        assert(cameraID == 0, tag .. ".init ERROR")
+        sys.wait(3000)
+        assert(camera.stop(cameraID) == true, tag .. ".stop ERROR")
+        sys.wait(3000)
+        assert(camera.start(cameraID) == true, tag .. ".start ERROR")
 
-        while 1 do sys.wait(500) end
     end)
     log.info(tag, "DONE")
 end
-
-function aaa() end
 
 return cameraTest
