@@ -35,7 +35,7 @@ static int l_esp32_getmac(lua_State *L)
 
 /*
 获取重启原因
-@api esp32.getRstReason(id)
+@api esp32.getRstReason()
 @return int esp_reset_reason_t
 @usage
 esp32.getRstReason()
@@ -50,9 +50,9 @@ static int l_esp32_get_rst_reason(lua_State *L)
 /*
 获取随机数
 @api esp32.random()
-@return number
+@return int 随机数
 @usage
-esp32.random()
+r = esp32.random()
 */
 static int l_esp32_random(lua_State *L)
 {
@@ -64,7 +64,7 @@ static int l_esp32_random(lua_State *L)
 /*
 获取chip信息
 @api esp32.getchip()
-@return table
+@return table chip信息表
 @usage
 local re = esp32.getchip()
 log.info("esp32", "chip", re['chip'])
