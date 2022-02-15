@@ -24,6 +24,9 @@ esp_event_handler_instance_t instance_got_ip;
 esp_event_handler_instance_t instance_scan;
 
 static char wlan_auto_connect = 0;
+static char wlan_mode = 0;
+
+esp_netif_t *wifi_netif = NULL;
 
 //回调事件处理
 static int l_wlan_handler(lua_State *L, void *ptr)
@@ -211,6 +214,7 @@ wlan.setMode(wlan.STATION)
 static int l_wlan_set_mode(lua_State *L)
 {
     int mode = luaL_checkinteger(L, 1);
+    wlan_mode = (char)mode;
     esp_err_t err = -1;
     switch (mode)
     {
@@ -261,7 +265,7 @@ wlan.connect("uiot", "1234567890")
 */
 static int l_wlan_connect(lua_State *L)
 {
-    esp_netif_create_default_wifi_sta();
+    wifi_netif = esp_netif_create_default_wifi_sta();
     wifi_config_t cfg;
     memset(&cfg, 0, sizeof(cfg));
     size_t len = 0;
@@ -297,7 +301,7 @@ wlan.createAP("LuatOS-ESP32","12345678")
 */
 static int l_wlan_create_ap(lua_State *L)
 {
-    esp_netif_create_default_wifi_ap();
+    wifi_netif = esp_netif_create_default_wifi_ap();
     wifi_config_t cfg = {0};
     size_t len = 0;
 
@@ -332,7 +336,7 @@ wlan.disconnect()
 */
 static int l_wlan_disconnect(lua_State *L)
 {
-    wlan_auto_connect = 0;  // 人为断开wifi就关掉自动重连
+    wlan_auto_connect = 0; // 人为断开wifi就关掉自动重连
     esp_err_t err = esp_wifi_disconnect();
     lua_pushinteger(L, err);
     return 1;
@@ -439,6 +443,103 @@ static int l_wlan_smartconfig_stop(lua_State *L)
     return 1;
 }
 
+/*
+wlan dhcp开关
+@api wlan.dhcp(mode)
+@int 0:关闭dhcp 1:开启dhcp
+@return int esp_err
+@usage
+wlan.dhcp(0) -- 关闭dhcp
+*/
+static int l_wlan_dhcp(lua_State *L)
+{
+    esp_err_t err = -1;
+    int mode = luaL_checkinteger(L, 1);
+
+    if (wlan_mode == WIFI_MODE_STA)
+    {
+        switch (mode)
+        {
+        case 0:
+            err = esp_netif_dhcpc_stop(wifi_netif);
+            break;
+        case 1:
+            err = esp_netif_dhcpc_start(wifi_netif);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (wlan_mode == WIFI_MODE_AP)
+    {
+        switch (mode)
+        {
+        case 0:
+            err = esp_netif_dhcps_stop(wifi_netif);
+            break;
+        case 1:
+            err = esp_netif_dhcps_start(wifi_netif);
+            break;
+        default:
+            break;
+        }
+    }
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
+wlan设置ip信息
+@api wlan.setIp(ip,gw,netmask)
+@string ip ip地址 格式"xxx.xxx.xxx.xxx"
+@string gw 网关地址 格式"xxx.xxx.xxx.xxx"
+@string netmask 子网掩码 格式"xxx.xxx.xxx.xxx"
+@return int esp_err
+@usage
+wlan.setIp("192.168.55.1", "192.168.55.1", "255.255.255.0")
+*/
+static int l_wlan_set_ip(lua_State *L)
+{
+    esp_err_t err = -1;
+    esp_netif_ip_info_t ip_info = {0};
+    int a, b, c, d;
+
+    const char *ip = luaL_checkstring(L, 1);
+    const char *gw = luaL_checkstring(L, 2);
+    const char *netmask = luaL_checkstring(L, 3);
+
+    sscanf(ip, "%d.%d.%d.%d", &a, &b, &c, &d);
+    IP4_ADDR(&ip_info.ip, a, b, c, d);
+
+    sscanf(gw, "%d.%d.%d.%d", &a, &b, &c, &d);
+    IP4_ADDR(&ip_info.gw, a, b, c, d);
+
+    sscanf(netmask, "%d.%d.%d.%d", &a, &b, &c, &d);
+    IP4_ADDR(&ip_info.netmask, a, b, c, d);
+
+    err = esp_netif_set_ip_info(wifi_netif, &ip_info);
+
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
+wlan设置hostname
+@api wlan.setHostname(name)
+@string hosetname 主机名
+@return int esp_err
+@usage
+wlan.setHostname("luatos")
+*/
+static int l_wlan_set_hostname(lua_State *L)
+{
+    esp_err_t err = -1;
+    const char *name = luaL_checkstring(L, 1);
+    esp_netif_set_hostname(wifi_netif, name);
+    lua_pushinteger(L, err);
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_wlan[] =
     {
@@ -451,6 +552,9 @@ static const rotable_Reg reg_wlan[] =
         {"deinit", l_wlan_deinit, 0},
         {"setps", l_wlan_set_ps, 0},
         {"getps", l_wlan_get_ps, 0},
+        {"dhcp", l_wlan_dhcp, 0},
+        {"setIp", l_wlan_set_ip, 0},
+        {"setHostname", l_wlan_set_hostname, 0},
         {"smartconfig", l_wlan_smartconfig, 0},
         {"smartconfigStop", l_wlan_smartconfig_stop, 0},
 
