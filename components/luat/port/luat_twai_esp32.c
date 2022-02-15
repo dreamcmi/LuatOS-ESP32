@@ -1,3 +1,9 @@
+/*
+@module  twai
+@summary esp专用库twai
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 
 #include "string.h"

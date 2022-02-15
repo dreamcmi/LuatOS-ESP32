@@ -1,3 +1,9 @@
+/*
+@module  socket
+@summary socket操作库
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 #include "stdio.h"
 #include <string.h>

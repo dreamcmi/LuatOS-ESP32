@@ -1,3 +1,9 @@
+/*
+@module  espnow
+@summary espnow库
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 #include "luat_msgbus.h"
 #include "luat_log.h"
@@ -101,7 +107,7 @@ static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len
 /*
 初始化espnow
 @api espnow.init()
-@return int  
+@return int 0成功  
 @usage 
 espnow.init()
 */
@@ -142,7 +148,7 @@ static int l_espnow_set_pmk(lua_State *L)
 增加espnow peer
 @api espnow.addPeer(mac,lmk)
 @string mac地址
-@string lmk
+@string lmk local master key
 @return int esp_err
 @usage 
 espnow.addPeer(string.fromHex("0016EAAE3C40"),"lmk1234567890123")
@@ -189,7 +195,7 @@ espnow发送
 @api espnow.send(mac,data)
 @string mac地址
 @string 发送的数据
-@return int  err
+@return int  esp_err
 @usage 
 espnow.send(string.fromHex("0016EAAE3C40"),"espnow")
 */

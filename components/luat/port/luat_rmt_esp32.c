@@ -1,3 +1,9 @@
+/*
+@module  rmt
+@summary esp专用rmt库
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 #include "esp_log.h"
 #include "driver/rmt.h"

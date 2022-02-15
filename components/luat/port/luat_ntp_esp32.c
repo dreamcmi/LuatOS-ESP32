@@ -1,3 +1,9 @@
+/*
+@module  ntp
+@summary esp32专用ntp库
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 #include "luat_msgbus.h"
 

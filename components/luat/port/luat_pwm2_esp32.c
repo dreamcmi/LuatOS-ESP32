@@ -1,3 +1,9 @@
+/*
+@module  pwm2
+@summary esp32专用pwm2库
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 #define LUAT_LOG_TAG "luat.pwm"
 #include "luat_log.h"
@@ -62,7 +68,7 @@ pwm2调节占空比
 @api pwm2.setDuty(pwm_channel,pwm_duty)
 @int pwm_channel 通道id 取值0~5
 @int pwm_duty    占空比
-@return int 
+@return esp_err_t
 @usage 
 pwm2.setDuty(0,512)
 */
@@ -88,7 +94,7 @@ pwm2渐入渐出定时
 @int pwm_duty    占空比
 @int pwm_ms      到达目标占空比的时间(ms)
 @int pwm_wait    默认为1(阻塞)
-@return int
+@return esp_err_t
 @usage
 pwm2.setFadeWithTime(0,512,10)
 */
@@ -113,7 +119,7 @@ static int l_pwm2_set_fade_with_time(lua_State *L)
 pwm2获取定时器频率
 @api pwm2.getFreq(pwm_timer)
 @int pwm_timer 定时器
-@return int freq
+@return int 频率
 @usage
 freq = pwm2.getFreq(0)
 */

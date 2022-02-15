@@ -1,3 +1,9 @@
+/*
+@module  esp32
+@summary esp32专用库
+@version 1.0
+@date    2022.2.15
+*/
 #include "luat_base.h"
 
 #include "esp_log.h"
@@ -95,7 +101,7 @@ static int l_esp32_get_chip(lua_State *L)
 /*
 获取唤醒原因
 @api esp32.getWakeupCause()
-@return int reason
+@return int esp_sleep_wakeup_cause_t
 @usage
 cause = esp32.getWakeupCause()
 */
