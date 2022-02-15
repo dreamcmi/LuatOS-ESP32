@@ -85,8 +85,8 @@ static int l_wlan_handler(lua_State *L, void *ptr)
     {
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)ptr;
         wifi_config_t wifi_config = {0};
-        uint8_t ssid[33] = {0};
-        uint8_t password[65] = {0};
+        // uint8_t ssid[33] = {0};
+        // uint8_t password[65] = {0};
         switch (event)
         {
         case SC_EVENT_SCAN_DONE:
@@ -101,7 +101,7 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             break;
         case SC_EVENT_GOT_SSID_PSWD:
             lua_getglobal(L, "sys_pub");
-            lua_pushstring(L, "S");
+            lua_pushstring(L, "WIFI_SCAN_GOT_SSID_PSWD");
             lua_call(L, 1, 0);
             memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
             memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
@@ -110,8 +110,8 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             {
                 memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
             }
-            memcpy(ssid, evt->ssid, sizeof(evt->ssid));
-            memcpy(password, evt->password, sizeof(evt->password));
+            // memcpy(ssid, evt->ssid, sizeof(evt->ssid));
+            // memcpy(password, evt->password, sizeof(evt->password));
             ESP_ERROR_CHECK(esp_wifi_disconnect());
             ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
             esp_wifi_connect();
@@ -394,17 +394,14 @@ static int l_wlan_get_ps(lua_State *L)
 
 static void smartconfig_task(void *parm)
 {
+    smartconfig_type_t mode = (smartconfig_type_t)parm;
     EventBits_t uxBits;
-    ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH));
+    ESP_ERROR_CHECK(esp_smartconfig_set_type(mode));
     smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
     while (1)
     {
-        uxBits = xEventGroupWaitBits(s_wifi_event_group, BIT0 | BIT1, true, false, portMAX_DELAY);
-        if (uxBits & BIT0)
-        {
-            ESP_LOGI(TAG, "WiFi Connected to ap");
-        }
+        uxBits = xEventGroupWaitBits(s_wifi_event_group, BIT1, true, false, portMAX_DELAY);
         if (uxBits & BIT1)
         {
             ESP_LOGI(TAG, "smartconfig over");
@@ -417,14 +414,16 @@ static void smartconfig_task(void *parm)
 /*
 smartconfig配网(默认esptouch)
 @api wlan.smartconfig()
+@int mode 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2
 @return int 创建成功0 失败1
 @usage
 wlan.smartconfigStop()
 */
 static int l_wlan_smartconfig(lua_State *L)
 {
+    int mode = luaL_optinteger(L, 1, SC_TYPE_ESPTOUCH);
     esp_wifi_start();
-    BaseType_t re = xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 12, NULL);
+    BaseType_t re = xTaskCreate(smartconfig_task, "smartconfig_task", 4096, (void *)mode, 3, NULL);
     lua_pushinteger(L, re == pdPASS ? 0 : 1);
     return 1;
 }
