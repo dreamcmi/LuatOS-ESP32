@@ -1,4 +1,4 @@
-PROJECT = "wifidemo"
+PROJECT = "wifi-ap-demo"
 VERSION = "1.0.0"
 
 -- 引入必要的库文件(lua编写), 内部库不需要require
@@ -6,15 +6,14 @@ local sys = require "sys"
 
 sys.taskInit(
     function()
+        local w = wlan
         log.info("wlan", "wlan_init:", wlan.init())
-        wlan.setMode(wlan.STATION)
 
-        log.info("smartconfig", wlan.smartconfig())
-
-        result, _ = sys.waitUntil("WLAN_STA_CONNECTED")
-        log.info("wlan", "WLAN_STA_CONNECTED", result)
-        -- 连上之后关闭smartconfig
-        log.info("smartconfig",wlan.smartconfigStop())
+        wlan.setMode(wlan.AP)
+        log.info("wlan.createAP",wlan.createAP("c3-luatos","12345678"))
+        log.info("wlan.dhcp",wlan.dhcp(0)) -- 关闭dhcp
+        log.info("wlan.setip",wlan.setIp("192.168.55.1", "192.168.55.1", "255.255.255.0"))
+        log.info("wlan.dhcp",wlan.dhcp(1)) -- 开启dhcp
 
     end
 )
