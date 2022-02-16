@@ -130,7 +130,6 @@ local arg = twai.getAlerts()
 */
 static int l_twai_get_alerts(lua_State *L)
 {
-    esp_err_t err = -1;
     uint32_t alerts = 0;
     twai_read_alerts(&alerts, 10 / portTICK_RATE_MS);
     lua_pushinteger(L, alerts);

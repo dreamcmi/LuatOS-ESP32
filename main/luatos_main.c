@@ -118,9 +118,10 @@ void app_main(void)
     uart_pattern_queue_reset(0, 20);
     xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 10, NULL);
 
-    uint8_t mac[6] = {0};
-    esp_read_mac(&mac, ESP_MAC_WIFI_STA);
+    uint8_t *mac = malloc(10);
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
     printf("\nMac:%02x%02x%02x%02x%02x%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    free(mac);
 
 #ifdef CONFIG_SPIRAM
     psram_size_t t = psram_get_size();

@@ -27,9 +27,10 @@ esp32.getmac(0)
 static int l_esp32_getmac(lua_State *L)
 {
     int type = luaL_optinteger(L, 1, 0);
-    uint8_t mac[6] = {0};
-    esp_read_mac(&mac, type);
+    uint8_t *mac = malloc(10);
+    esp_read_mac(mac, type);
     lua_pushlstring(L, (const char *)mac, 6);
+    free(mac);
     return 1;
 }
 
