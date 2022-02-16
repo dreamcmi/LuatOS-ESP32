@@ -40,7 +40,13 @@ static int l_twai_setup(lua_State *L)
         .acceptance_code = luaL_checkinteger(L, 5),
         .acceptance_mask = luaL_checkinteger(L, 6),
         .single_filter = true};
+#if CONFIG_IDF_TARGET_ESP32C3
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(_C3_TWAI_TX, _C3_TWAI_RX, luaL_optinteger(L, 7, TWAI_MODE_NORMAL));
+#elif CONFIG_IDF_TARGET_ESP32S3
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(_S3_TWAI_TX, _S3_TWAI_RX, luaL_optinteger(L, 7, TWAI_MODE_NORMAL));
+#else
+#error "TWAI SETUP ERROR Please make sure the target is esp32c3 or esp32s3"
+#endif
     ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
     err = twai_start();
     lua_pushboolean(L, err = ESP_OK ? true : false);
@@ -66,7 +72,7 @@ static int l_twai_close(lua_State *L)
 /*
 twai发送数据
 @api twai.send(id,data)
-@int id 
+@int id
 @string data
 @return bool
 @usage
@@ -89,7 +95,7 @@ static int l_twai_send(lua_State *L)
 /*
 twai接收数据
 @api twai.recv(id,len)
-@int id 
+@int id
 @int len 接收数据长度
 @return bool
 @usage
@@ -124,7 +130,7 @@ static int l_twai_recv(lua_State *L)
 /*
 twai获取警报
 @api twai.getAlerts()
-@return int 
+@return int
 @usage
 local arg = twai.getAlerts()
 */

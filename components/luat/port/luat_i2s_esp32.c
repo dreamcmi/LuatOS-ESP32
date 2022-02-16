@@ -42,7 +42,7 @@ static int l_i2s_setup(lua_State *L)
         .use_apll = false,
         .tx_desc_auto_clear = true};
     ESP_ERROR_CHECK(i2s_driver_install(i2s_num, &i2s_config, 0, NULL));
-
+#if CONFIG_IDF_TARGET_ESP32C3
     i2s_pin_config_t pin_config = {
         .bck_io_num = _C3_I2S0_SCLK,
         .ws_io_num = _C3_I2S0_WS,
@@ -50,6 +50,17 @@ static int l_i2s_setup(lua_State *L)
         .data_in_num = _C3_I2S0_DI,
         .mck_io_num = _C3_I2S0_MCLK,
     };
+#elif CONFIG_IDF_TARGET_ESP32S3
+    i2s_pin_config_t pin_config = {
+        .bck_io_num = _S3_I2S0_SCLK,
+        .ws_io_num = _S3_I2S0_WS,
+        .data_out_num = _S3_I2S0_DO,
+        .data_in_num = _S3_I2S0_DI,
+        .mck_io_num = _S3_I2S0_MCLK,
+    };
+#else
+#error "I2S SETUP ERROR Please make sure the target is esp32c3 or esp32s3"
+#endif
     err = i2s_set_pin(i2s_num, &pin_config);
     lua_pushinteger(L, err);
     return 1;
