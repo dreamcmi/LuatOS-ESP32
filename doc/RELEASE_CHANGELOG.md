@@ -170,3 +170,36 @@ Feature:
 
 1. 支持调试,预计正式版加入
 2. BLE,预计v0002或v0003可用
+
+
+
+## 2022.02.17
+
+### ESP32 V0001-RC2
+
+Fix:
+
+1. uart0开放使用
+2. luatools配套socdownload更新兼容性
+3. 规范固件名称
+4. rtc设置时间错误
+
+Add:
+
+1. luat_shell
+2. luat_dbg(预计正式版完整支持)
+3. 脚本ota
+4. mcu库
+5. ble库(基于bluedroid)
+6. twai库(兼容can)
+7. i2s库(预计正式版完整支持)
+8. wifi库新增dhcp，seip，sethostname
+
+Update:
+
+1. 优化mac获取方式
+2. 完善ap模式
+3. ESP-IDF更新到4.4release
+4. wifi sta模式新增底层自动重连机制
+5. 完善demo
+6. 完善userdoc
