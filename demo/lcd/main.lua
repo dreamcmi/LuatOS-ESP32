@@ -29,7 +29,7 @@ lcd.init("st7789", {
     yoffset = 0
 }, spi_lcd)
 -- log.info("lcd.init",
--- lcd.init("st7735v",{port = "device",pin_dc = 6, pin_rst = 10,direction = 0,w = 80,h = 160,xoffset = 26,yoffset = 1},spi_lcd))
+-- lcd.init("st7735v",{port = "device",pin_dc = 6, pin_rst = 10,direction = 0,w = 80,h = 160,xoffset = 26,yoffset = 1},spi_lcd)
 -- 屏幕反色是因为驱动里有反色的命令，用户自行注释luatos主库-->lcd-->luat_lcd_st7735v.c文件中的 lcd_write_cmd(conf,0x21)然后自行编译源码
 log.info("lcd.drawLine", lcd.drawLine(20, 20, 150, 20, 0x001F))
 log.info("lcd.drawRectangle", lcd.drawRectangle(20, 40, 120, 70, 0xF800))
