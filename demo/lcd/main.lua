@@ -14,14 +14,13 @@ _G.sys = require("sys")
 -- 添加硬狗防止程序卡死
 -- wdt.init(15000)--初始化watchdog设置为15s
 -- sys.timerLoopStart(wdt.feed, 10000)--10s喂一次狗
--- 7789
-spi_lcd = spi.deviceSetup(2, 5, 0, 0, 8, 40000000, spi.MSB, 1, 1)
--- --7735v
--- spi_lcd = spi.deviceSetup(2,7,0,0,8,40000000,spi.MSB,1,1)
+
+spi_lcd = spi.deviceSetup(2, 7, 0, 0, 8, 40000000, spi.MSB, 1, 1)
+
 lcd.init("st7789", {
     port = "device",
-    pin_dc = 3,
-    pin_rst = 4,
+    pin_dc = 6,
+    pin_rst = 10,
     direction = 0,
     w = 240,
     h = 320,
