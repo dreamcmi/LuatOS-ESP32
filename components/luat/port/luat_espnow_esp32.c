@@ -113,16 +113,16 @@ espnow.init()
 */
 static int l_espnow_init(lua_State *L)
 {
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_init(); //todo error check
+    esp_event_loop_create_default(); //todo error check
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_start());
+    esp_wifi_init(&cfg); //todo error check
+    esp_wifi_set_mode(WIFI_MODE_STA); //todo error check
+    esp_wifi_start(); //todo error check
 
-    ESP_ERROR_CHECK(esp_now_init());
-    ESP_ERROR_CHECK(esp_now_register_send_cb(espnow_send_cb));
-    ESP_ERROR_CHECK(esp_now_register_recv_cb(espnow_recv_cb));
+    esp_now_init(); //todo error check
+    esp_now_register_send_cb(espnow_send_cb); //todo error check
+    esp_now_register_recv_cb(espnow_recv_cb); //todo error check
     lua_pushinteger(L, 0);
     return 1;
 }
@@ -220,8 +220,8 @@ espnow.deinit()
 static int l_espnow_deinit(lua_State *L)
 {
     esp_err_t err = -1;
-    ESP_ERROR_CHECK(esp_wifi_stop());
-    ESP_ERROR_CHECK(esp_event_loop_delete_default());
+    esp_wifi_stop(); //todo error check
+    esp_event_loop_delete_default(); //todo error check
     err = esp_now_deinit();
     lua_pushinteger(L, err);
     return 1;

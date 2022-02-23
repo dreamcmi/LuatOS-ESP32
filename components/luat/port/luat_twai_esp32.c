@@ -47,7 +47,7 @@ static int l_twai_setup(lua_State *L)
 #else
 #error "TWAI SETUP ERROR Please make sure the target is esp32c3 or esp32s3"
 #endif
-    ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
+    twai_driver_install(&g_config, &t_config, &f_config); //todo error check
     err = twai_start();
     lua_pushboolean(L, err = ESP_OK ? true : false);
     return 1;
@@ -63,7 +63,7 @@ twai.close()
 static int l_twai_close(lua_State *L)
 {
     esp_err_t err = -1;
-    ESP_ERROR_CHECK(twai_stop());
+    twai_stop(); //todo error check
     err = twai_driver_uninstall();
     lua_pushboolean(L, err = ESP_OK ? true : false);
     return 1;

@@ -26,7 +26,7 @@ static int l_rmt_init(lua_State *L)
     rmt_config_t config = RMT_DEFAULT_CONFIG_TX(rmtio, rmtch);
     config.clk_div = rmtdiv;
 
-    ESP_ERROR_CHECK(rmt_config(&config));
+    rmt_config(&config); //todo error check
     esp_err_t err = rmt_driver_install(config.channel, 0, 0);
     lua_pushinteger(L, err);
     return 1;

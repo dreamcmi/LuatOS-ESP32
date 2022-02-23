@@ -148,8 +148,8 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             ESP_LOGI(TAG, "got PASSWORD:%s", wifi_config.sta.password);
             
 
-            ESP_ERROR_CHECK(esp_wifi_disconnect());
-            ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+            esp_wifi_disconnect(); //todo error check
+            esp_wifi_set_config(WIFI_IF_STA, &wifi_config); //todo error check
             esp_wifi_connect();
             
             //这里的ptr是深拷贝，需要释放
@@ -294,18 +294,18 @@ wlan.init()
 */
 static int l_wlan_init(lua_State *L)
 {
-    ESP_ERROR_CHECK(esp_netif_init());
+    esp_netif_init(); //todo error check
     s_wifi_event_group = xEventGroupCreate();
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_event_loop_create_default(); //todo error check
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     
     //需要建立默认的STATION NETIF, 否则WIFI网卡无法建立, ack无法发出.
     esp_netif_create_default_wifi_sta(); 
     
     esp_err_t err = esp_wifi_init(&cfg);
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_wifi));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_scan));
+    esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_wifi); //todo error check
+    esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip); //todo error check
+    esp_event_handler_instance_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_scan); //todo error check
     lua_pushinteger(L, err);
     return 1;
 }
@@ -339,7 +339,7 @@ static int l_wlan_connect(lua_State *L)
     strncpy((char *)cfg.sta.password, Lpasswd, len);
 
     wlan_auto_connect = luaL_optinteger(L, 3, 0);
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &cfg));
+    esp_wifi_set_config(WIFI_IF_STA, &cfg); //todo error check
     esp_err_t err = (esp_wifi_start());
     lua_pushinteger(L, err);
     return 1;
@@ -378,7 +378,7 @@ static int l_wlan_create_ap(lua_State *L)
     cfg.ap.max_connection = luaL_optinteger(L, 4, 5);
     cfg.ap.authmode = luaL_optinteger(L, 5, WIFI_AUTH_WPA_WPA2_PSK);
 
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &cfg));
+    esp_wifi_set_config(WIFI_IF_AP, &cfg); //todo error check
     esp_err_t err = (esp_wifi_start());
     lua_pushinteger(L, err);
     return 1;
@@ -411,8 +411,8 @@ wlan.deinit()
 static int l_wlan_deinit(lua_State *L)
 {
     esp_err_t err = -1;
-    ESP_ERROR_CHECK(esp_wifi_stop());
-    ESP_ERROR_CHECK(esp_event_loop_delete_default());
+    esp_wifi_stop(); //todo error check
+    esp_event_loop_delete_default(); //todo error check
     err = esp_wifi_deinit();
     lua_pushinteger(L, err);
     return 1;
@@ -454,9 +454,9 @@ static void smartconfig_task(void *parm)
 {
     smartconfig_type_t mode = (smartconfig_type_t)parm;
     EventBits_t uxBits;
-    ESP_ERROR_CHECK(esp_smartconfig_set_type(mode));
+    esp_smartconfig_set_type(mode); //todo error check
     smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
+    esp_smartconfig_start(&cfg); //todo error check
     while (1)
     {
         uxBits = xEventGroupWaitBits(s_wifi_event_group, BIT1, true, false, portMAX_DELAY);
