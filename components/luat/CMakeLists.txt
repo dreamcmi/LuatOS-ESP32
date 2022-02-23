@@ -9,6 +9,7 @@ idf_component_register(
             ../../../LuatOS/luat/packages/epaper
             ../../../LuatOS/luat/packages/qrcode
             ../../../LuatOS/luat/packages/u8g2
+            ../../../LuatOS/luat/packages/fatfs
             ../../../LuatOS/luat/packages/lfs
             ../../../LuatOS/luat/packages/minmea 
             ../../../LuatOS/components/cjson
