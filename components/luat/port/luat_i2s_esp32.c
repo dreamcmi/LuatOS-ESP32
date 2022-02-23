@@ -41,7 +41,7 @@ static int l_i2s_setup(lua_State *L)
         .dma_buf_len = 160,
         .use_apll = false,
         .tx_desc_auto_clear = true};
-    ESP_ERROR_CHECK(i2s_driver_install(i2s_num, &i2s_config, 0, NULL));
+    i2s_driver_install(i2s_num, &i2s_config, 0, NULL); //todo error check
 #if CONFIG_IDF_TARGET_ESP32C3
     i2s_pin_config_t pin_config = {
         .bck_io_num = _C3_I2S0_SCLK,
@@ -83,7 +83,7 @@ static int l_i2s_close(lua_State *L)
         lua_pushinteger(L, -1);
         return 1;
     }
-    ESP_ERROR_CHECK(i2s_stop(i2s_num));
+    i2s_stop(i2s_num); //todo error check
     err = i2s_driver_uninstall(i2s_num);
     lua_pushinteger(L, err);
     return 1;

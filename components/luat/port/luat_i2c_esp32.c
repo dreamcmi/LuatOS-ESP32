@@ -108,8 +108,8 @@ int luat_i2c_setup(int id, int speed, int slaveaddr)
             conf.master.clk_speed = speed;
         }
         conf.clk_flags = I2C_SCLK_DEFAULT;
-        ESP_ERROR_CHECK(i2c_param_config(id, &conf));
-        ESP_ERROR_CHECK(i2c_driver_install(id, conf.mode, 0, 0, 0));
+        i2c_param_config(id, &conf); //todo error check
+        i2c_driver_install(id, conf.mode, 0, 0, 0); //todo error check
         return 0;
     }
     else
@@ -122,7 +122,7 @@ int luat_i2c_close(int id)
 {
     if (luat_i2c_exist(id))
     {
-        ESP_ERROR_CHECK(i2c_driver_delete(id));
+        i2c_driver_delete(id); //todo error check
         return 0;
     }
     else

@@ -191,10 +191,10 @@ static void prvBleGattsEvent(esp_gatts_cb_event_t event, esp_gatt_if_t gattsIf, 
 	rtos_msg_t msg = {0};
 
 	cbParam = malloc(sizeof(ble_cb_param_t));
-	ESP_ERROR_CHECK((cbParam) ? ESP_OK : ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((cbParam) ? ESP_OK : ESP_FAIL);
 	
 	cbParam->eventParam.gatts.p = malloc(sizeof(esp_ble_gatts_cb_param_t));
-	ESP_ERROR_CHECK((cbParam->eventParam.gatts.p) ? ESP_OK : ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((cbParam->eventParam.gatts.p) ? ESP_OK : ESP_FAIL);
 	
 	cbParam->event = event + BLE_EVENT_GATTS_BASE;
 	cbParam->eventParam.gatts.gattsIf = gattsIf;
@@ -232,10 +232,10 @@ static void prvBleGapEvent(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t 
 	rtos_msg_t msg = {0};
 
 	cbParam = malloc(sizeof(ble_cb_param_t));
-	ESP_ERROR_CHECK((cbParam) ? ESP_OK : ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((cbParam) ? ESP_OK : ESP_FAIL);
 	
 	cbParam->eventParam.gap.p = malloc(sizeof(esp_ble_gap_cb_param_t));
-	ESP_ERROR_CHECK((cbParam->eventParam.gap.p) ? ESP_OK : ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((cbParam->eventParam.gap.p) ? ESP_OK : ESP_FAIL);
 	
 	cbParam->event = event + BLE_EVENT_GAP_BASE;
 	memcpy(cbParam->eventParam.gap.p, param, sizeof(esp_ble_gatts_cb_param_t));
@@ -424,7 +424,7 @@ esp_err_t bleGapExtAdvSetRandAddr(uint8_t instance, esp_bd_addr_t rand_addr)
 esp_err_t bleGapExtAdvStart(uint8_t instanceNum)
 {
 	esp_ble_gap_ext_adv_t *ext_adv = malloc(instanceNum * sizeof(esp_ble_gap_ext_adv_t));
-	ESP_ERROR_CHECK((ext_adv) ? ESP_OK : ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((ext_adv) ? ESP_OK : ESP_FAIL);
 	memset(ext_adv, 0, (instanceNum * sizeof(esp_ble_gap_ext_adv_t)));
 
 	for (int i=0; i<instanceNum; i++)
@@ -557,12 +557,12 @@ int luat_ble_cb(lua_State *L, void* ptr)
 		lua_geti(L, LUA_REGISTRYINDEX, bt_evevtCb.eventCb);
 		if (!lua_isfunction(L, -1))
 		{
-			ESP_ERROR_CHECK(ESP_FAIL);
+			//todo,ESP_ERROR_CHECK(ESP_FAIL);
 		}
 	}
 	else
 	{
-		ESP_ERROR_CHECK(ESP_FAIL);
+		//todo,ESP_ERROR_CHECK(ESP_FAIL);
 	}
 	
 	if (BLE_EVENT_GAP_BASE == eventBase)
@@ -689,7 +689,7 @@ int luat_ble_cb(lua_State *L, void* ptr)
 	}
 	else
 	{
-		ESP_ERROR_CHECK(ESP_FAIL);
+		//todo,ESP_ERROR_CHECK(ESP_FAIL);
 	}
 
 	bleEvevntParamFree(ptr);
@@ -714,7 +714,7 @@ static int l_ble_init(lua_State *L)
 	}
 	else
 	{
-		ESP_ERROR_CHECK(ESP_FAIL);
+		//todo,ESP_ERROR_CHECK(ESP_FAIL);
 	}
 
 	ret = bleInit();
@@ -734,9 +734,9 @@ ble.deinit()
 static int l_ble_deinit(lua_State *L)
 {
     esp_err_t err = ESP_FAIL;
-    ESP_ERROR_CHECK(esp_bluedroid_disable());
-    ESP_ERROR_CHECK(esp_bluedroid_deinit());
-    ESP_ERROR_CHECK( esp_bt_controller_disable());
+    esp_bluedroid_disable(); //todo error check
+    esp_bluedroid_deinit(); //todo error check
+     esp_bt_controller_disable(); //todo error check
     err = esp_bt_controller_deinit();
     lua_pushinteger(L, err);
     return 1;
@@ -778,10 +778,10 @@ static int l_gatts_create_service(lua_State *L)
 	gattsIf = luaL_checkinteger(L, 1);
 	attrNum = luaL_checkinteger(L, 3);
 	len = lua_rawlen(L, 2);
-	ESP_ERROR_CHECK((len<=8)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((len<=8)?ESP_OK:ESP_FAIL);
 
 	uuid = (char *)malloc(len);
-	ESP_ERROR_CHECK((uuid)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((uuid)?ESP_OK:ESP_FAIL);
 	
 	for (size_t i = 0; i < len; i++)
     {
@@ -835,10 +835,10 @@ static int l_gatts_add_char(lua_State *L)
 	
 	serviceHandle = luaL_checkinteger(L, 1);
 	uuidLen = lua_rawlen(L, 2);
-	ESP_ERROR_CHECK((uuidLen<=8)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((uuidLen<=8)?ESP_OK:ESP_FAIL);
 
 	uuid = (char *)malloc(uuidLen);
-	ESP_ERROR_CHECK((uuid)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((uuid)?ESP_OK:ESP_FAIL);
 	for (size_t i = 0; i < uuidLen; i++)
     {
         lua_rawgeti(L, 2, 1 + i);
@@ -848,7 +848,7 @@ static int l_gatts_add_char(lua_State *L)
 
 	charValLen = lua_rawlen(L, 3);
 	charVal = (char *)malloc(charValLen);
-	ESP_ERROR_CHECK((charVal)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((charVal)?ESP_OK:ESP_FAIL);
 	
 	for (size_t i = 0; i < charValLen; i++)
     {
@@ -883,10 +883,10 @@ static int l_gatts_add_char_descr(lua_State *L)
 	serviceHandle = luaL_checkinteger(L, 1);
 
 	uuidLen = lua_rawlen(L, 2);
-	ESP_ERROR_CHECK((uuidLen<=8)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((uuidLen<=8)?ESP_OK:ESP_FAIL);
 
 	uuid = (char *)malloc(uuidLen);
-	ESP_ERROR_CHECK((uuid)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((uuid)?ESP_OK:ESP_FAIL);
 	
 	for (size_t i = 0; i < uuidLen; i++)
     {
@@ -897,7 +897,7 @@ static int l_gatts_add_char_descr(lua_State *L)
 	
 	charDescrValLen = lua_rawlen(L, 3);
 	charDescrVal = (char *)malloc(charDescrValLen);
-	ESP_ERROR_CHECK((charDescrVal)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((charDescrVal)?ESP_OK:ESP_FAIL);
 	
 	for (size_t i = 0; i < charDescrValLen; i++)
     {
@@ -928,9 +928,9 @@ static int l_gatts_send_response(lua_State *L)
 	transId = luaL_checkinteger(L, 4);
 	
 	rspValLen = lua_rawlen(L, 5);
-	ESP_ERROR_CHECK((rspValLen<ESP_GATT_MAX_ATTR_LEN)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((rspValLen<ESP_GATT_MAX_ATTR_LEN)?ESP_OK:ESP_FAIL);
 	rspVal = (char *)malloc(rspValLen);
-	ESP_ERROR_CHECK((rspVal)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((rspVal)?ESP_OK:ESP_FAIL);
 	
 	for (size_t i = 0; i < rspValLen; i++)
     {
@@ -1007,10 +1007,10 @@ static int l_gap_ext_adv_set_rand_addr(lua_State *L)
 	instance = luaL_checkinteger(L, 1);
 	
 	len = lua_rawlen(L, 2);
-	ESP_ERROR_CHECK((len==6)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((len==6)?ESP_OK:ESP_FAIL);
 	
     char *mac = (char *)malloc(len);
-	ESP_ERROR_CHECK((mac)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((mac)?ESP_OK:ESP_FAIL);
 	
     for (size_t i = 0; i < len; i++)
     {
@@ -1050,7 +1050,7 @@ static int l_gap_config_ext_adv_data_raw(lua_State *L)
 	len = lua_rawlen(L, 2); 
 
     data = (char *)malloc(len);
-	ESP_ERROR_CHECK((data)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((data)?ESP_OK:ESP_FAIL);
 	
     for (size_t i = 0; i < len; i++)
     {
@@ -1122,7 +1122,7 @@ LUAMOD_API int luaopen_ble(lua_State *L)
 	int regBleNum = sizeof(reg_ble)/sizeof(rotable_Reg);
 	
 	rotable_Reg *table = malloc((gapMsgNum+gattsMsgNum+regBleNum)*sizeof(rotable_Reg));
-	ESP_ERROR_CHECK((table)?ESP_OK:ESP_FAIL);
+	//todo,ESP_ERROR_CHECK((table)?ESP_OK:ESP_FAIL);
 	memset(table, 0, (gapMsgNum+gattsMsgNum+regBleNum)*sizeof(rotable_Reg));
 	
 	for (i=0; i<gattsMsgNum; i++)

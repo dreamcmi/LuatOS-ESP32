@@ -142,7 +142,7 @@ static int l_esp32_enter_light_sleep(lua_State *L)
         gpio_config_t config = {
             .pin_bit_mask = BIT64(pin),
             .mode = GPIO_MODE_INPUT};
-        ESP_ERROR_CHECK(gpio_config(&config));
+        gpio_config(&config); //todo error check
         gpio_wakeup_enable(pin, level == 0 ? GPIO_INTR_LOW_LEVEL : GPIO_INTR_HIGH_LEVEL);
         esp_sleep_enable_gpio_wakeup();
         uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
@@ -187,8 +187,8 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
         gpio_config_t config = {
             .pin_bit_mask = BIT(pin),
             .mode = GPIO_MODE_INPUT};
-        ESP_ERROR_CHECK(gpio_config(&config));
-        ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level));
+        gpio_config(&config); //todo error check
+        esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level); //todo error check
 #else
         const uint64_t ext_wakeup_pin_mask = 1ULL << pin;
         esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_mask, level);
