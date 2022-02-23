@@ -60,23 +60,15 @@ static void espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status
     rtos_msg_t msg;
     espnow_event_handle_t *evt = malloc(sizeof(espnow_event_handle_t));
 
-    if (mac_addr == NULL)
-    {
-        ESP_LOGE(TAG, "Send cb arg error");
-        return;
-    }
-    else
-    {
-        ESP_LOGD(TAG, "send ok : " MACSTR " :status:%d", MAC2STR(mac_addr), status);
-        evt->send_mac_addr = mac_addr;
-        evt->status = status;
+    ESP_LOGD(TAG, "send ok : " MACSTR " :status:%d", MAC2STR(mac_addr), status);
+    evt->send_mac_addr = mac_addr;
+    evt->status = status;
 
-        msg.handler = l_espnow_handler;
-        msg.ptr = (espnow_event_handle_t *)evt;
-        msg.arg1 = 2; // send = 2
-        msg.arg2 = 0;
-        luat_msgbus_put(&msg, 1);
-    }
+    msg.handler = l_espnow_handler;
+    msg.ptr = (espnow_event_handle_t *)evt;
+    msg.arg1 = 2; // send = 2
+    msg.arg2 = 0;
+    luat_msgbus_put(&msg, 1);
 }
 
 static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
@@ -84,46 +76,40 @@ static void espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len
     rtos_msg_t msg;
     espnow_event_handle_t *evt = malloc(sizeof(espnow_event_handle_t));
 
-    if (mac_addr == NULL || data == NULL || len <= 0)
-    {
-        ESP_LOGE(TAG, "Receive cb arg error");
-        return;
-    }
-    else
-    {
-        ESP_LOGD(TAG, "Recv data to " MACSTR ", len: %d ,data: %s", MAC2STR(mac_addr), len, data);
-        evt->recv_mac_addr = mac_addr;
-        evt->data = data;
-        evt->data_len = len;
+    ESP_LOGD(TAG, "Recv data to " MACSTR ", len: %d ,data: %s", MAC2STR(mac_addr), len, data);
+    evt->recv_mac_addr = mac_addr;
+    evt->data = data;
+    evt->data_len = len;
 
-        msg.handler = l_espnow_handler;
-        msg.ptr = (espnow_event_handle_t *)evt;
-        msg.arg1 = 1; // recv = 1
-        msg.arg2 = 0;
-        luat_msgbus_put(&msg, 1);
-    }
+    msg.handler = l_espnow_handler;
+    msg.ptr = (espnow_event_handle_t *)evt;
+    msg.arg1 = 1; // recv = 1
+    msg.arg2 = 0;
+    luat_msgbus_put(&msg, 1);
 }
 
 /*
 初始化espnow
 @api espnow.init()
-@return int 0成功  
-@usage 
+@return int 0成功
+@usage
 espnow.init()
 */
 static int l_espnow_init(lua_State *L)
 {
-    esp_netif_init(); //todo error check
-    esp_event_loop_create_default(); //todo error check
+    esp_err_t err = -1;
+    esp_netif_init();                // todo error check
+    esp_event_loop_create_default(); // todo error check
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&cfg); //todo error check
-    esp_wifi_set_mode(WIFI_MODE_STA); //todo error check
-    esp_wifi_start(); //todo error check
+    esp_wifi_init(&cfg);              // todo error check
+    esp_wifi_set_mode(WIFI_MODE_STA); // todo error check
+    esp_wifi_start();                 // todo error check
 
-    esp_now_init(); //todo error check
-    esp_now_register_send_cb(espnow_send_cb); //todo error check
-    esp_now_register_recv_cb(espnow_recv_cb); //todo error check
-    lua_pushinteger(L, 0);
+    esp_now_register_send_cb(espnow_send_cb); // todo error check
+    esp_now_register_recv_cb(espnow_recv_cb); // todo error check
+
+    err = esp_now_init();
+    lua_pushinteger(L, err);
     return 1;
 }
 
@@ -132,7 +118,7 @@ static int l_espnow_init(lua_State *L)
 @api espnow.setPmk(pmk)
 @string pmk primary master key
 @return int esp_err
-@usage 
+@usage
 espnow.setPmk("pmk1234567890123")
 */
 static int l_espnow_set_pmk(lua_State *L)
@@ -150,7 +136,7 @@ static int l_espnow_set_pmk(lua_State *L)
 @string mac地址
 @string lmk local master key
 @return int esp_err
-@usage 
+@usage
 espnow.addPeer(string.fromHex("0016EAAE3C40"),"lmk1234567890123")
 */
 static int l_espnow_add_peer(lua_State *L)
@@ -196,7 +182,7 @@ espnow发送
 @string mac地址
 @string 发送的数据
 @return int  esp_err
-@usage 
+@usage
 espnow.send(string.fromHex("0016EAAE3C40"),"espnow")
 */
 static int l_espnow_send(lua_State *L)
@@ -214,14 +200,14 @@ static int l_espnow_send(lua_State *L)
 去初始化espnow
 @api espnow.deinit()
 @return int  esp_err
-@usage 
+@usage
 espnow.deinit()
 */
 static int l_espnow_deinit(lua_State *L)
 {
     esp_err_t err = -1;
-    esp_wifi_stop(); //todo error check
-    esp_event_loop_delete_default(); //todo error check
+    esp_wifi_stop();                 // todo error check
+    esp_event_loop_delete_default(); // todo error check
     err = esp_now_deinit();
     lua_pushinteger(L, err);
     return 1;
