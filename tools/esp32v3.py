@@ -254,7 +254,7 @@ if __name__ == '__main__':
     config = toml.load("config.toml")
     parser = argparse.ArgumentParser(description="ESP32 Flash Tool")
     parser.add_argument('-v', '--version', action='version', version=get_version(), help='Show version')
-    parser.add_argument('-t', '--target', help='Chip型号:es32c3,esp32s3')
+    parser.add_argument('-t', '--target', help='Chip型号:esp32c3,esp32s3')
     parser.add_argument('-f', '--fs', action="store_true", help='下载脚本')
     parser.add_argument('-r', '--rom', action="store_true", help='下载底层固件')
     parser.add_argument('-p', '--pkg', action="store_true", help='打包固件')
