@@ -29,13 +29,15 @@ sys.taskInit(function()
     local update_data = update:read("*a")
     -- log.info(bin_name, "bin_data", update_data)
 
-    local bin = io.open(bin_path..bin_name, "wb")
+    local bin = io.open(tar_path..bin_name, "wb")
     bin:write(update_data)
     update:close()
     bin:close()
 
-    local bin = io.open(tar_path..bin_name, "rb")
-    local bin_data = bin:read("*a")
+    rtos.reboot() 
+    
+    -- local bin = io.open(tar_path..bin_name, "rb")
+    -- local bin_data = bin:read("*a")
     -- log.info(bin_name, "bin_data", bin_data)
 
     while 1 do
