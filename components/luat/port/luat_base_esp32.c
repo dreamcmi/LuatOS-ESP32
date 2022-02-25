@@ -32,6 +32,8 @@ LUAMOD_API int luaopen_esphttp(lua_State *L);
 LUAMOD_API int luaopen_espmqtt(lua_State *L);
 LUAMOD_API int luaopen_i2s(lua_State *L);
 LUAMOD_API int luaopen_twai(lua_State *L);
+LUAMOD_API int luaopen_sdmmc(lua_State *L);
+
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -136,6 +138,9 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_ESP32LIB
     {"esp32", luaopen_esp32}, // esp32专用库
+#endif
+#ifdef LUAT_USE_ESP32_SDMMC
+    {"sdmmc", luaopen_sdmmc}, // esp32 sdmmc专用库
 #endif
 #ifdef LUAT_USE_SOCKET
     {"socket", luaopen_socket}, // socket

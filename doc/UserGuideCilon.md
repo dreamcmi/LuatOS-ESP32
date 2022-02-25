@@ -198,6 +198,8 @@ ESPBAUD 115200
 ESPPORT COM34
 设置ESP-IDF的安装路径
 IDF_PATH 你的ESP-IDF安装路径 如：C:\Users\void\Desktop\esp-idf-3
+设置PATH环境变量
+PATH (操作见下面)
 ```
 
 - 设置ESP-IDF工具链路径，运行ESP-IDF 4.4 CMD
@@ -228,17 +230,9 @@ PATH 你刚刚复制的路径
 
 #### 1.下载固件
 
-- 选择flash下载固件，点击右侧运行图标
+- 选择flash下载固件，点击左侧构建图标
 
 ![image-20211206110742231](UserGuideCilon.assets/image-20211206110742231.png)
-
-- 会弹出如下对话框
-
-![image-20211206110845920](UserGuideCilon.assets/image-20211206110845920.png)
-
-- 点击运行后会出现如下对话框，点击任然继续
-
-![image-20211206110915725](UserGuideCilon.assets/image-20211206110915725.png)
 
 - 就会看到已经开始编译固件了，在编译完成之后，会自动进行下载
 
@@ -246,7 +240,7 @@ PATH 你刚刚复制的路径
 
 #### 2.串口监视
 
-选择monitor，点击右侧运行即可
+选择monitor，点击左侧构建即可
 
 ![image-20211206111447465](UserGuideCilon.assets/image-20211206111447465.png)
 
@@ -266,9 +260,9 @@ PATH 你刚刚复制的路径
 
 ![image-20211206112059936](UserGuideCilon.assets/image-20211206112059936.png)
 
-1. 在下载脚本之前请先查看tools内的UserGuideCilon.MD 
+1. 在下载脚本之前请先查看tools内的文档说明 
 2. 需要在config.toml内修改对应的参数，否则下载将失败
-3. 可以不用修改固件相关的参数如 `[pkg]`下所有参数，对应芯片下的`Firmware`参数
+3. 脚本选项按文档说明自行填写
 4. 拉到最下面选择我们刚刚新建的配置，点击运行即可下载脚本
 
 ![image-20211206112522217](UserGuideCilon.assets/image-20211206112522217.png)
