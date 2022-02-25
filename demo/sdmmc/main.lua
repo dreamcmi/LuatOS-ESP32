@@ -7,6 +7,7 @@ sys.taskInit(function()
     sys.wait(1000)
     --使用sdspi模式挂载sd卡
     --c3默认使用spi2的引脚，cs引脚自定义
+    --MISO 10，MOSI 3，SCLK 2，CS，6
     if sdmmc.init(2,6,-1,-1) then
         sys.wait(1000)
         --写入sd卡

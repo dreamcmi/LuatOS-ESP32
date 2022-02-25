@@ -18,12 +18,12 @@ static const char *TAG = "SDMMC";
 @int clk引脚号 spi模式下cs引脚
 @int cmd引脚号
 @int d0引脚号
-@return int   返回esp_err
+@return boolean 成功true 失败false
 @usage
 -- 使用sdio挂载sd卡
 sdmmc.init(1,12,18,19)
 -- 使用spi挂载sd卡
-sdmmc.init(2,8,-1,-1)
+sdmmc.init(2,6,-1,-1)
 */
 int l_sdmmc_init(lua_State *L){
 	ESP_LOGI(TAG,"Mounting FAT filesystem");
@@ -32,7 +32,6 @@ int l_sdmmc_init(lua_State *L){
 	int clk = luaL_checkinteger(L,2);
 	int cmd = luaL_checkinteger(L,3);
 	int d0 = luaL_checkinteger(L,4);
-	// Mount path for the partition
 	sdmmc_card_t *mount_card = NULL;
 	const char *base_path = "/sdcard0";
 	ESP_LOGI(TAG, "Initializing SDMMC\n");
@@ -107,7 +106,7 @@ int l_sdmmc_init(lua_State *L){
 /*
 卸载sd卡文件系统
 @api sdmmc.deinit()
-@return int   返回esp_err
+@return boolean 成功true 失败false
 @usage
 -- 卸载sd卡
 sdmmc.deinit()
