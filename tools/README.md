@@ -58,7 +58,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -v, --version         Show version
   -t TARGET, --target TARGET
-                        Chip型号:es32c3,esp32s3
+                        Chip型号:esp32c3,esp32s3
   -f, --fs              下载脚本
   -r, --rom             下载底层固件
   -p, --pkg             打包固件
