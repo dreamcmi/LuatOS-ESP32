@@ -11,7 +11,6 @@
 
 
 static const char *TAG = "SDMMC";
-static size_t maxLen = 255;
 /*
 初始化SD卡与FAT文件系统
 @api sdmmc.init(type,clk(cs),cmd,d0)
@@ -47,6 +46,8 @@ int l_sdmmc_init(lua_State *L){
 		case 1:
 #if CONFIG_IDF_TARGET_ESP32C3
 			ESP_LOGE(TAG, "C3 does not support SDIO");
+			lua_pushboolean(L,false);
+			return 1;
 #else
 			ESP_LOGI(TAG, "Using SDIO Interface");
 			sdmmc_slot_config_t sdmmc_slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
@@ -76,14 +77,16 @@ int l_sdmmc_init(lua_State *L){
 			ret = spi_bus_initialize(host.slot, &bus_cfg, SPI_DMA_CH_AUTO);
 			if (ret != ESP_OK) {
 				ESP_LOGE(TAG, "Failed to initialize bus.");
-				return ret;
+				lua_pushboolean(L,false);
+				return 1;
 			}
 			ESP_LOGI(TAG, "Mounting filesystem");
 			ret = esp_vfs_fat_sdspi_mount(base_path, &host, &sdspi_slot_config, &mount_config, &mount_card);
 			break;
 		default:
 			ESP_LOGE(TAG, "sdcard type error,mount fail");
-			return 0;
+			lua_pushboolean(L,false);
+			return 1;
 	}
 	if (ret != ESP_OK) {
 		if (ret == ESP_FAIL) {
@@ -92,11 +95,13 @@ int l_sdmmc_init(lua_State *L){
 			ESP_LOGE(TAG, "Failed to initialize the card (%s). "
 			              "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
 		}
-		return 0;
+		lua_pushboolean(L,false);
+		return 1;
 	}
 	ESP_LOGI(TAG, "Filesystem mounted");
 	sdmmc_card_print_info(stdout, mount_card);
-	return 0;
+	lua_pushboolean(L,true);
+	return 1;
 }
 
 /*
@@ -108,11 +113,17 @@ int l_sdmmc_init(lua_State *L){
 sdmmc.deinit()
 */
 int l_sdmmc_deinit(lua_State *L){
-	if (esp_vfs_fat_sdmmc_unmount())
+	if (esp_vfs_fat_sdmmc_unmount() == ESP_OK)
+	{
 		ESP_LOGI(TAG, "Filesystem unmounted");
+		lua_pushboolean(L,true);
+	}
 	else
+	{
 		ESP_LOGE(TAG, "Filesystem unmount fail");
-	return 0;
+		lua_pushboolean(L,false);
+	}
+	return 1;
 }
 
 #include "rotable.h"
