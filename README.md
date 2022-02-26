@@ -50,9 +50,9 @@
 
 ## 2、参与方式
 
-[UserGuide-VSC](./doc/userguide.md)
+使用VisualStudio Code [UserGuide-VSC](./doc/userguide.md)
 
-[UserGuide-Clion](./doc/UserGuideCilon.md)
+使用Clion [UserGuide-Clion](./doc/UserGuideCilon.md)
 
 欢迎提issue和pr帮助项目进步。
 
