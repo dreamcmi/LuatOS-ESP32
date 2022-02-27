@@ -472,7 +472,7 @@ smartconfig配网(默认esptouch)
 @int mode 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2
 @return int 创建成功0 失败1
 @usage
-wlan.smartconfigStop()
+wlan.smartconfig()
 */
 static int l_wlan_smartconfig(lua_State *L)
 {
@@ -487,9 +487,9 @@ static int l_wlan_smartconfig(lua_State *L)
 /*
 smartconfig配网停止
 @api wlan.smartconfigStop()
-@return int esp_err
+@return int 创建成功0 失败1
 @usage
-wlan.smartconfig()
+wlan.smartconfigStop()
 */
 static int l_wlan_smartconfig_stop(lua_State *L)
 {
