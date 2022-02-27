@@ -63,9 +63,15 @@ int l_sdmmc_init(lua_State *L){
 			host.slot = SDSPI_DEFAULT_HOST;
 			//TODO:判断是否初始化过SPI，实现多从机SPI
 			spi_bus_config_t bus_cfg = {
+#if CONFIG_IDF_TARGET_ESP32C3
 					.mosi_io_num = _C3_SPI2_MOSI,
 					.miso_io_num = _C3_SPI2_MISO,
 					.sclk_io_num = _C3_SPI2_SCLK,
+#else
+					.mosi_io_num = _S3_SPI2_MOSI,
+					.miso_io_num = _S3_SPI2_MISO,
+					.sclk_io_num = _S3_SPI2_SCLK,
+#endif
 					.quadwp_io_num = -1,
 					.quadhd_io_num = -1,
 					.max_transfer_sz = 4000,
