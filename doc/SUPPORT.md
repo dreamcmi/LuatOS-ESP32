@@ -4,13 +4,13 @@
 | ------- | -------------- |
 | GPIO    | 完成           |
 | ADC     | 完成           |
-| UART    | uart.on未完成  |
+| UART    | 完成           |
 | I2C     | 完成           |
 | SPI     | 完成           |
 | PWM     | 完成           |
 | FS      | 完成（spiffs） |
 | SOCKET  | 完成           |
-| OTA     | 计划           |
+| OTA     | 脚本部分完成   |
 | BLE     | 部分           |
 | WLAN    | 完成           |
 | CRYPTO  | 完成           |
@@ -25,6 +25,7 @@
 | EINK    | 完成           |
 | PM      | 完成           |
 | ESPHTTP | 完成           |
+| ESPMQTT | 完成           |
 | NTP     | 完成           |
 | LuaDB   | 完成           |
 | SFUD    | 完成           |
