@@ -18,34 +18,43 @@
 
 static const char *TAG = "SDMMC";
 /*
-初始化SD卡与FAT文件系统
-@api sdmmc.init(type,clk(cs),cmd,d0)
-@int 模式 1=sdio,2=spi
-@int clk引脚号 spi模式下cs引脚
+初始化SD卡与FAT文件系统 默认使用SDSPI 20Mhz
+@api sdmmc.init(type,freq,width(cs),clk,cmd,d0(,d1,d2,d3))
+@int 模式 1=sdio,2=spi C3仅支持SDSPI模式，S3两种均可使用
+@int 频率 SDMMC_FREQ_DEFAULT 20M，SDMMC_FREQ_HIGHSPEED 40M，
+@int 宽度 只支持1bit和4bit 仅适用于sdio模式 在sdspi模式下用于设置cs引脚
+@int clk引脚号
 @int cmd引脚号
 @int d0引脚号
+@int d1引脚号 当宽度为4bit可用
+@int d2引脚号 当宽度为4bit可用
+@int d3引脚号 当宽度为4bit可用
 @return boolean 成功true 失败false
 @usage
 -- 使用sdio挂载sd卡
-sdmmc.init(1,12,18,19)
+sdmmc.init(1,sdmmc.SDMMC_FREQ_DEFAULT,1,13,12,11)
 -- 使用spi挂载sd卡
-sdmmc.init(2,6,-1,-1)
+sdmmc.init(2,sdmmc.SDMMC_FREQ_DEFAULT,4)
 */
 int l_sdmmc_init(lua_State *L){
 	ESP_LOGI(TAG,"Mounting FAT filesystem");
 	esp_err_t ret = ESP_FAIL;
 	int type = luaL_checkinteger(L,1);
-	int clk = luaL_checkinteger(L,2);
-	int cmd = luaL_checkinteger(L,3);
-	int d0 = luaL_checkinteger(L,4);
+	int freq = luaL_checkinteger(L,2);
+	int width = luaL_checkinteger(L,3);
+	int clk = luaL_optinteger(L,4,-1);
+	int cmd = luaL_optinteger(L,5,-1);
+	int d0 = luaL_optinteger(L,6,-1);
+	int d1 = luaL_optinteger(L,7,-1);
+	int d2 = luaL_optinteger(L,8,-1);
+	int d3 = luaL_optinteger(L,9,-1);
 	sdmmc_card_t *mount_card = NULL;
-	const char *base_path = "/sdcard0";
+	const char *base_path = "/sd";
 	ESP_LOGI(TAG, "Initializing SDMMC\n");
 	esp_vfs_fat_sdmmc_mount_config_t mount_config = {
 			.format_if_mount_failed = false,
 			.max_files = 5,
 	};
-	sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 	switch (type)
 	{
 		case 1:
@@ -55,19 +64,27 @@ int l_sdmmc_init(lua_State *L){
 			return 1;
 #else
 			ESP_LOGI(TAG, "Using SDIO Interface");
+			sdmmc_host_t sdmmc_host = SDMMC_HOST_DEFAULT();
+			sdmmc_host.max_freq_khz = freq;
 			sdmmc_slot_config_t sdmmc_slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
 			sdmmc_slot_config.clk = clk;
 			sdmmc_slot_config.cmd = cmd;
 			sdmmc_slot_config.d0 = d0;
-			sdmmc_slot_config.width = 1;
+			if(width == 4){
+				sdmmc_slot_config.d1 = d1;
+				sdmmc_slot_config.d2 = d2;
+				sdmmc_slot_config.d3 = d3;
+			}
+			sdmmc_slot_config.width = width;
 			ESP_LOGI(TAG, "Mounting filesystem");
-			ret = esp_vfs_fat_sdmmc_mount(base_path, &host, &sdmmc_slot_config, &mount_config, &mount_card);
+			ret = esp_vfs_fat_sdmmc_mount(base_path, &sdmmc_host, &sdmmc_slot_config, &mount_config, &mount_card);
 #endif
 			break;
 		case 2:
 			ESP_LOGI(TAG, "Using SPI Interface");
-			host.slot = SDSPI_DEFAULT_HOST;
-			//TODO:判断是否初始化过SPI，实现多从机SPI
+			sdmmc_host_t sdspi_host = SDSPI_HOST_DEFAULT();
+			sdspi_host.max_freq_khz = freq;
+			//TODO:判断是否初始化过SPI，并实现多从机SPI
 			spi_bus_config_t bus_cfg = {
 #if CONFIG_IDF_TARGET_ESP32C3
 					.mosi_io_num = _C3_SPI2_MOSI,
@@ -83,16 +100,16 @@ int l_sdmmc_init(lua_State *L){
 					.max_transfer_sz = 4000,
 			};
 			sdspi_device_config_t sdspi_slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-			sdspi_slot_config.gpio_cs = clk;
-			sdspi_slot_config.host_id = host.slot;
-			ret = spi_bus_initialize(host.slot, &bus_cfg, SPI_DMA_CH_AUTO);
+			sdspi_slot_config.gpio_cs = width;
+			sdspi_slot_config.host_id = sdspi_host.slot;
+			ret = spi_bus_initialize(sdspi_host.slot, &bus_cfg, SPI_DMA_CH_AUTO);
 			if (ret != ESP_OK) {
 				ESP_LOGE(TAG, "Failed to initialize bus.");
 				lua_pushboolean(L,false);
 				return 1;
 			}
 			ESP_LOGI(TAG, "Mounting filesystem");
-			ret = esp_vfs_fat_sdspi_mount(base_path, &host, &sdspi_slot_config, &mount_config, &mount_card);
+			ret = esp_vfs_fat_sdspi_mount(base_path, &sdspi_host, &sdspi_slot_config, &mount_config, &mount_card);
 			break;
 		default:
 			ESP_LOGE(TAG, "sdcard type error,mount fail");
@@ -142,6 +159,10 @@ static const rotable_Reg reg_sdmmc[] =
 		{
 				{"init", l_sdmmc_init, 0},
 				{"deinit", l_sdmmc_deinit, 0},
+
+				{"SDMMC_FREQ_DEFAULT", NULL, SDMMC_FREQ_DEFAULT},
+				{"SDMMC_FREQ_HIGHSPEED", NULL, SDMMC_FREQ_HIGHSPEED},
+
 				{NULL, NULL, 0}};
 
 LUAMOD_API int luaopen_sdmmc(lua_State *L)
