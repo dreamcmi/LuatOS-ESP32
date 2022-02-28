@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-include "luat_base.h"
+#include "luat_base.h"
 #include "luat_gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
