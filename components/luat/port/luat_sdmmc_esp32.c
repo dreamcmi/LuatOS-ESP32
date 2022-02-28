@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Fantasy <1005313176@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include "luat_base.h"
 #include "esp_vfs_fat.h"
 #include "esp_log.h"

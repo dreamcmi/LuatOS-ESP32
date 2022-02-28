@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Darren <1912544842@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef __PIN_MAP_H__
 #define __PIN_MAP_H__
 

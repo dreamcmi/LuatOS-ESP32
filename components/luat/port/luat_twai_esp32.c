@@ -1,4 +1,10 @@
 /*
+ * SPDX-FileCopyrightText: 2021-2022 Darren <1912544842@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
 @module  twai
 @summary esp专用库twai
 @version 1.0

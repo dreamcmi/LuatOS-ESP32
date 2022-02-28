@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Darren <1912544842@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef LUAT_CONF_BSP
 #define LUAT_CONF_BSP
 #define LUAT_BSP_VERSION "V0001"

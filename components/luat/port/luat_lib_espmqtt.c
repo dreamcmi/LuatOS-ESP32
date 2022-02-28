@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Wendal <wendal1985@gmail.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include "luat_base.h"
 #include "luat_msgbus.h"
 #include "luat_malloc.h"

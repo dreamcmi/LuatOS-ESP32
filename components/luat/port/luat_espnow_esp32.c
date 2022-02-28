@@ -1,4 +1,10 @@
 /*
+ * SPDX-FileCopyrightText: 2021-2022 Darren <1912544842@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
 @module  espnow
 @summary espnow库
 @version 1.0
