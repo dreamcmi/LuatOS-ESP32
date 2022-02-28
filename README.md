@@ -39,7 +39,7 @@
 ##### 快速上手：
 
 1. 参考乐鑫文档安装ESP-IDF。(https://docs.espressif.com/projects/esp-idf/zh_CN/release-v4.4/esp32c3/get-started/index.html) 国内用户可以选择Gitee上的镜像库(https://gitee.com/EspressifSystems/esp-idf) 进行安装。
-2. 克隆本仓库和luatos主仓库(https://gitee.com/openLuat/LuatOS)到同级目录下
+2. 克隆本仓库和luatos主仓库(https://gitee.com/openLuat/LuatOS) 到同级目录下
 3. 进入LuatOS-ESP32仓库 执行`idf.py set-target esp32c3` `idf.py build`进行编译
 
 ```
@@ -61,6 +61,8 @@ ESP32开发QQ群：667220396
 LuatOS开发QQ群：1061642968
 
 ## 3、相关文档
+
+[API-DOC](./userdoc)
 
 [Support](./doc/SUPPORT.md)
 
