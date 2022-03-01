@@ -21,6 +21,11 @@ jobs:
         run: |
           cd ..
           git clone https://github.com/openLuat/LuatOS
+      - name: patch src
+        run: |
+          cp patches/001_v4.4_fix_smartconfig_ack.patch ~/esp/esp-idf
+          cd ~/esp/esp-idf
+          git apply 001_v4.4_fix_smartconfig_ack.patch
       - name: build c3
         run: |
           source ~/esp/esp-idf/export.sh
