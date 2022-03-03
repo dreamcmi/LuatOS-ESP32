@@ -91,6 +91,7 @@ static void uart0_irq_task(void *arg)
             if (event.timeout_flag || event.size > (1024 * 2 - 200))
             {
 #ifdef LUAT_USE_SHELL
+                memset(buffer, 0, 1024);
                 len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
                 luat_shell_push(buffer, len);
 #else
