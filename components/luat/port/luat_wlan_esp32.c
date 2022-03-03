@@ -13,6 +13,7 @@
 #include <string.h>
 #include "luat_base.h"
 #include "esp_log.h"
+#include "luat_timer.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_netif.h"
@@ -35,6 +36,8 @@ static char wlan_mode = 0;
 esp_netif_t *wifi_netif = NULL;
 
 static bool smart_config_active = false;
+
+static uint64_t smart_config_wait_id = 0;
 
 typedef union
 {
@@ -66,6 +69,18 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             break;
 
         case WIFI_EVENT_STA_CONNECTED: // 已连上wifi
+            if(smart_config_wait_id != 0)
+            {
+                lua_getglobal(L, "sys_pub");
+                char* topic = (char*)malloc(1 + sizeof(uint64_t));//放topic的缓冲区
+                topic[0] = 0x01;                                            //第一个字节为0x01
+                memcpy(topic + 1,&smart_config_wait_id,sizeof(uint64_t));   //后面直接拼上8字节的唯一id
+                lua_pushlstring(L,topic,1 + sizeof(uint64_t));              //将topic塞入栈内
+                free(topic);
+                smart_config_wait_id = 0;
+                lua_pushboolean(L,1);
+                lua_call(L, 2, 0);
+            }
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STA_CONNECTED");
             lua_call(L, 1, 0);
@@ -490,6 +505,52 @@ static int l_wlan_smartconfig(lua_State *L)
     return 1;
 }
 
+static int smartconfig_timeout_handler(lua_State *L, void* ptr) {
+    luat_timer_t *timer = (luat_timer_t *)ptr;
+    uint64_t* idp = (uint64_t*)timer->id;
+    if(smart_config_wait_id != 0)
+    {
+        luat_cbcwait_noarg(*idp);
+    }
+    free(idp);
+    return 0;
+}
+/*
+smartconfig配网(默认esptouch)（多任务内使用）
+@api wlan.taskSmartconfig()
+@int mode，可选，默认0 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2
+@int 超时时间（秒），可选，默认120秒
+@return bool 联网成功true 联网失败false/nil
+@usage
+--任务内调用
+local result = wlan.taskSmartconfig().wait()
+*/
+static int l_wlan_task_smartconfig(lua_State *L)
+{
+    int mode = luaL_optinteger(L, 1, SC_TYPE_ESPTOUCH);
+    int timeout = luaL_optinteger(L, 2, 120);
+    smart_config_active = true;
+    esp_wifi_start();
+    BaseType_t re = xTaskCreate(smartconfig_task, "smartconfig_task", 4096, (void *)mode, 3, NULL);
+    if(re != pdPASS)//发起失败
+    {
+        lua_pushboolean(L,0);
+        luat_pushcwait_error(L,1);
+        return 1;
+    }
+    smart_config_wait_id = luat_pushcwait(L);
+    luat_timer_t *timer = (luat_timer_t*)malloc(sizeof(luat_timer_t));
+    uint64_t* idp = (uint64_t*)malloc(sizeof(uint64_t));
+    memcpy(idp, &smart_config_wait_id, sizeof(uint64_t));
+    timer->id = (size_t)idp;
+    timer->timeout = timeout * 1000;
+    timer->repeat = 0;
+    timer->func = &smartconfig_timeout_handler;
+    luat_timer_start(timer);
+
+    return 1;
+}
+
 /*
 smartconfig配网停止
 @api wlan.smartconfigStop()
@@ -617,6 +678,7 @@ static const rotable_Reg reg_wlan[] =
         {"setIp", l_wlan_set_ip, 0},
         {"setHostname", l_wlan_set_hostname, 0},
         {"smartconfig", l_wlan_smartconfig, 0},
+        {"taskSmartconfig", l_wlan_task_smartconfig, 0},
         {"smartconfigStop", l_wlan_smartconfig_stop, 0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
