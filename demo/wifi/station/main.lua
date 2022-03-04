@@ -11,9 +11,6 @@ sys.taskInit(
 
         wlan.setMode(wlan.STATION)
         wlan.connect("xxxx", "123456789")   --此函数第三个参数为1时开启自动重连
-        -- 参数已配置完成，后台将自动开始连接wifi
-        result, _ = sys.waitUntil("WLAN_READY")
-        log.info("wlan", "WLAN_READY", result)
         -- 等待连上路由,此时还没获取到ip
         result, _ = sys.waitUntil("WLAN_STA_CONNECTED")
         log.info("wlan", "WLAN_STA_CONNECTED", result)
