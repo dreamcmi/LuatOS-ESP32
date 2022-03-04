@@ -72,15 +72,9 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         case WIFI_EVENT_STA_CONNECTED: // 已连上wifi
             if(smart_config_wait_id != 0)
             {
-                lua_getglobal(L, "sys_pub");
-                char* topic = (char*)malloc(1 + sizeof(uint64_t));//放topic的缓冲区
-                topic[0] = 0x01;                                            //第一个字节为0x01
-                memcpy(topic + 1,&smart_config_wait_id,sizeof(uint64_t));   //后面直接拼上8字节的唯一id
-                lua_pushlstring(L,topic,1 + sizeof(uint64_t));              //将topic塞入栈内
-                free(topic);
                 smart_config_wait_id = 0;
                 lua_pushboolean(L,1);
-                lua_call(L, 2, 0);
+                luat_cbcwait(L,smart_config_wait_id,1);
             }
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STA_CONNECTED");
@@ -499,7 +493,9 @@ static int smartconfig_timeout_handler(lua_State *L, void* ptr) {
     uint64_t* idp = (uint64_t*)timer->id;
     if(smart_config_wait_id != 0)
     {
-        luat_cbcwait_noarg(*idp);
+        lua_pushboolean(L,0);
+        luat_cbcwait(L,*idp,1);
+        smart_config_wait_id = 0;
     }
     free(idp);
     return 0;
@@ -509,7 +505,7 @@ smartconfig配网(默认esptouch)（多任务内使用）
 @api wlan.taskSmartconfig()
 @int mode，可选，默认0 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2
 @int 超时时间（秒），可选，默认120秒
-@return bool 联网成功true 联网失败false/nil
+@return bool 联网成功true 联网失败false
 @usage
 --任务内调用
 local result = wlan.taskSmartconfig().wait()
