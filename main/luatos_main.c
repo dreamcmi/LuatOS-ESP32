@@ -91,7 +91,12 @@ static void uart0_irq_task(void *arg)
             if (event.timeout_flag || event.size > (1024 * 2 - 200))
             {
 #ifdef LUAT_USE_SHELL
+                memset(buffer, 0, 1024);
                 len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
+                // for (size_t i = 0; i < len; i++){
+                //     LLOGD("buffer[%d]:0x%02X",i,buffer[i]);
+                // }
+                buffer[len] = 0x00; // 确保结尾
                 luat_shell_push(buffer, len);
 #else
                 msg.handler = l_uart_handler;
