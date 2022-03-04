@@ -138,15 +138,6 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
     esp_err_t ret = -1;
     if (spi_id == 2)
     {
-        // spi_transaction_t t;
-        // memset(&t, 0, sizeof(t));
-        // t.length = send_length * 8;
-        // t.rxlength = recv_length * 8;
-        // t.tx_buffer = send_buf;
-        // t.rx_buffer = recv_buf;
-        // ret = spi_device_polling_transmit(spi_handle, &t);
-        // //todo,ESP_ERROR_CHECK(ret);
-
         /* FIX:一句执行发送指令不满4会自动补满,导致多发00 */
         spi_transaction_t send;
         memset(&send, 0, sizeof(send));
@@ -156,6 +147,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
         //todo,ESP_ERROR_CHECK(ret);
         spi_transaction_t recv;
         memset(&recv, 0, sizeof(recv));
+        recv.length = recv_length * 8;
         recv.rxlength = recv_length * 8;
         recv.rx_buffer = recv_buf;
         ret = spi_device_polling_transmit(spi_handle, &recv);
@@ -168,15 +160,6 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
 #if CONFIG_IDF_TARGET_ESP32S3
     else if (spi_id == 3)
     {
-        // spi_transaction_t t;
-        // memset(&t, 0, sizeof(t));
-        // t.length = send_length * 8;
-        // t.rxlength = recv_length * 8;
-        // t.tx_buffer = send_buf;
-        // t.rx_buffer = recv_buf;
-        // ret = spi_device_polling_transmit(spi3_handle, &t);
-        // //todo,ESP_ERROR_CHECK(ret);
-
         /* FIX:一句执行发送指令不满4会自动补满,导致多发00 */
         spi_transaction_t send;
         memset(&send, 0, sizeof(send));
@@ -186,6 +169,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
         //todo,ESP_ERROR_CHECK(ret);
         spi_transaction_t recv;
         memset(&recv, 0, sizeof(recv));
+        recv.length = recv_length * 8;
         recv.rxlength = recv_length * 8;
         recv.rx_buffer = recv_buf;
         ret = spi_device_polling_transmit(spi3_handle, &recv);
@@ -207,6 +191,7 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
     {
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
+        t.length = length * 8;
         t.rxlength = length * 8;
         t.rx_buffer = recv_buf;
         ret = spi_device_polling_transmit(spi_handle, &t);
@@ -222,6 +207,7 @@ int luat_spi_recv(int spi_id, char *recv_buf, size_t length)
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
         t.length = length * 8;
+        t.rxlength = length * 8;
         t.rx_buffer = recv_buf;
         ret = spi_device_polling_transmit(spi3_handle, &t);
         //todo,ESP_ERROR_CHECK(ret);
@@ -386,6 +372,7 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
         //todo,ESP_ERROR_CHECK(ret);
         spi_transaction_t recv;
         memset(&recv, 0, sizeof(recv));
+        recv.length = recv_length * 8;
         recv.rxlength = recv_length * 8;
         recv.rx_buffer = recv_buf;
         ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &recv);
@@ -408,6 +395,7 @@ int luat_spi_device_recv(luat_spi_device_t *spi_dev, char *recv_buf, size_t leng
     {
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
+        t.length = length * 8;
         t.rxlength = length * 8;
         t.rx_buffer = recv_buf;
         ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &t);
