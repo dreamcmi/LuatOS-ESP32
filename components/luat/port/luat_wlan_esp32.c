@@ -512,6 +512,12 @@ local result = wlan.taskSmartconfig().wait()
 */
 static int l_wlan_task_smartconfig(lua_State *L)
 {
+    if(smart_config_wait_id != 0)//防止开启多次
+    {
+        lua_pushboolean(L,0);
+        luat_pushcwait_error(L,1);
+        return 1;
+    }
     int mode = luaL_optinteger(L, 1, SC_TYPE_ESPTOUCH);
     int timeout = luaL_optinteger(L, 2, 120);
     smart_config_active = true;
