@@ -6,6 +6,7 @@
 #include "freertos/queue.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
+#include "esp_idf_version.h"
 
 #include "driver/gpio.h"
 #include "driver/uart.h"
@@ -82,8 +83,10 @@ static void uart0_irq_task(void *arg)
 #ifndef LUAT_USE_SHELL
     rtos_msg_t msg = {0};
 #endif
+#ifdef LUAT_USE_SHELL
     char buffer[1024] = {0};
     int len = 0;
+#endif
     while (true)
     {
         if (xQueueReceive(uart0_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
@@ -101,8 +104,8 @@ static void uart0_irq_task(void *arg)
 #else
                 msg.handler = l_uart_handler;
                 msg.ptr = NULL;
-                msg.arg1 = 0; //uart0
-                msg.arg2 = 1; //recv
+                msg.arg1 = 0; // uart0
+                msg.arg2 = 1; // recv
                 luat_msgbus_put(&msg, 0);
 #endif
                 xQueueReset(uart0_evt_queue);
@@ -127,6 +130,7 @@ void app_main(void)
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     printf("\nMac:%02x%02x%02x%02x%02x%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     free(mac);
+    printf("IDF_VERSION:%d.%d.%d\n", ESP_IDF_VERSION_MAJOR, ESP_IDF_VERSION_MINOR, ESP_IDF_VERSION_PATCH);
 
 #ifdef CONFIG_SPIRAM
     psram_size_t t = psram_get_size();
