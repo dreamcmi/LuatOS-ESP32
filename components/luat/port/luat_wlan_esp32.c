@@ -429,6 +429,22 @@ static int l_wlan_disconnect(lua_State *L)
 }
 
 /*
+停止wifi
+@api wlan.stop()
+@return int esp_err
+@usage
+-- 去初始化wifi
+wlan.stop()
+*/
+static int l_wlan_stop(lua_State *L)
+{
+    esp_err_t err = -1;
+    err = esp_wifi_stop();
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
 去初始化wifi
 @api wlan.deinit()
 @return int esp_err
@@ -692,6 +708,7 @@ static const rotable_Reg reg_wlan[] =
         {"connect", l_wlan_connect, 0},
         {"createAP", l_wlan_create_ap, 0},
         {"disconnect", l_wlan_disconnect, 0},
+        {"stop", l_wlan_stop, 0},
         {"deinit", l_wlan_deinit, 0},
         {"setps", l_wlan_set_ps, 0},
         {"getps", l_wlan_get_ps, 0},
