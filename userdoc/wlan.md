@@ -1,5 +1,29 @@
 # wlan - esp32_wifi操作库
 
+## wlan.init()
+
+初始化wifi
+
+**参数**
+
+无
+
+**返回值**
+
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
+
+**例子**
+
+```lua
+-- 在使用wifi前初始化一下
+wlan.init()
+
+```
+
+---
+
 ## wlan.getMode()
 
 获取wifi模式
@@ -10,9 +34,9 @@
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP|
+| 返回值类型 | 解释                                                |
+| ---------- | --------------------------------------------------- |
+| int        | 模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP |
 
 **例子**
 
@@ -30,15 +54,15 @@ local m = wlan.getMode()
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|int|模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP|
+| 传入值类型 | 解释                                                |
+| ---------- | --------------------------------------------------- |
+| int        | 模式wlan.NONE, wlan.STATION, wlan.AP,wlan.STATIONAP |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|返回esp_err|
+| 返回值类型 | 解释        |
+| ---------- | ----------- |
+| int        | 返回esp_err |
 
 **例子**
 
@@ -50,29 +74,7 @@ wlan.setMode(wlan.STATION)
 
 ---
 
-## wlan.init()
 
-初始化wifi
-
-**参数**
-
-无
-
-**返回值**
-
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
-
-**例子**
-
-```lua
--- 在使用wifi前初始化一下
-wlan.init()
-
-```
-
----
 
 ## wlan.connect(ssid,password,autoreconnect)
 
@@ -80,17 +82,17 @@ wlan.init()
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|string|ssid  wifi的SSID|
-|string|password wifi的密码,可选|
-|int|断连自动重连 1:启用 0:不启用|
+| 传入值类型 | 解释                         |
+| ---------- | ---------------------------- |
+| string     | ssid  wifi的SSID             |
+| string     | password wifi的密码,可选     |
+| int        | 断连自动重连 1:启用 0:不启用 |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -108,19 +110,19 @@ wlan.connect("uiot", "1234567890")
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|string|ssid  wifi的SSID|
-|string|password wifi的密码|
-|int|channle 信道 默认11|
-|int|最大连接数 默认5|
-|int|authmode 密码验证模式|
+| 传入值类型 | 解释                  |
+| ---------- | --------------------- |
+| string     | ssid  wifi的SSID      |
+| string     | password wifi的密码   |
+| int        | channle 信道 默认11   |
+| int        | 最大连接数 默认5      |
+| int        | authmode 密码验证模式 |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -141,15 +143,39 @@ wlan.createAP("LuatOS-ESP32","12345678")
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
 ```lua
 -- 断开wifi连接
 wlan.disconnect()
+
+```
+
+---
+
+## wlan.stop()
+
+关闭wifi
+
+**参数**
+
+无
+
+**返回值**
+
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
+
+**例子**
+
+```lua
+-- 关闭wifi
+wlan.stop()
 
 ```
 
@@ -165,9 +191,9 @@ wlan.disconnect()
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -185,15 +211,15 @@ wlan.deinit()
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|int|省电等级 省电等级 wlan.PS_NONE  wlan.PS_MIN_MODEM wlan.PS_MAX_MODEM|
+| 传入值类型 | 解释                                                         |
+| ---------- | ------------------------------------------------------------ |
+| int        | 省电等级 省电等级 wlan.PS_NONE  wlan.PS_MIN_MODEM wlan.PS_MAX_MODEM |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -214,9 +240,9 @@ wlan.setps(1)
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -227,44 +253,21 @@ wlan.getps()
 
 ---
 
-## wlan.smartconfig()
+## wlan.smartconfig(mode)
 
 smartconfig配网(默认esptouch)
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|int|mode 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2|
+| 传入值类型 | 解释                                                         |
+| ---------- | ------------------------------------------------------------ |
+| int        | mode 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2 |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|创建成功0 失败1|
-
-**例子**
-
-```lua
-wlan.smartconfigStop()
-
-```
-
----
-
-## wlan.smartconfigStop()
-
-smartconfig配网停止
-
-**参数**
-
-无
-
-**返回值**
-
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释            |
+| ---------- | --------------- |
+| int        | 创建成功0 失败1 |
 
 **例子**
 
@@ -281,15 +284,15 @@ wlan dhcp开关
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|int|0:关闭dhcp 1:开启dhcp|
+| 传入值类型 | 解释                  |
+| ---------- | --------------------- |
+| int        | 0:关闭dhcp 1:开启dhcp |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -306,17 +309,17 @@ wlan设置ip信息
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|string|ip ip地址 格式"xxx.xxx.xxx.xxx"|
-|string|gw 网关地址 格式"xxx.xxx.xxx.xxx"|
-|string|netmask 子网掩码 格式"xxx.xxx.xxx.xxx"|
+| 传入值类型 | 解释                                   |
+| ---------- | -------------------------------------- |
+| string     | ip ip地址 格式"xxx.xxx.xxx.xxx"        |
+| string     | gw 网关地址 格式"xxx.xxx.xxx.xxx"      |
+| string     | netmask 子网掩码 格式"xxx.xxx.xxx.xxx" |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -333,15 +336,15 @@ wlan设置hostname
 
 **参数**
 
-|传入值类型|解释|
-|-|-|
-|string|hosetname 主机名|
+| 传入值类型 | 解释             |
+| ---------- | ---------------- |
+| string     | hosetname 主机名 |
 
 **返回值**
 
-|返回值类型|解释|
-|-|-|
-|int|esp_err|
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
 
 **例子**
 
@@ -352,3 +355,30 @@ wlan.setHostname("luatos")
 
 ---
 
+## wlan.getConfig(mode)
+
+wlan获取配置信息
+
+**参数**
+
+| 传入值类型 | 解释            |
+| ---------- | --------------- |
+| int        | mode STA:0 AP:1 |
+
+**返回值**
+
+| 返回值类型 | 解释                                                         |
+| ---------- | ------------------------------------------------------------ |
+| table      | STA:{"ssid":"xxx","password":"xxx","bssid":"xxx"} AP:{"ssid":"xxx","password":"xxx"} |
+
+**例子**
+
+```lua
+-- AP
+t = wlan.getConfig(1)
+log.info("wlan", "wifi ap info", t.ssid, t.password)
+-- STA
+t = wlan.getConfig(0)
+log.info("wlan", "wifi connected info", t.ssid, t.password, t.bssid:toHex())
+
+```

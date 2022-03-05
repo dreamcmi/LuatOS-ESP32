@@ -3,6 +3,7 @@ VERSION = "1.0.0"
 
 -- 引入必要的库文件(lua编写), 内部库不需要require
 local sys = require "sys"
+local STA_MODE = 0
 
 sys.taskInit(
     function()
@@ -18,6 +19,9 @@ sys.taskInit(
         result, data = sys.waitUntil("IP_READY")
         log.info("wlan", "IP_READY", result, data)
 
+        t = wlan.getConfig(STA_MODE)
+        log.info("wlan", "wifi connected info", t.ssid, t.password, t.bssid:toHex())
+
         sys.wait(10*1000)
         wlan.disconnect()
         result, _ = sys.waitUntil("WLAN_STA_DISCONNECTED")
@@ -27,6 +31,19 @@ sys.taskInit(
     end
 )
 
+sys.subscribe(
+    "WLAN_STA_START",
+    function()
+        log.info("wlan", "WLAN_STA_START")
+    end
+)
+
+sys.subscribe(
+    "WLAN_STA_STOP",
+    function()
+        log.info("wlan", "WLAN_STA_STOP")
+    end
+)
 -- 用户代码已结束---------------------------------------------
 -- 结尾总是这一句
 sys.run()

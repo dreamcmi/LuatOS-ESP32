@@ -107,7 +107,7 @@ int luat_fs_init(void)
   // TODO 支持OTA, 通过切换分区的方式
   partition = esp_partition_find_first(0x5A, 0x5A, "script");
   if (partition != NULL) {
-    ESP_LOGE("vfs", "found script partition %08X %08X", partition->address, (uint32_t)luat_vfs_reg);
+    ESP_LOGI("vfs", "found script partition %08X %08X", partition->address, (uint32_t)luat_vfs_reg);
 #ifdef LUAT_USE_OTA
     //OTA检测升级
     luat_ota(0);
