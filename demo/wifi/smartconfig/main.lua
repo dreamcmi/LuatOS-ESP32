@@ -3,9 +3,10 @@ VERSION = "1.0.0"
 
 -- 引入必要的库文件(lua编写), 内部库不需要require
 local sys = require "sys"
+local STA_MODE = 0
 
 sys.taskInit(
-    function() 
+    function()
         log.info("wlan", "wlan_init:", wlan.init())
         wlan.setMode(wlan.STATION)
 
@@ -14,6 +15,12 @@ sys.taskInit(
         result, _ = sys.waitUntil("WLAN_STA_CONNECTED")
         log.info("wlan", "WLAN_STA_CONNECTED RESULT", result)
 
+        -- ack代表返回手机配网成功,根据自身情况选择是否开启
+        result, _ = sys.waitUntil("SMARTCONFIG_ACK_DONE")
+        log.info("wlan", "SMARTCONFIG_ACK_DONE", result)
+
+        t = wlan.getConfig(STA_MODE)
+        log.info("wlan", "wifi connected info", t.ssid, t.password, t.bssid:toHex())
         -- WIFI连接上之后，还需要等段时间才能关闭smartconfig，不然smartconfig ack有可能无法发出，其实这里不用关闭，底层会自己关闭的
     end
 )

@@ -3,6 +3,7 @@ VERSION = "1.0.0"
 
 -- 引入必要的库文件(lua编写), 内部库不需要require
 local sys = require "sys"
+local AP_MODE = 1
 
 sys.taskInit(
     function()
@@ -15,6 +16,8 @@ sys.taskInit(
         log.info("wlan.setip",wlan.setIp("192.168.55.1", "192.168.55.1", "255.255.255.0"))
         log.info("wlan.dhcp",wlan.dhcp(1)) -- 开启dhcp
 
+        t = wlan.getConfig(AP_MODE)
+        log.info("wlan", "wifi ap info", t.ssid, t.password)
     end
 )
 

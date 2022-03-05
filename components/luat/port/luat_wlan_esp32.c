@@ -590,6 +590,58 @@ static int l_wlan_set_hostname(lua_State *L)
     return 1;
 }
 
+/*
+wlan获取配置信息
+@api  wlan.getConfig(mode)
+@int mode STA:0 AP:1
+@return table STA:{"ssid":"xxx","password":"xxx","bssid":"xxx"} AP:{"ssid":"xxx","password":"xxx"}
+@usage
+-- AP
+t = wlan.getConfig(1)
+log.info("wlan", "wifi ap info", t.ssid, t.password)
+-- STA
+t = wlan.getConfig(0)
+log.info("wlan", "wifi connected info", t.ssid, t.password, t.bssid:toHex())
+*/
+static int l_wlan_get_config(lua_State *L)
+{
+    int mode = luaL_checkinteger(L, 1);
+    wifi_config_t conf = {0};
+    esp_wifi_get_config((wifi_interface_t)mode, &conf);
+
+    lua_newtable(L);
+    if (mode == 0)
+    {
+        lua_pushstring(L, "ssid");
+        lua_pushstring(L, (const char *)conf.sta.ssid);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "password");
+        lua_pushstring(L, (const char *)conf.sta.password);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "bssid");
+        lua_pushstring(L, (const char *)conf.sta.bssid);
+        lua_settable(L, -3);
+    }
+    else if (mode == 1)
+    {
+        lua_pushstring(L, "ssid");
+        lua_pushstring(L, (const char *)conf.ap.ssid);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "password");
+        lua_pushstring(L, (const char *)conf.ap.password);
+        lua_settable(L, -3);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_wlan[] =
     {
@@ -604,6 +656,7 @@ static const rotable_Reg reg_wlan[] =
         {"getps", l_wlan_get_ps, 0},
         {"dhcp", l_wlan_dhcp, 0},
         {"setIp", l_wlan_set_ip, 0},
+        {"getConfig", l_wlan_get_config, 0},
         {"setHostname", l_wlan_set_hostname, 0},
         {"smartconfig", l_wlan_smartconfig, 0},
         {"smartconfigStop", l_wlan_smartconfig_stop, 0},
