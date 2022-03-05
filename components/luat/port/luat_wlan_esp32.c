@@ -57,15 +57,9 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         {
         case WIFI_EVENT_STA_START: // 网络就绪，可以链接wifi
             lua_getglobal(L, "sys_pub");
-            lua_pushstring(L, "WLAN_STA_READY");
+            lua_pushstring(L, "WLAN_STA_START");
             lua_call(L, 1, 0);
-
-            // if (!smart_config_active)
-            // {
-            //     esp_wifi_connect();
-            // }
             break;
-
         case WIFI_EVENT_STA_CONNECTED: // 已连上wifi
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STA_CONNECTED");
@@ -74,17 +68,40 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         case WIFI_EVENT_STA_DISCONNECTED: //已断开wifi
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_STA_DISCONNECTED");
-
             if (wlan_ini.auto_connect == 1 || smart_config_active)
             {
                 ESP_LOGI(TAG, "RECONNECT WIFI ");
-
                 esp_wifi_connect();
             }
             if (smart_config_active)
             {
                 xEventGroupClearBits(s_wifi_event_group, BIT0);
             }
+            lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_STA_STOP:
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_STA_STOP");
+            lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_AP_START:
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_AP_START");
+            lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_AP_STOP:
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_AP_STOP");
+            lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_AP_STACONNECTED:
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_AP_STACONNECTED");
+            lua_call(L, 1, 0);
+            break;
+        case WIFI_EVENT_AP_STADISCONNECTED:
+            lua_getglobal(L, "sys_pub");
+            lua_pushstring(L, "WLAN_AP_STADISCONNECTED");
             lua_call(L, 1, 0);
             break;
         default:
@@ -183,10 +200,34 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         msg.arg1 = WIFI_EVENT_STA_CONNECTED;
         msg.arg2 = 0;
     }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_STOP)
+    {
+        msg.arg1 = WIFI_EVENT_STA_STOP;
+        msg.arg2 = 0;
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_START)
+    {
+        msg.arg1 = WIFI_EVENT_AP_START;
+        msg.arg2 = 0;
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STOP)
+    {
+        msg.arg1 = WIFI_EVENT_AP_STOP;
+        msg.arg2 = 0;
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
+    {
+        msg.arg1 = WIFI_EVENT_AP_STACONNECTED;
+        msg.arg2 = 0;
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
+    {
+        msg.arg1 = WIFI_EVENT_AP_STADISCONNECTED;
+        msg.arg2 = 0;
+    }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         WLAN_MSG_CONTEXT *msg_context = (WLAN_MSG_CONTEXT *)malloc(sizeof(WLAN_MSG_CONTEXT));
-
         //这里需要深拷贝
         memcpy(msg_context, event_data, sizeof(smartconfig_event_got_ssid_pswd_t));
         msg.arg1 = IP_EVENT_STA_GOT_IP;

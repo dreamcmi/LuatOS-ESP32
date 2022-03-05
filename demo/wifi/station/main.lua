@@ -31,6 +31,19 @@ sys.taskInit(
     end
 )
 
+sys.subscribe(
+    "WLAN_STA_START",
+    function()
+        log.info("wlan", "WLAN_STA_START")
+    end
+)
+
+sys.subscribe(
+    "WLAN_STA_STOP",
+    function()
+        log.info("wlan", "WLAN_STA_STOP")
+    end
+)
 -- 用户代码已结束---------------------------------------------
 -- 结尾总是这一句
 sys.run()
