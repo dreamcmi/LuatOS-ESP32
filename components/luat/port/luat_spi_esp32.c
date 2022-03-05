@@ -303,7 +303,7 @@ int luat_spi_device_setup(luat_spi_device_t *spi_dev)
             .quadwp_io_num = -1,
             .quadhd_io_num = -1,
             .max_transfer_sz = 4092 * 2};
-        ret = spi_bus_initialize(SPI3_HOST, &buscfg, 0);
+        ret = spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO);
         //todo,ESP_ERROR_CHECK(ret);
         spi_bus3 = 1;
     }
