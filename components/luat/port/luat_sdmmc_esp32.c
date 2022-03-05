@@ -4,6 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+@module  sdmmc
+@summary esp32_sdmmc操作库
+@version 1.0
+@date    2022.3.1
+*/
+
 #include "luat_base.h"
 #include "esp_vfs_fat.h"
 #include "esp_log.h"

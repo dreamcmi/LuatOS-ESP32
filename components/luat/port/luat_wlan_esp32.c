@@ -58,18 +58,45 @@ static int l_wlan_handler(lua_State *L, void *ptr)
     {
         switch (event)
         {
-        case WIFI_EVENT_STA_START: // 网络就绪，可以链接wifi
+        case WIFI_EVENT_STA_START:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan_sta开始
+WLAN_STA_START
+@usage
+sys.subscribe("WLAN_STA_START", function ()
+    log.info("wlan", "WLAN_STA_START")
+end)
+*/
             lua_pushstring(L, "WLAN_STA_START");
             lua_call(L, 1, 0);
             break;
-        case WIFI_EVENT_STA_CONNECTED: // 已连上wifi
+        case WIFI_EVENT_STA_CONNECTED:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan已连上wifi
+WLAN_STA_CONNECTED
+@usage
+sys.subscribe("WLAN_STA_CONNECTED", function ()
+    log.info("wlan", "WLAN_STA_CONNECTED")
+end)
+*/
             lua_pushstring(L, "WLAN_STA_CONNECTED");
             lua_call(L, 1, 0);
             break;
-        case WIFI_EVENT_STA_DISCONNECTED: //已断开wifi
+        case WIFI_EVENT_STA_DISCONNECTED:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan已断开wifi
+WLAN_STA_DISCONNECTED
+@usage
+sys.subscribe("WLAN_STA_DISCONNECTED", function ()
+    log.info("wlan", "WLAN_STA_DISCONNECTED")
+end)
+*/
             lua_pushstring(L, "WLAN_STA_DISCONNECTED");
             if (wlan_ini.auto_connect == 1 || smart_config_active)
             {
@@ -84,21 +111,59 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             break;
         case WIFI_EVENT_STA_STOP:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan已停止
+WIFI_EVENT_STA_STOP
+@usage
+sys.subscribe("WIFI_EVENT_STA_STOP", function ()
+    log.info("wlan", "WIFI_EVENT_STA_STOP")
+end)
+*/
             lua_pushstring(L, "WLAN_STA_STOP");
             lua_call(L, 1, 0);
             break;
         case WIFI_EVENT_AP_START:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan ap启动
+WLAN_AP_START
+@usage
+sys.subscribe("WLAN_AP_START", function ()
+    log.info("wlan", "WLAN_AP_START")
+end)
+*/
             lua_pushstring(L, "WLAN_AP_START");
             lua_call(L, 1, 0);
             break;
         case WIFI_EVENT_AP_STOP:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan ap停止
+WLAN_AP_STOP
+@usage
+sys.subscribe("WLAN_AP_STOP", function ()
+    log.info("wlan", "WLAN_AP_STOP")
+end)
+*/
             lua_pushstring(L, "WLAN_AP_STOP");
             lua_call(L, 1, 0);
             break;
         case WIFI_EVENT_AP_STACONNECTED:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan ap有客户端连接
+WLAN_AP_STACONNECTED
+@string mac地址
+@int aid
+@usage
+sys.subscribe("WLAN_AP_STACONNECTED", function (mac,aid)
+    log.info("wlan", "WLAN_AP_STACONNECTED",aid,mac:toHex())
+end)
+*/
             lua_pushstring(L, "WLAN_AP_STACONNECTED");
             lua_pushlstring(L, (const char *)evt->mac, 6);
             lua_pushinteger(L, evt->aid);
@@ -107,6 +172,17 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             break;
         case WIFI_EVENT_AP_STADISCONNECTED:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+wlan ap有客户端断开
+WLAN_AP_STADISCONNECTED
+@string mac地址
+@int aid
+@usage
+sys.subscribe("WLAN_AP_STADISCONNECTED", function (mac,aid)
+    log.info("wlan", "WLAN_AP_STADISCONNECTED",aid,mac:toHex())
+end)
+*/
             lua_pushstring(L, "WLAN_AP_STADISCONNECTED");
             lua_pushlstring(L, (const char *)evt->mac, 6);
             lua_pushinteger(L, evt->aid);
@@ -122,8 +198,18 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         ip_event_got_ip_t *event_data = (ip_event_got_ip_t *)ptr;
         switch (event)
         {
-        case IP_EVENT_STA_GOT_IP: //已获得ip
+        case IP_EVENT_STA_GOT_IP:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+获取到ip
+IP_READY
+@string ip地址
+@usage
+sys.subscribe("IP_READY", function (ip)
+    log.info("wlan", "IP_READY",ip)
+end)
+*/
             lua_pushstring(L, "IP_READY");
             lua_pushfstring(L, "%d.%d.%d.%d", esp_ip4_addr1_16(&event_data->ip_info.ip),
                             esp_ip4_addr2_16(&event_data->ip_info.ip),
@@ -144,16 +230,43 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         {
         case SC_EVENT_SCAN_DONE:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+smartconfig扫描完成
+WIFI_SCAN_DONE
+@usage
+sys.subscribe("WIFI_SCAN_DONE", function ()
+    log.info("wlan", "WIFI_SCAN_DONE")
+end)
+*/
             lua_pushstring(L, "WIFI_SCAN_DONE");
             lua_call(L, 1, 0);
             break;
         case SC_EVENT_FOUND_CHANNEL:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+smartconfig获取到目标ap的channle
+WIFI_SCAN_FOUND_CHANNEL
+@usage
+sys.subscribe("WIFI_SCAN_FOUND_CHANNEL", function ()
+    log.info("wlan", "WIFI_SCAN_FOUND_CHANNEL")
+end)
+*/
             lua_pushstring(L, "WIFI_SCAN_FOUND_CHANNEL");
             lua_call(L, 1, 0);
             break;
         case SC_EVENT_GOT_SSID_PSWD:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+smartconfig获取到wifi信息
+WIFI_SCAN_GOT_SSID_PSWD
+@usage
+sys.subscribe("WIFI_SCAN_GOT_SSID_PSWD", function ()
+    log.info("wlan", "WIFI_SCAN_GOT_SSID_PSWD")
+end)
+*/
             lua_pushstring(L, "WIFI_SCAN_GOT_SSID_PSWD");
             lua_call(L, 1, 0);
             memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
@@ -173,6 +286,15 @@ static int l_wlan_handler(lua_State *L, void *ptr)
             break;
         case SC_EVENT_SEND_ACK_DONE:
             lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+smartconfig ack发送完成
+SMARTCONFIG_ACK_DONE
+@usage
+sys.subscribe("SMARTCONFIG_ACK_DONE", function ()
+    log.info("wlan", "SMARTCONFIG_ACK_DONE")
+end)
+*/
             lua_pushstring(L, "SMARTCONFIG_ACK_DONE");
             lua_call(L, 1, 0);
             break;
@@ -444,11 +566,11 @@ static int l_wlan_disconnect(lua_State *L)
 }
 
 /*
-停止wifi
+关闭wifi
 @api wlan.stop()
 @return int esp_err
 @usage
--- 去初始化wifi
+-- 关闭wifi
 wlan.stop()
 */
 static int l_wlan_stop(lua_State *L)
@@ -535,7 +657,7 @@ static void smartconfig_task(void *parm)
 
 /*
 smartconfig配网(默认esptouch)
-@api wlan.smartconfig()
+@api wlan.smartconfig(mode)
 @int mode 0:ESPTouch 1:AirKiss 2:ESPTouch and AirKiss 3:ESPTouch v2
 @return int 创建成功0 失败1
 @usage
