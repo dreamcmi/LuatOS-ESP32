@@ -18,6 +18,9 @@ sys.taskInit(
 
         t = wlan.getConfig(AP_MODE)
         log.info("wlan", "wifi ap info", t.ssid, t.password)
+
+        -- 调用下面一行关闭wifi
+        -- log.info("wlan", "stop", wlan.stop())
     end
 )
 
@@ -30,15 +33,15 @@ sys.subscribe(
 
 sys.subscribe(
     "WLAN_AP_STACONNECTED",
-    function()
-        log.info("wlan", "WLAN_AP_STACONNECTED")
+    function(mac, aid)
+        log.info("wlan", "WLAN_AP_STACONNECTED", aid, mac:toHex())
     end
 )
 
 sys.subscribe(
     "WLAN_AP_STADISCONNECTED",
-    function()
-        log.info("wlan", "WLAN_AP_STADISCONNECTED")
+    function(mac, aid)
+        log.info("wlan", "WLAN_AP_STADISCONNECTED", aid, mac:toHex())
     end
 )
 

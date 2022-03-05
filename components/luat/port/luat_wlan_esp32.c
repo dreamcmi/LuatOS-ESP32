@@ -38,10 +38,12 @@ typedef union
     ip_event_got_ip_t got_ip_event;
     smartconfig_event_got_ssid_pswd_t got_ssid_pswd_event;
 } WLAN_MSG_CONTEXT;
+
 struct
 {
-    unsigned char auto_connect : 1;
-    unsigned char mode : 2;
+    uint8_t auto_connect : 1;
+    uint8_t mode : 2;
+    uint8_t reserved : 1;
 } wlan_ini;
 
 //回调事件处理
@@ -50,6 +52,7 @@ static int l_wlan_handler(lua_State *L, void *ptr)
     rtos_msg_t *msg = (rtos_msg_t *)lua_topointer(L, -1);
     int event = msg->arg1;
     int type = msg->arg2;
+    wifi_event_ap_staconnected_t *evt = (wifi_event_ap_staconnected_t *)ptr;
 
     if (type == 0)
     {
@@ -97,12 +100,18 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         case WIFI_EVENT_AP_STACONNECTED:
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_AP_STACONNECTED");
-            lua_call(L, 1, 0);
+            lua_pushlstring(L, (const char *)evt->mac, 6);
+            lua_pushinteger(L, evt->aid);
+            lua_call(L, 3, 0);
+            free(evt);
             break;
         case WIFI_EVENT_AP_STADISCONNECTED:
             lua_getglobal(L, "sys_pub");
             lua_pushstring(L, "WLAN_AP_STADISCONNECTED");
-            lua_call(L, 1, 0);
+            lua_pushlstring(L, (const char *)evt->mac, 6);
+            lua_pushinteger(L, evt->aid);
+            lua_call(L, 3, 0);
+            free(evt);
             break;
         default:
             break;
@@ -217,13 +226,19 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
     {
+        wifi_event_ap_staconnected_t *evt = malloc(sizeof(wifi_event_ap_staconnected_t));
+        memcpy(evt, event_data, sizeof(wifi_event_ap_staconnected_t));
         msg.arg1 = WIFI_EVENT_AP_STACONNECTED;
         msg.arg2 = 0;
+        msg.ptr = evt;
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
     {
+        wifi_event_ap_staconnected_t *evt = malloc(sizeof(wifi_event_ap_staconnected_t));
+        memcpy(evt, event_data, sizeof(wifi_event_ap_staconnected_t));
         msg.arg1 = WIFI_EVENT_AP_STADISCONNECTED;
         msg.arg2 = 0;
+        msg.ptr = evt;
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
