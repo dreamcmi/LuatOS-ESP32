@@ -57,7 +57,7 @@ static int l_wlan_handler(lua_State *L, void *ptr)
         {
         case WIFI_EVENT_STA_START: // 网络就绪，可以链接wifi
             lua_getglobal(L, "sys_pub");
-            lua_pushstring(L, "WLAN_READY");
+            lua_pushstring(L, "WLAN_STA_READY");
             lua_call(L, 1, 0);
 
             // if (!smart_config_active)
