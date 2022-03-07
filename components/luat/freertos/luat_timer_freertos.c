@@ -20,7 +20,8 @@ static void luat_timer_callback(TimerHandle_t xTimer) {
     msg.ptr = timer;
     msg.arg1 = 0;
     msg.arg2 = 0;
-    int re = luat_msgbus_put(&msg, 0);
+    luat_msgbus_put(&msg, 0);
+    // int re = luat_msgbus_put(&msg, 0);
     //LLOGD("timer msgbus re=%ld", re);
 }
 
@@ -39,23 +40,25 @@ int luat_timer_start(luat_timer_t* timer) {
     int timerIndex;
     //LLOGD(">>luat_timer_start timeout=%ld", timer->timeout);
     timerIndex = nextTimerSlot();
-    //LLOGD("timer id=%ld", timerIndex);
     if (timerIndex < 0) {
+        LLOGE("too many timers");
         return 1; // too many timer!!
     }
     os_timer = xTimerCreate("luat_timer", timer->timeout / portTICK_RATE_MS, timer->repeat, timer, luat_timer_callback);
     //LLOGD("timer id=%ld, osTimerNew=%p", timerIndex, os_timer);
     if (!os_timer) {
+        LLOGE("xTimerCreate FAIL");
         return -1;
     }
     timers[timerIndex] = timer;
     
     timer->os_timer = os_timer;
-    int re = xTimerStart(os_timer, 0);
+    int re = xTimerStart(os_timer, 1);
     //LLOGD("timer id=%ld timeout=%ld start=%ld", timerIndex, timer->timeout, re);
     if (re != pdPASS) {
-        xTimerDelete(os_timer, 0);
-        timers[timerIndex] = 0;
+        LLOGE("xTimerStart FAIL");
+        xTimerDelete(os_timer, 1);
+        timers[timerIndex] = NULL;
     }
     return re == pdPASS ? 0 : -1;
 }
