@@ -76,11 +76,11 @@ end)
             lua_call(L, 1, 0);
             break;
         case WIFI_EVENT_STA_CONNECTED:
-            if(smart_config_wait_id != 0)
+            if (smart_config_wait_id != 0)
             {
                 smart_config_wait_id = 0;
-                lua_pushboolean(L,1);
-                luat_cbcwait(L,smart_config_wait_id,1);
+                lua_pushboolean(L, 1);
+                luat_cbcwait(L, smart_config_wait_id, 1);
             }
             lua_getglobal(L, "sys_pub");
 /*
@@ -638,6 +638,68 @@ static int l_wlan_get_ps(lua_State *L)
     return 1;
 }
 
+/*
+设置wifi协议
+@api wlan.setProtocol(mode,protocaolmap)
+@int mode wlan.IF_STA wlan.IF_AP
+@int protocaolmap wlan.11B wlan.11G wlan.11N wlan.LR
+@return int esp_err
+*/
+static int l_wlan_set_protocol(lua_State *L)
+{
+    int mode = luaL_checkinteger(L, 1);
+    int map = luaL_checkinteger(L, 2);
+    esp_err_t err = esp_wifi_set_protocol(mode, map);
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
+获取wifi协议
+@api wlan.getProtocol(mode)
+@int mode wlan.IF_STA wlan.IF_AP
+@return int protocaolmap
+*/
+static int l_wlan_get_protocol(lua_State *L)
+{
+    int mode = luaL_checkinteger(L, 1);
+    uint8_t map = 0;
+    esp_wifi_get_protocol(mode, &map);
+    lua_pushinteger(L, map);
+    return 1;
+}
+
+/*
+设置wifi带宽
+@api wlan.setBandwidth(mode,bw)
+@int mode wlan.IF_STA wlan.IF_AP
+@int bw wlan.HT20 wlan.HT40
+@return int esp_err
+*/
+static int l_wlan_set_bandwidth(lua_State *L)
+{
+    int mode = luaL_checkinteger(L, 1);
+    int bw = luaL_checkinteger(L, 2);
+    esp_err_t err = esp_wifi_set_bandwidth(mode, (wifi_bandwidth_t)bw);
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
+获取wifi带宽
+@api wlan.getBandwidth(mode)
+@int mode wlan.IF_STA wlan.IF_AP
+@return int bw
+*/
+static int l_wlan_get_bandwidth(lua_State *L)
+{
+    int mode = luaL_checkinteger(L, 1);
+    wifi_bandwidth_t bw;
+    esp_wifi_get_bandwidth(mode, &bw);
+    lua_pushinteger(L, (int)bw);
+    return 1;
+}
+
 static void smartconfig_task(void *parm)
 {
     smartconfig_type_t mode = (smartconfig_type_t)parm;
@@ -912,6 +974,10 @@ static const rotable_Reg reg_wlan[] =
         {"deinit", l_wlan_deinit, 0},
         {"setps", l_wlan_set_ps, 0},
         {"getps", l_wlan_get_ps, 0},
+        {"setProtocol", l_wlan_set_protocol, 0},
+        {"getProtocol", l_wlan_get_protocol, 0},
+        {"setBandwidth", l_wlan_set_bandwidth, 0},
+        {"getBandwidth", l_wlan_get_bandwidth, 0},
         {"dhcp", l_wlan_dhcp, 0},
         {"setIp", l_wlan_set_ip, 0},
         {"getConfig", l_wlan_get_config, 0},
@@ -924,6 +990,10 @@ static const rotable_Reg reg_wlan[] =
         {"STATION", NULL, WIFI_MODE_STA},
         {"AP", NULL, WIFI_MODE_AP},
         {"STATIONAP", NULL, WIFI_MODE_APSTA},
+
+        {"IF_STA", NULL, WIFI_IF_STA},
+        {"IF_AP", NULL, WIFI_IF_AP},
+
         {"PS_NONE", NULL, WIFI_PS_NONE},
         {"PS_MIN_MODEM", NULL, WIFI_PS_MIN_MODEM},
         {"PS_MAX_MODEM", NULL, WIFI_PS_MAX_MODEM},
@@ -937,6 +1007,14 @@ static const rotable_Reg reg_wlan[] =
         {"AUTH_WPA3_PSK", NULL, WIFI_AUTH_WPA3_PSK},
         {"AUTH_WPA2_WPA3_PSK", NULL, WIFI_AUTH_WPA2_WPA3_PSK},
         {"AUTH_WAPI_PSK", NULL, WIFI_AUTH_WAPI_PSK},
+
+        {"P11B", NULL, WIFI_PROTOCOL_11B},
+        {"P11G", NULL, WIFI_PROTOCOL_11G},
+        {"P11N", NULL, WIFI_PROTOCOL_11N},
+        {"LR", NULL, WIFI_PROTOCOL_LR},
+
+        {"HT20" , NULL, WIFI_BW_HT20},
+        {"HT40" , NULL, WIFI_BW_HT40},
 
         {NULL, NULL, 0}};
 
