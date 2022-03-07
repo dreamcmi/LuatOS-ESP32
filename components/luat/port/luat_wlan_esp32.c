@@ -694,6 +694,7 @@ static int smartconfig_timeout_handler(lua_State *L, void* ptr) {
     free(idp);
     return 0;
 }
+
 /*
 smartconfig配网(默认esptouch)（多任务内使用）
 @api wlan.taskSmartconfig()
@@ -736,19 +737,19 @@ static int l_wlan_task_smartconfig(lua_State *L)
     return 1;
 }
 
-/*
-smartconfig配网停止
-@api wlan.smartconfigStop()
-@return int 创建成功0 失败1
-@usage
-wlan.smartconfigStop()
-*/
-static int l_wlan_smartconfig_stop(lua_State *L)
-{
-    esp_err_t err = esp_smartconfig_stop();
-    lua_pushinteger(L, err);
-    return 1;
-}
+// /*
+// smartconfig配网停止
+// @api wlan.smartconfigStop()
+// @return int 创建成功0 失败1
+// @usage
+// wlan.smartconfigStop()
+// */
+// static int l_wlan_smartconfig_stop(lua_State *L)
+// {
+//     esp_err_t err = esp_smartconfig_stop();
+//     lua_pushinteger(L, err);
+//     return 1;
+// }
 
 /*
 wlan dhcp开关
@@ -918,7 +919,7 @@ static const rotable_Reg reg_wlan[] =
         {"setHostname", l_wlan_set_hostname, 0},
         {"smartconfig", l_wlan_smartconfig, 0},
         {"taskSmartconfig", l_wlan_task_smartconfig, 0},
-        {"smartconfigStop", l_wlan_smartconfig_stop, 0},
+        // {"smartconfigStop", l_wlan_smartconfig_stop, 0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
         {"STATION", NULL, WIFI_MODE_STA},
@@ -934,7 +935,6 @@ static const rotable_Reg reg_wlan[] =
         {"AUTH_WPA2_PSK", NULL, WIFI_AUTH_WPA2_PSK},
         {"AUTH_WPA_WPA2_PSK", NULL, WIFI_AUTH_WPA_WPA2_PSK},
         {"AUTH_WPA2_ENTERPRISE", NULL, WIFI_AUTH_WPA2_ENTERPRISE},
-        {"AUTH_WPA3_PSK", NULL, WIFI_AUTH_WPA3_PSK},
         {"AUTH_WPA3_PSK", NULL, WIFI_AUTH_WPA3_PSK},
         {"AUTH_WPA2_WPA3_PSK", NULL, WIFI_AUTH_WPA2_WPA3_PSK},
         {"AUTH_WAPI_PSK", NULL, WIFI_AUTH_WAPI_PSK},
