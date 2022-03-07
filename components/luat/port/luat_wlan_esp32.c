@@ -618,8 +618,7 @@ wlan.setps(1)
 */
 static int l_wlan_set_ps(lua_State *L)
 {
-    int ps = luaL_checkinteger(L, 1);
-    esp_err_t err = esp_wifi_set_ps(ps);
+    esp_err_t err = esp_wifi_set_ps(luaL_checkinteger(L, 1));
     lua_pushinteger(L, err);
     return 1;
 }
@@ -633,10 +632,9 @@ wlan.getps()
 */
 static int l_wlan_get_ps(lua_State *L)
 {
-    esp_err_t err = -1;
     wifi_ps_type_t type;
-    err = esp_wifi_get_ps(&type);
-    lua_pushinteger(L, err);
+    esp_wifi_get_ps(&type);
+    lua_pushinteger(L, (int)type);
     return 1;
 }
 
@@ -682,13 +680,14 @@ static int l_wlan_smartconfig(lua_State *L)
     return 1;
 }
 
-static int smartconfig_timeout_handler(lua_State *L, void* ptr) {
+static int smartconfig_timeout_handler(lua_State *L, void *ptr)
+{
     luat_timer_t *timer = (luat_timer_t *)ptr;
-    uint64_t* idp = (uint64_t*)timer->id;
-    if(smart_config_wait_id != 0)
+    uint64_t *idp = (uint64_t *)timer->id;
+    if (smart_config_wait_id != 0)
     {
-        lua_pushboolean(L,0);
-        luat_cbcwait(L,*idp,1);
+        lua_pushboolean(L, 0);
+        luat_cbcwait(L, *idp, 1);
         smart_config_wait_id = 0;
     }
     free(idp);
@@ -707,10 +706,10 @@ local result = wlan.taskSmartconfig().wait()
 */
 static int l_wlan_task_smartconfig(lua_State *L)
 {
-    if(smart_config_wait_id != 0)//防止开启多次
+    if (smart_config_wait_id != 0) //防止开启多次
     {
-        lua_pushboolean(L,0);
-        luat_pushcwait_error(L,1);
+        lua_pushboolean(L, 0);
+        luat_pushcwait_error(L, 1);
         return 1;
     }
     int mode = luaL_optinteger(L, 1, SC_TYPE_ESPTOUCH);
@@ -718,15 +717,15 @@ static int l_wlan_task_smartconfig(lua_State *L)
     smart_config_active = true;
     esp_wifi_start();
     BaseType_t re = xTaskCreate(smartconfig_task, "smartconfig_task", 4096, (void *)mode, 3, NULL);
-    if(re != pdPASS)//发起失败
+    if (re != pdPASS) //发起失败
     {
-        lua_pushboolean(L,0);
-        luat_pushcwait_error(L,1);
+        lua_pushboolean(L, 0);
+        luat_pushcwait_error(L, 1);
         return 1;
     }
     smart_config_wait_id = luat_pushcwait(L);
-    luat_timer_t *timer = (luat_timer_t*)malloc(sizeof(luat_timer_t));
-    uint64_t* idp = (uint64_t*)malloc(sizeof(uint64_t));
+    luat_timer_t *timer = (luat_timer_t *)malloc(sizeof(luat_timer_t));
+    uint64_t *idp = (uint64_t *)malloc(sizeof(uint64_t));
     memcpy(idp, &smart_config_wait_id, sizeof(uint64_t));
     timer->id = (size_t)idp;
     timer->timeout = timeout * 1000;
