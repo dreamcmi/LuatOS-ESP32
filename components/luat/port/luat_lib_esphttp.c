@@ -45,8 +45,12 @@ static int l_esphttp_event_cb(lua_State *L, void* ptr) {
         lua_pushinteger(L, msg->arg1);
         if (msg->arg1 == HTTP_EVENT_ON_DATA) {
             resp_data_t* re = (resp_data_t*)msg->arg2;
+            LLOGD("resp_data_t %p", re);
+            LLOGD("resp_data_t %p %d", re, re->len);
             lua_pushlstring(L, re->buff, re->len);
+            LLOGD("free resp_data_t %p %d", re, re->len);
             luat_heap_free(re);
+            LLOGD("lua_call sys_pub %p %d", re, re->len);
             lua_call(L, 4, 0);
         }
         else {
@@ -223,11 +227,14 @@ static int l_esphttp_cleanup(lua_State *L) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
-    // if (client->userdata) {
-    //     free(client->userdata);
-    //     client->userdata = NULL;
+    // if (client->postdata) {
+    //     free(client->postdata);
+    //     client->postdata = NULL;
+    //     client->post_len = 0;
     // }
+    LLOGD("call esp_http_client_cleanup ... go");
     esp_http_client_cleanup(client);
+    LLOGD("call esp_http_client_cleanup ... end");
     return 0;
 }
 

@@ -64,7 +64,7 @@ int luat_timer_start(luat_timer_t* timer) {
 }
 
 int luat_timer_stop(luat_timer_t* timer) {
-    if (!timer)
+    if (timer == NULL || timer->os_timer == NULL)
         return 1;
     for (size_t i = 0; i < FREERTOS_TIMER_COUNT; i++)
     {
@@ -73,8 +73,9 @@ int luat_timer_stop(luat_timer_t* timer) {
             break;
         }
     }
-    xTimerStop((TimerHandle_t)timer->os_timer, 10);
-    xTimerDelete((TimerHandle_t)timer->os_timer, 10);
+    xTimerStop((TimerHandle_t)timer->os_timer, 1);
+    xTimerDelete((TimerHandle_t)timer->os_timer, 1);
+    timer->os_timer = NULL;
     return 0;
 };
 
