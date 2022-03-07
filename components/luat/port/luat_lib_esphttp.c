@@ -64,6 +64,10 @@ static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
     if (evt->event_id == HTTP_EVENT_ON_DATA)
     {
         resp_data_t* re = luat_heap_malloc(evt->data_len + 4);
+        if (re == NULL) {
+            LLOGE("out of memory when malloc http resp");
+            return ESP_OK;
+        }
         re->len = evt->data_len;
         memcpy(re->buff, evt->data, evt->data_len);
         msg.arg2 = (uint32_t) re;
@@ -236,12 +240,14 @@ static int l_esphttp_cleanup(lua_State *L) {
 static int l_esphttp_get_status_code(lua_State *L) {
     if (!lua_islightuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushinteger(L, 0);
+        return 1;
     }
     esp_http_client_handle_t client = lua_touserdata(L, 1);
     if (client == NULL) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushinteger(L, 0);
+        return 1;
     }
     int code = esp_http_client_get_status_code(client);
     lua_pushinteger(L, code);
@@ -257,12 +263,14 @@ static int l_esphttp_get_status_code(lua_State *L) {
 static int l_esphttp_get_content_length(lua_State *L) {
     if (!lua_islightuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushinteger(L, 0);
+        return 1;
     }
     esp_http_client_handle_t client = lua_touserdata(L, 1);
     if (client == NULL) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushinteger(L, 0);
+        return 1;
     }
     int code = esp_http_client_get_content_length(client);
     lua_pushinteger(L, code);
@@ -308,12 +316,14 @@ static int l_esp_http_client_read_response(lua_State *L) {
 static int l_esp_http_client_set_header(lua_State* L) {
     if (!lua_islightuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushboolean(L, 0);
+        return 1;
     }
     esp_http_client_handle_t client = lua_touserdata(L, 1);
     if (client == NULL) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushboolean(L, 0);
+        return 1;
     }
     const char* key = luaL_checkstring(L, 2);
     const char* value = luaL_checkstring(L, 3);
@@ -353,12 +363,14 @@ static int l_esp_http_client_get_header(lua_State* L) {
 static int l_esphttp_is_done(lua_State* L) {
     if (!lua_islightuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushboolean(L, 0);
+        return 1;
     }
     esp_http_client_handle_t client = lua_touserdata(L, 1);
     if (client == NULL) {
         LLOGW("check your client , which is init by esphttp.init");
-        return 0;
+        lua_pushboolean(L, 0);
+        return 1;
     }
     int event_id = luaL_checkinteger(L, 2);
     if (event_id == HTTP_EVENT_ON_FINISH || event_id == HTTP_EVENT_DISCONNECTED || event_id == HTTP_EVENT_ERROR) {
