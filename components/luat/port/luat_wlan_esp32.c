@@ -642,7 +642,7 @@ static int l_wlan_get_ps(lua_State *L)
 设置wifi协议
 @api wlan.setProtocol(mode,protocaolmap)
 @int mode wlan.IF_STA wlan.IF_AP
-@int protocaolmap wlan.11B wlan.11G wlan.11N wlan.LR
+@int protocaolmap wlan.P11B wlan.P11G wlan.P11N wlan.LR
 @return int esp_err
 */
 static int l_wlan_set_protocol(lua_State *L)
@@ -904,7 +904,7 @@ static int l_wlan_set_hostname(lua_State *L)
 {
     esp_err_t err = -1;
     const char *name = luaL_checkstring(L, 1);
-    esp_netif_set_hostname(wifi_netif, name);
+    err = esp_netif_set_hostname(wifi_netif, name);
     lua_pushinteger(L, err);
     return 1;
 }
