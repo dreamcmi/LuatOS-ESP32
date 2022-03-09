@@ -15,6 +15,9 @@ idf_component_register(
             ../../../LuatOS/components/cjson
             ../../../LuatOS/components/coremark
             ../../../LuatOS/components/sfud
+            ../../../LuatOS/components/sfd
+            ../../../LuatOS/components/flashdb/src
+            ../../../LuatOS/components/fal/src
             ../../../LuatOS/components/lcd
             ../../../LuatOS/components/lvgl/gen/lv_core
             ../../../LuatOS/components/lvgl/gen/lv_draw
@@ -50,6 +53,9 @@ idf_component_register(
             ../../../LuatOS/components/cjson
             ../../../LuatOS/components/coremark
             ../../../LuatOS/components/sfud
+            ../../../LuatOS/components/sfd
+            ../../../LuatOS/components/flashdb/inc
+            ../../../LuatOS/components/fal/inc
             ../../../LuatOS/components/lcd
             ../../../LuatOS/components/lvgl
             ../../../LuatOS/components/lvgl/src
