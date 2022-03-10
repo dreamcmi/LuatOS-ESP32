@@ -1,6 +1,5 @@
 --- 模块功能：Luat协程调度框架
---module(..., package.seeall)
-
+-- module(..., package.seeall)
 local sys = {}
 
 local table = _G.table
@@ -24,11 +23,11 @@ local msgId = TASK_TIMER_ID_MAX
 -- 定时器id表
 local timerPool = {}
 local taskTimerPool = {}
---消息定时器参数表
+-- 消息定时器参数表
 local para = {}
---定时器是否循环表
+-- 定时器是否循环表
 local loop = {}
---lua脚本运行出错时，是否回退为本地烧写的版本
+-- lua脚本运行出错时，是否回退为本地烧写的版本
 local sRollBack = true
 
 _G.COROUTINE_ERROR_ROLL_BACK = true
@@ -37,17 +36,18 @@ _G.COROUTINE_ERROR_RESTART = true
 -- 对coroutine.resume加一个修饰器用于捕获协程错误
 local rawcoresume = coroutine.resume
 sys.coresume = function(...)
-    function wrapper(co,...)
+    function wrapper(co, ...)
         local arg = {...}
         if not arg[1] then
             local traceBack = debug.traceback(co)
-            traceBack = (traceBack and traceBack~="") and (arg[2].."\r\n"..traceBack) or arg[2]
-            log.error("coroutine.resume",traceBack)
-            if errDump and type(errDump.appendErr)=="function" then
+            traceBack = (traceBack and traceBack ~= "") and
+                            (arg[2] .. "\r\n" .. traceBack) or arg[2]
+            log.error("coroutine.resume", traceBack)
+            if errDump and type(errDump.appendErr) == "function" then
                 errDump.appendErr(traceBack)
             end
             if _G.COROUTINE_ERROR_ROLL_BACK then
-                sys.timerStart(assert,500,false,traceBack)
+                sys.timerStart(assert, 500, false, traceBack)
             elseif _G.COROUTINE_ERROR_RESTART then
                 rtos.reboot()
             end
@@ -64,7 +64,7 @@ end
 -- @usage sys.wait(30)
 function sys.wait(ms)
     -- 参数检测，参数不能为负值
-    --assert(ms > 0, "The wait time cannot be negative!")
+    -- assert(ms > 0, "The wait time cannot be negative!")
     -- 选一个未使用的定时器ID给该任务线程
     if taskTimerId >= TASK_TIMER_ID_MAX then taskTimerId = 0 end
     taskTimerId = taskTimerId + 1
@@ -72,7 +72,10 @@ function sys.wait(ms)
     taskTimerPool[coroutine.running()] = timerid
     timerPool[timerid] = coroutine.running()
     -- 调用core的rtos定时器
-    if 1 ~= rtos.timer_start(timerid, ms) then log.debug("rtos.timer_start error") return end
+    if 1 ~= rtos.timer_start(timerid, ms) then
+        log.debug("rtos.timer_start error")
+        return
+    end
     -- 挂起调用的任务线程
     local message = {coroutine.yield()}
     if #message ~= 0 then
@@ -134,9 +137,7 @@ local function cmpTable(t1, t2)
     if not t2 then return #t1 == 0 end
     if #t1 == #t2 then
         for i = 1, #t1 do
-            if unpack(t1, i, i) ~= unpack(t2, i, i) then
-                return false
-            end
+            if unpack(t1, i, i) ~= unpack(t2, i, i) then return false end
         end
         return true
     end
@@ -182,9 +183,9 @@ function sys.timerStopAll(fnc)
 end
 
 function sys.timerAdvStart(fnc, ms, _repeat, ...)
-    --回调函数和时长检测
-    --assert(fnc ~= nil, "sys.timerStart(first param) is nil !")
-    --assert(ms > 0, "sys.timerStart(Second parameter) is <= zero !")
+    -- 回调函数和时长检测
+    -- assert(fnc ~= nil, "sys.timerStart(first param) is nil !")
+    -- assert(ms > 0, "sys.timerStart(Second parameter) is <= zero !")
     -- 关闭完全相同的定时器
     local arg = {...}
     if #arg == 0 then
@@ -201,13 +202,11 @@ function sys.timerAdvStart(fnc, ms, _repeat, ...)
             break
         end
     end
-    --调用底层接口启动定时器
+    -- 调用底层接口启动定时器
     if rtos.timer_start(msgId, ms, _repeat) ~= 1 then return end
-    --如果存在可变参数，在定时器参数表中保存参数
-    if #arg ~= 0 then
-        para[msgId] = arg
-    end
-    --返回定时器id
+    -- 如果存在可变参数，在定时器参数表中保存参数
+    if #arg ~= 0 then para[msgId] = arg end
+    -- 返回定时器id
     return msgId
 end
 
@@ -216,9 +215,7 @@ end
 -- @number ms 整数，最大定时126322567毫秒
 -- @param ... 可变参数 fnc的参数
 -- @return number 定时器ID，如果失败，返回nil
-function sys.timerStart(fnc, ms, ...)
-    return sys.timerAdvStart(fnc, ms, 0, ...)
-end
+function sys.timerStart(fnc, ms, ...) return sys.timerAdvStart(fnc, ms, 0, ...) end
 
 --- 开启一个循环定时器
 -- @param fnc 定时器回调函数
@@ -231,8 +228,8 @@ end
 
 --- 判断某个定时器是否处于开启状态
 -- @param val 有两种形式
---一种是开启定时器时返回的定时器id，此形式时不需要再传入可变参数...就能唯一标记一个定时器
---另一种是开启定时器时的回调函数，此形式时必须再传入可变参数...才能唯一标记一个定时器
+-- 一种是开启定时器时返回的定时器id，此形式时不需要再传入可变参数...就能唯一标记一个定时器
+-- 另一种是开启定时器时的回调函数，此形式时必须再传入可变参数...才能唯一标记一个定时器
 -- @param ... 可变参数
 -- @return number 开启状态返回true，否则nil
 function sys.timerIsActive(val, ...)
@@ -247,11 +244,10 @@ function sys.timerIsActive(val, ...)
     end
 end
 
-
 ------------------------------------------ LUA应用消息订阅/发布接口 ------------------------------------------
 -- 订阅者列表
 local subscribers = {}
---内部消息队列
+-- 内部消息队列
 local messageQueue = {}
 
 --- 订阅消息
@@ -259,11 +255,11 @@ local messageQueue = {}
 -- @param callback 消息回调处理
 -- @usage subscribe("NET_STATUS_IND", callback)
 function sys.subscribe(id, callback)
-    --if not id or type(id) == "boolean" or (type(callback) ~= "function" and type(callback) ~= "thread") then
+    -- if not id or type(id) == "boolean" or (type(callback) ~= "function" and type(callback) ~= "thread") then
     --    log.warn("warning: sys.subscribe invalid parameter", id, callback)
     --    return
-    --end
-    --log.debug("sys", "subscribe", id, callback)
+    -- end
+    -- log.debug("sys", "subscribe", id, callback)
     if type(id) == "table" then
         -- 支持多topic订阅
         for _, v in pairs(id) do sys.subscribe(v, callback) end
@@ -277,11 +273,11 @@ end
 -- @param callback 消息回调处理
 -- @usage unsubscribe("NET_STATUS_IND", callback)
 function sys.unsubscribe(id, callback)
-    --if not id or type(id) == "boolean" or (type(callback) ~= "function" and type(callback) ~= "thread") then
+    -- if not id or type(id) == "boolean" or (type(callback) ~= "function" and type(callback) ~= "thread") then
     --    log.warn("warning: sys.unsubscribe invalid parameter", id, callback)
     --    return
-    --end
-    --log.debug("sys", "unsubscribe", id, callback)
+    -- end
+    -- log.debug("sys", "unsubscribe", id, callback)
     if type(id) == "table" then
         -- 支持多topic订阅
         for _, v in pairs(id) do sys.unsubscribe(v, callback) end
@@ -289,9 +285,7 @@ function sys.unsubscribe(id, callback)
     end
     if subscribers[id] then subscribers[id][callback] = nil end
     -- 判断消息是否无其他订阅
-    for k, _ in pairs(subscribers[id]) do
-        return
-    end
+    for k, _ in pairs(subscribers[id]) do return end
     subscribers[id] = nil
 end
 
@@ -299,16 +293,12 @@ end
 -- @param ... 可变参数，用户自定义
 -- @return 无
 -- @usage publish("NET_STATUS_IND")
-function sys.publish(...)
-    table.insert(messageQueue, {...})
-end
+function sys.publish(...) table.insert(messageQueue, {...}) end
 
 -- 分发消息
 local function dispatch()
     while true do
-        if #messageQueue == 0 then
-            break
-        end
+        if #messageQueue == 0 then break end
         local message = table.remove(messageQueue, 1)
         if subscribers[message[1]] then
             for callback, _ in pairs(subscribers[message[1]]) do
@@ -323,17 +313,17 @@ local function dispatch()
 end
 
 -- rtos消息回调
---local handlers = {}
---setmetatable(handlers, {__index = function() return function() end end, })
+-- local handlers = {}
+-- setmetatable(handlers, {__index = function() return function() end end, })
 
 --- 注册rtos消息回调处理函数
 -- @number id 消息类型id
 -- @param handler 消息处理函数
 -- @return 无
 -- @usage rtos.on(rtos.MSG_KEYPAD, function(param) handle keypad message end)
---function sys.on(id, handler)
+-- function sys.on(id, handler)
 --    handlers[id] = handler
---end
+-- end
 
 ------------------------------------------ Luat 主调度框架  ------------------------------------------
 local function safeRun()
@@ -341,11 +331,11 @@ local function safeRun()
     dispatch()
     -- 阻塞读取外部消息
     local msg, param, exparam = rtos.receive(rtos.INF_TIMEOUT)
-    --log.info("sys", msg, param, exparam, tableNSize(timerPool), tableNSize(para), tableNSize(taskTimerPool), tableNSize(subscribers))
+    -- log.info("sys", msg, param, exparam, tableNSize(timerPool), tableNSize(para), tableNSize(taskTimerPool), tableNSize(subscribers))
     -- 空消息?
     if not msg or msg == 0 then
         -- 无任何操作
-    -- 判断是否为定时器消息，并且消息是否注册
+        -- 判断是否为定时器消息，并且消息是否注册
     elseif msg == rtos.MSG_TIMER and timerPool[param] then
         if param < TASK_TIMER_ID_MAX then
             local taskId = timerPool[param]
@@ -356,7 +346,7 @@ local function safeRun()
             end
         else
             local cb = timerPool[param]
-            --如果不是循环定时器，从定时器id表中删除此定时器
+            -- 如果不是循环定时器，从定时器id表中删除此定时器
             if exparam == 0 then timerPool[param] = nil end
             if para[param] ~= nil then
                 cb(unpack(para[param]))
@@ -364,14 +354,14 @@ local function safeRun()
             else
                 cb()
             end
-            --如果是循环定时器，继续启动此定时器
-            --if loop[param] then rtos.timer_start(param, loop[param]) end
+            -- 如果是循环定时器，继续启动此定时器
+            -- if loop[param] then rtos.timer_start(param, loop[param]) end
         end
-    --其他消息（音频消息、充电管理消息、按键消息等）
-    --elseif type(msg) == "number" then
-    --    handlers[msg](param, exparam)
-    --else
-    --    handlers[msg.id](msg)
+        -- 其他消息（音频消息、充电管理消息、按键消息等）
+        -- elseif type(msg) == "number" then
+        --    handlers[msg](param, exparam)
+        -- else
+        --    handlers[msg.id](msg)
     end
 end
 
@@ -381,16 +371,15 @@ end
 function sys.run()
     local result, err
     while true do
-        --if sRollBack then
-            safeRun()
-        --else
+        -- if sRollBack then
+        safeRun()
+        -- else
         --    result, err = pcall(safeRun)
         --    if not result then rtos.restart(err) end
-        --end
+        -- end
     end
 end
 
 _G.sys_pub = sys.publish
 
 return sys
-----------------------------

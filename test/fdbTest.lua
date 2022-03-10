@@ -27,7 +27,6 @@ function fdbTest.test()
     assert(fdb.kv_get("testTable")["version"] == 1.0, tag .. ".kv_get ERROR")
     assert(fdb.kv_del("testBool") == true, tag .. ".kv_del ERROR")
     assert(fdb.kv_get("testBool") == nil, tag .. ".kv_get ERROR")
-
     log.info(tag, "DONE")
 end
 
