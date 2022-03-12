@@ -54,3 +54,7 @@ int luat_mcu_get_clk(void)
     return 0;
 #endif
 }
+
+uint32_t luat_mcu_hz(void) {
+    return configTICK_RATE_HZ;
+}
