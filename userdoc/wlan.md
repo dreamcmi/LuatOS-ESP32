@@ -224,7 +224,7 @@ wlan.deinit()
 **例子**
 
 ```lua
-wlan.setps(1)
+wlan.setps(wlan.PS_MAX_MODEM)
 
 ```
 
@@ -252,6 +252,105 @@ wlan.getps()
 ```
 
 ---
+
+## wlan.setProtocol(mode,protocaolmap)
+
+设置wifi协议
+
+**参数**
+
+| 传入值类型 | 解释                                               |
+| ---------- | -------------------------------------------------- |
+| int        | mode wlan.IF_STA wlan.IF_AP                        |
+| int        | protocaolmap wlan.P11B wlan.P11G wlan.P11N wlan.LR |
+
+**返回值**
+
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
+
+**例子**
+
+```lua
+wlan.setProtocol(wlan.IF_STA , wlan.P11B | wlan.P11G)
+```
+
+---
+
+## wlan.getProtocol(mode)
+
+获取wifi协议
+
+**参数**
+
+| 传入值类型 | 解释                        |
+| ---------- | --------------------------- |
+| int        | mode wlan.IF_STA wlan.IF_AP |
+
+**返回值**
+
+| 返回值类型 | 解释         |
+| ---------- | ------------ |
+| int        | protocaolmap |
+
+**例子**
+
+```lua
+log.info("wlan.protocol",wlan.getProtocol(wlan.IF_STA)) 
+```
+
+---
+
+## wlan.setBandwidth(mode,bw)
+
+设置wifi带宽
+
+**参数**
+
+| 传入值类型 | 解释                        |
+| ---------- | --------------------------- |
+| int        | mode wlan.IF_STA wlan.IF_AP |
+| int        | bw wlan.HT20 wlan.HT40      |
+
+**返回值**
+
+| 返回值类型 | 解释    |
+| ---------- | ------- |
+| int        | esp_err |
+
+**例子**
+
+```lua
+wlan.setBandwidth(wlan.IF_STA,wlan.HT20)
+```
+
+---
+
+## wlan.getBandwidth(mode)
+
+获取wifi带宽
+
+**参数**
+
+| 传入值类型 | 解释                        |
+| ---------- | --------------------------- |
+| int        | mode wlan.IF_STA wlan.IF_AP |
+
+**返回值**
+
+| 返回值类型 | 解释                        |
+| ---------- | --------------------------- |
+| int        | mode wlan.IF_STA wlan.IF_AP |
+
+**例子**
+
+```lua
+log.info("wlan.bw",wlan.getBandwidth(wlan.IF_STA))
+```
+
+---
+
 
 ## wlan.smartconfig(mode)
 

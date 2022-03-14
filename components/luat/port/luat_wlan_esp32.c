@@ -614,7 +614,7 @@ static int l_wlan_deinit(lua_State *L)
 @int 省电等级 省电等级 wlan.PS_NONE  wlan.PS_MIN_MODEM wlan.PS_MAX_MODEM
 @return int esp_err
 @usage
-wlan.setps(1)
+wlan.setps(wlan.PS_MAX_MODEM)
 */
 static int l_wlan_set_ps(lua_State *L)
 {
