@@ -36,10 +36,10 @@
 └─userdoc			(用户文档)
 ```
 
-##### 快速上手：
+##### 快速编译上手：
 
-1. 参考乐鑫文档安装ESP-IDF。(https://docs.espressif.com/projects/esp-idf/zh_CN/release-v4.4/esp32c3/get-started/index.html) 国内用户可以选择Gitee上的镜像库(https://gitee.com/EspressifSystems/esp-idf) 进行安装。
-2. 克隆本仓库和luatos主仓库(https://gitee.com/openLuat/LuatOS) 到同级目录下
+1. 参考乐鑫文档安装ESP-IDF[文档链接](https://docs.espressif.com/projects/esp-idf/zh_CN/release-v4.4/esp32c3/get-started/index.html) ,国内用户可以选择Gitee上的[镜像库](https://gitee.com/EspressifSystems/esp-idf) 进行安装。
+2. 克隆本仓库和[luatos主仓库](https://gitee.com/openLuat/LuatOS) 到同级目录下
 3. 进入LuatOS-ESP32仓库 执行`idf.py set-target esp32c3` `idf.py build`进行编译
 
 ```
@@ -76,7 +76,7 @@ LuatOS开发QQ群：1061642968
 
 - [LuatOS](https://gitee.com/openLuat/LuatOS) ：合宙LuatOS是运行在嵌入式硬件的实时操作系统,用户编写lua代码就可完成各种功能
 
-- [ESPRESSIF ](https://www.espressif.com/): 乐鑫科技官网，提供高性价比高可玩性的ESP32系列产品
+- [ESPRESSIF ](https://www.espressif.com/): 乐鑫科技，提供高性价比高可玩性的ESP32系列产品
 
 - [Wendal](https://gitee.com/wendal) ：技术大佬，LuatOS领头人
 
