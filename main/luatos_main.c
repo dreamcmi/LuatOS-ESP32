@@ -117,10 +117,8 @@ static void uart0_irq_task(void *arg)
 
 void app_main(void)
 {
-#ifdef LUAT_USE_DBG
     // 如果使能debug,需要高一点的波特率
-    uart_set_baudrate(0, 2000000);
-#endif
+    uart_set_baudrate(0, 921600);
     // uart0是log口,早开一下中断会不会更好呢？？
     uart_driver_install(0, 1024 * 2, 1024 * 2, 20, &uart0_evt_queue, 0);
     uart_pattern_queue_reset(0, 20);

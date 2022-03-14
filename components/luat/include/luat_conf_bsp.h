@@ -70,11 +70,11 @@
 
 //----------------------------
 // 高级功能, 其中shell是推荐启用, 除非你打算uart0也读数据
-// #define LUAT_USE_SHELL 1
+#define LUAT_USE_SHELL 1
 // 高级功能, debug
-// #define LUAT_USE_DBG 1
+#define LUAT_USE_DBG 1
 // FDB 提供kv数据库, 与nvm库类似
-// #define LUAT_USE_FDB 1
+#define LUAT_USE_FDB 1
 #define LUAT_USE_OTA
 #define UPDATE_BIN_PATH "/spiffs/update.bin"
 
