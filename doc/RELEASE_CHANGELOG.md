@@ -198,8 +198,29 @@ Add:
 Update:
 
 1. 优化mac获取方式
+
 2. 完善ap模式
+
 3. ESP-IDF更新到4.4release
+
 4. wifi sta模式新增底层自动重连机制
+
 5. 完善demo
+
 6. 完善userdoc
+
+
+## 2022.03.16
+
+### ESP32 V0001
+
+ESP32C3正式版发布，S3会在后续版本稳定后发布
+
+Warning:日志波特率已更改为921600，支持DBG调试，请注意修改串口工具。
+
+已支持：GPIO,ADC,IIC,SPI,PWM,SDMMC,WIFI,BLE,ESPNOW,SOCKET,HTTP,MQTT,NTP
+
+Feature: I2S,TWAI,WDT,NIMBLE
+
+感谢每一位对本项目支持的大佬，经过多月迭代已具备正式版发版条件，后续本项目会持续更新新特性，尽情期待！
+
