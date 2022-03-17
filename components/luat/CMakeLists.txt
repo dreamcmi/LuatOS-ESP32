@@ -23,7 +23,6 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/gen/lv_draw
             ../../../LuatOS/components/lvgl/gen/lv_font
             ../../../LuatOS/components/lvgl/gen/lv_misc
-            ../../../LuatOS/components/lvgl/gen/lv_themes
             ../../../LuatOS/components/lvgl/gen/lv_widgets
             ../../../LuatOS/components/lvgl/font
             ../../../LuatOS/components/lvgl/binding
@@ -38,6 +37,8 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_bmp
             ../../../LuatOS/components/lvgl/exts/lv_png
             ../../../LuatOS/components/lvgl/exts/lv_sjpg
+            ../../../LuatOS/components/network/libtcpip/port
+            ../../../LuatOS/components/network/libtcpip/protocol/mqtt
 
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
@@ -67,6 +68,9 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_gif
             ../../../LuatOS/components/lvgl/exts/lv_png
             ../../../LuatOS/components/lvgl/exts/lv_qrcode
+            ../../../LuatOS/components/network/libtcpip
+            ../../../LuatOS/components/network/libtcpip/protocol/mqtt
+
     REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client esp_hw_support mqtt sdmmc fatfs
 )
 
