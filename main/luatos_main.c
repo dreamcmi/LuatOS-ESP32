@@ -1,5 +1,8 @@
 #include <stdio.h>
+
 #include "sdkconfig.h"
+#include "luat_conf_bsp.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/timers.h"
@@ -29,7 +32,11 @@
 #endif
 
 #if CONFIG_IDF_TARGET_ESP32C3
+#if ESPHTTP_USE_SSL
+#define LUAT_HEAP_SIZE (80 * 1024)  // ssl占用较大,缩小16klua heap
+#else
 #define LUAT_HEAP_SIZE (96 * 1024)
+#endif
 #elif CONFIG_IDF_TARGET_ESP32S3
 #define LUAT_HEAP_SIZE (100 * 1024)
 #else

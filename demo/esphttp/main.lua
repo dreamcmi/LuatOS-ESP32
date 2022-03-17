@@ -27,8 +27,8 @@ sys.taskInit(
         log.info("wlan", "IP_READY", result, data)
 
         while true do
-            -- local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
-            local httpc = esphttp.init(esphttp.GET, "http://www.sina.com.cn/favicon.svg")
+            local httpc = esphttp.init(esphttp.GET, "http://httpbin.org/get")
+            -- local httpc = esphttp.init(esphttp.GET, "https://www.howsmyssl.com") -- ssl测试,需要编译固件时打开#define ESPHTTP_USE_SSL 1
             if httpc then
 
                 -- 异步写法
