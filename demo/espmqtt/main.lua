@@ -13,12 +13,6 @@ sys.taskInit(
         wlan.setMode(wlan.STATION)
         wlan.connect("uiot", "1234567890")
 
-        -- 参数已配置完成，后台将自动开始连接wifi
-        result, _ = sys.waitUntil("WLAN_READY")
-        log.info("wlan", "WLAN_READY", result)
-        -- 等待连上路由,此时还没获取到ip
-        result, _ = sys.waitUntil("WLAN_STA_CONNECTED")
-        log.info("wlan", "WLAN_STA_CONNECTED", result)
         -- 等到成功获取ip就代表连上局域网了
         result, data = sys.waitUntil("IP_READY")
         log.info("wlan", "IP_READY", result, data)
