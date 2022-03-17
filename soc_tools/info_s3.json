@@ -57,6 +57,6 @@
 		"nvm_addr" : "00000000",
 		"fs_addr" : "00770000",
 		"force_br" : "1152000",
-		"extra_param" : "002f0200"
+		"extra_param" : "01ff0200"
 	}
 }
