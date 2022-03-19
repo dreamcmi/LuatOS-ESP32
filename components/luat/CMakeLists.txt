@@ -39,6 +39,7 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_sjpg
             ../../../LuatOS/components/network/libtcpip/port
             ../../../LuatOS/components/network/libtcpip/protocol/mqtt
+            ../../../LuatOS/components/ymodem
 
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
@@ -70,6 +71,7 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_qrcode
             ../../../LuatOS/components/network/libtcpip
             ../../../LuatOS/components/network/libtcpip/protocol/mqtt
+            ../../../LuatOS/components/ymodem
 
     REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client esp_hw_support mqtt sdmmc fatfs led_strip
 )
