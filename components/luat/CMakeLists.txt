@@ -71,7 +71,7 @@ idf_component_register(
             ../../../LuatOS/components/network/libtcpip
             ../../../LuatOS/components/network/libtcpip/protocol/mqtt
 
-    REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client esp_hw_support mqtt sdmmc fatfs
+    REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client esp_hw_support mqtt sdmmc fatfs led_strip
 )
 
 idf_build_set_property(C_COMPILE_OPTIONS "-D__LUATOS__=1 -Wno-error=unused-const-variable -Wno-error=pointer-sign" APPEND)
