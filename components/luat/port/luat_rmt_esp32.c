@@ -20,11 +20,11 @@
 @api rmt.init(io,ch,div)
 @int 配置GPIO
 @int 配置rmt通道
-@int 驱动方向 rmt.IN rmt.OUT
+@int 驱动方向 rmt.TX rmt.RX
 @int apb分频参数(APB时钟80Mhz)
 @return int  esp_err 成功0
 @usage
-rmt.init(8,0,rmt.IN,2)
+rmt.init(8,0,rmt.TX,2)
 */
 static int l_rmt_init(lua_State *L)
 {
