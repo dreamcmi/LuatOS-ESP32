@@ -47,7 +47,7 @@
 #define LUAT_USE_ESPMQTT 1
 #define LUAT_USE_MCU  1
 #define LUAT_USE_RTC 1
-#define ESPHTTP_USE_SSL 1
+// #define ESPHTTP_USE_SSL 1
 
 //----------------------------
 // 常用工具库, 按需启用, cjson和pack是强烈推荐启用的
