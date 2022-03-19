@@ -4,9 +4,6 @@ VERSION = "1.0.0"
 -- 一定要添加sys.lua !!!!
 local sys = require "sys"
 
--- 引入必要的库文件(lua编写), 内部库不需要require
-local sys = require "sys"
-
 sys.taskInit(
     function()
         log.info("espnow init", espnow.init())
