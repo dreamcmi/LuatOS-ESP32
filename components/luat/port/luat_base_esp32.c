@@ -154,9 +154,6 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_NTP
     {"ntp", luaopen_ntp}, // ntp
 #endif
-#ifdef LUAT_USE_LWIP
-    {"lwip", luaopen_lwip}, // lwip操作
-#endif
 #ifdef LUAT_USE_BLE
     {"ble", luaopen_ble}, // ble操作
 #endif
