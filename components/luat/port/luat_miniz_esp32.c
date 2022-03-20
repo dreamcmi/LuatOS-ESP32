@@ -1,3 +1,16 @@
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Darren <1912544842@qq.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
+@module  miniz
+@summary esp32专用miniz压缩库
+@version 1.0
+@date    2022.3.20
+*/
+
 #include "luat_base.h"
 
 #include "esp_log.h"
@@ -6,6 +19,16 @@
 static const char *TAG = "MINIZ";
 static const size_t _MINIZ_UNCOMPRESS_BUFF = 4096;
 
+/*
+miniz压缩
+@api miniz.compress(str)
+@string 待压缩字符串
+@return string 压缩结果
+@return int 压缩结果长度
+@usage
+local s_str = "Hello world! Hello world! Hello world! Hello world! Hello world! Hello world! "
+data, len = miniz.compress(s_str)
+*/
 static int l_miniz_compress(lua_State *L)
 {
     size_t len = 0;
@@ -39,6 +62,15 @@ static int l_miniz_compress(lua_State *L)
     return 2;
 }
 
+/*
+miniz解压缩
+@api miniz.compress(str)
+@string 待解压字符串
+@return string 解压结果
+@return int 解压结果长度
+@usage
+udata, ulen = miniz.uncompress(data)
+*/
 static int l_miniz_uncompress(lua_State *L)
 {
     size_t len = 0;
