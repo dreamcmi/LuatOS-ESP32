@@ -49,12 +49,14 @@ int l_sdmmc_init(lua_State *L){
 	int type = luaL_checkinteger(L,1);
 	int freq = luaL_checkinteger(L,2);
 	int width = luaL_checkinteger(L,3);
+#ifndef CONFIG_IDF_TARGET_ESP32C3
 	int clk = luaL_optinteger(L,4,-1);
 	int cmd = luaL_optinteger(L,5,-1);
 	int d0 = luaL_optinteger(L,6,-1);
 	int d1 = luaL_optinteger(L,7,-1);
 	int d2 = luaL_optinteger(L,8,-1);
 	int d3 = luaL_optinteger(L,9,-1);
+#endif
 	sdmmc_card_t *mount_card = NULL;
 	const char *base_path = "/sd";
 	ESP_LOGI(TAG, "Initializing SDMMC\n");
