@@ -37,9 +37,11 @@ static int l_rmt_init(lua_State *L)
     config.gpio_num = rmtio;
     config.mem_block_num = 1;
     config.flags = 0;
+    config.clk_div = (uint8_t)rmtdiv;
 
-    if (dir == 0)
+    switch (dir)
     {
+    case 0:
         config.rmt_mode = RMT_MODE_TX;
         config.tx_config.carrier_freq_hz = 38000;
         config.tx_config.carrier_level = RMT_CARRIER_LEVEL_HIGH;
@@ -48,21 +50,18 @@ static int l_rmt_init(lua_State *L)
         config.tx_config.carrier_en = false;
         config.tx_config.loop_en = false;
         config.tx_config.idle_output_en = true;
-    }
-    else if (dir == 1)
-    {
+        break;
+    case 1:
         config.rmt_mode = RMT_MODE_RX;
         config.rx_config.idle_threshold = 12000;
         config.rx_config.filter_ticks_thresh = 100;
         config.rx_config.filter_en = true;
-    }
-    else
-    {
+        break;
+    default:
         lua_pushinteger(L, ESP_ERR_INVALID_ARG);
         return 1;
+        break;
     }
-
-    config.clk_div = (uint8_t)rmtdiv;
 
     rmt_config(&config);
     esp_err_t err = rmt_driver_install(config.channel, 0, 0);
@@ -103,7 +102,7 @@ static int l_rmt_ws2812_init(lua_State *L)
     led_strip_t *strip = led_strip_new_rmt_ws2812(&strip_config);
     if (strip != NULL)
     {
-        lua_pushlightuserdata(L, (led_strip_t *)strip);
+        lua_pushlightuserdata(L, (void *)strip);
     }
     else
     {
