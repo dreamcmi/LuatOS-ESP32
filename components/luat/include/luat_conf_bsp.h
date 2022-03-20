@@ -59,6 +59,7 @@
 #define LUAT_USE_FS  1
 #define LUAT_USE_SENSOR  1
 #define LUAT_USE_SFUD  1
+#define LUAT_USE_MINIZ 1
 // 性能测试,跑完就是玩,不要与lvgl一起启用,生产环境的固件别加这个库
 // #define LUAT_USE_COREMARK 1
 // #define LUAT_USE_FATFS 1

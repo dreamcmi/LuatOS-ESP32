@@ -39,7 +39,7 @@ LUAMOD_API int luaopen_espmqtt(lua_State *L);
 LUAMOD_API int luaopen_i2s(lua_State *L);
 LUAMOD_API int luaopen_twai(lua_State *L);
 LUAMOD_API int luaopen_sdmmc(lua_State *L);
-
+LUAMOD_API int luaopen_miniz(lua_State *L);
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -80,7 +80,7 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_SPI
     {"spi", luaopen_spi}, // SPI操作
 #endif
-#ifdef LUAT_USE_TWAI    
+#ifdef LUAT_USE_TWAI
     {"twai", luaopen_twai}, // twai操作
 #endif
 #ifdef LUAT_USE_I2S
@@ -137,7 +137,7 @@ static const luaL_Reg loadedlibs[] = {
     {"sfud", luaopen_sfud}, // sfud
 #endif
 #ifdef LUAT_USE_WLAN
-    {"wlan", luaopen_wlan}, //wifi联网操作
+    {"wlan", luaopen_wlan}, // wifi联网操作
 #endif
 #ifdef LUAT_USE_ESPNOW
     {"espnow", luaopen_espnow}, // espnow操作
@@ -169,7 +169,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_LVGL
     {"lvgl", luaopen_lvgl}, // lvgl
 #endif
-
+#ifdef LUAT_USE_MINIZ
+    {"miniz", luaopen_miniz},
+#endif
 //-----------------------------------------------------------------------
 // 显示库
 #ifdef LUAT_USE_LVGL
@@ -211,16 +213,16 @@ void luat_openlibs(lua_State *L)
 {
     // 初始化队列服务
     luat_msgbus_init();
-    //print_list_mem("done>luat_msgbus_init");
-    // 加载系统库
+    // print_list_mem("done>luat_msgbus_init");
+    //  加载系统库
     const luaL_Reg *lib;
     /* "require" functions from 'loadedlibs' and set results to global table */
     for (lib = loadedlibs; lib->func; lib++)
     {
         luaL_requiref(L, lib->name, lib->func, 1);
         lua_pop(L, 1); /* remove lib */
-                       //extern void print_list_mem(const char* name);
-                       //print_list_mem(lib->name);
+                       // extern void print_list_mem(const char* name);
+        // print_list_mem(lib->name);
     }
 }
 
@@ -231,7 +233,7 @@ void luat_timer_us_delay(size_t us)
         ets_delay_us(us);
 }
 
-//esp32重启函数
+// esp32重启函数
 void luat_os_reboot(int code)
 {
     fflush(stdout);
@@ -255,12 +257,12 @@ void luat_os_standy(int timeout)
 
 void luat_os_entry_cri(void)
 {
-    //vPortEnterCritical();
+    // vPortEnterCritical();
 }
 
 void luat_os_exit_cri(void)
 {
-    //vPortExitCritical();
+    // vPortExitCritical();
 }
 
 void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
