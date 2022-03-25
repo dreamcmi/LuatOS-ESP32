@@ -148,7 +148,7 @@ static int l_esp32_enter_light_sleep(lua_State *L)
         gpio_config_t config = {
             .pin_bit_mask = BIT64(pin),
             .mode = GPIO_MODE_INPUT};
-        gpio_config(&config); //todo error check
+        gpio_config(&config); // todo error check
         gpio_wakeup_enable(pin, level == 0 ? GPIO_INTR_LOW_LEVEL : GPIO_INTR_HIGH_LEVEL);
         esp_sleep_enable_gpio_wakeup();
         uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
@@ -193,8 +193,8 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
         gpio_config_t config = {
             .pin_bit_mask = BIT(pin),
             .mode = GPIO_MODE_INPUT};
-        gpio_config(&config); //todo error check
-        esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level); //todo error check
+        gpio_config(&config);                               // todo error check
+        esp_deep_sleep_enable_gpio_wakeup(BIT(pin), level); // todo error check
 #else
         const uint64_t ext_wakeup_pin_mask = 1ULL << pin;
         esp_sleep_enable_ext1_wakeup(ext_wakeup_pin_mask, level);
@@ -216,11 +216,26 @@ static int l_esp32_enter_deep_sleep(lua_State *L)
     return 0;
 }
 
+/*
+esp_err转文字
+@api esp32.errToName()
+@int esp_err
+@return string
+@usage
+log.info("esp32.err_name",esp32.errToName(0))
+*/
+static int l_esp32_error_to_name(lua_State *L)
+{
+    esp_err_t err = (esp_err_t)luaL_checkinteger(L, 1);
+    lua_pushstring(L, esp_err_to_name(err));
+    return 1;
+}
+
 #if CONFIG_IDF_TARGET_ESP32C3
 /*
 esp32c3芯片温度
 @api esp32.temp()
-@return float temp 
+@return float temp
 @usage
 log.info("esp32","temp",esp32.temp())
 */
@@ -245,6 +260,7 @@ static const rotable_Reg reg_esp32[] =
         {"getWakeupCause", l_esp32_get_wakeup_cause, 0},
         {"enterLightSleep", l_esp32_enter_light_sleep, 0},
         {"enterDeepSleep", l_esp32_enter_deep_sleep, 0},
+        {"errToName", l_esp32_error_to_name, 0},
 #if CONFIG_IDF_TARGET_ESP32C3
         {"temp", l_esp32_temp, 0},
 #endif
