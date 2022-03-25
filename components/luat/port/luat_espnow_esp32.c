@@ -104,17 +104,20 @@ espnow.init()
 static int l_espnow_init(lua_State *L)
 {
     esp_err_t err = -1;
-    esp_netif_init();                // todo error check
-    esp_event_loop_create_default(); // todo error check
+    esp_netif_init();
+    esp_event_loop_create_default();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&cfg);              // todo error check
-    esp_wifi_set_mode(WIFI_MODE_STA); // todo error check
-    esp_wifi_start();                 // todo error check
-
-    esp_now_register_send_cb(espnow_send_cb); // todo error check
-    esp_now_register_recv_cb(espnow_recv_cb); // todo error check
+    esp_wifi_init(&cfg);
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_start();
 
     err = esp_now_init();
+    if (err == ESP_OK)
+    {
+        esp_now_register_send_cb(espnow_send_cb);
+        esp_now_register_recv_cb(espnow_recv_cb);
+    }
+
     lua_pushinteger(L, err);
     return 1;
 }
