@@ -44,6 +44,7 @@
 #define LUAT_USE_BLE 1
 #define LUAT_USE_ESPHTTP 1
 #define LUAT_USE_ESPMQTT 1
+#define LUAT_USE_ESPWEBSOCKET 1
 #define LUAT_USE_MCU  1
 #define LUAT_USE_RTC 1
 // #define ESPHTTP_USE_SSL 1
