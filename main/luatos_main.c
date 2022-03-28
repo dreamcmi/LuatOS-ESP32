@@ -32,7 +32,7 @@
 #endif
 
 #if CONFIG_IDF_TARGET_ESP32C3
-#if ESPHTTP_USE_SSL
+#if LUAT_USE_ESPSSL
 #define LUAT_HEAP_SIZE (80 * 1024)  // ssl占用较大,缩小16klua heap
 #else
 #define LUAT_HEAP_SIZE (96 * 1024)
