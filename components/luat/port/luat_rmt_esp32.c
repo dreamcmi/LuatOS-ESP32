@@ -196,7 +196,7 @@ static const rotable_Reg reg_rmt[] =
         {"ws2812Clear", l_rmt_ws2812_clear, 0},
         {"ws2812SetPixel", l_rmt_ws2812_set_pixel, 0},
         {"ws2812Refresh", l_rmt_ws2812_refresh, 0},
-        {"ws2812Deinit", l_rmt_deinit, 0},
+        {"ws2812Deinit", l_rmt_ws2812_deinit, 0},
 
         {"TX", NULL, 0},
         {"RX", NULL, 1},
