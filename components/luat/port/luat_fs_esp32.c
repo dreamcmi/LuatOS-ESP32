@@ -39,9 +39,9 @@ extern const struct luat_vfs_filesystem vfs_fs_luadb;
 #endif
 #endif
 
-static void *map_ptr;
+static const void *map_ptr;
 static spi_flash_mmap_handle_t map_handle;
-static esp_partition_t * partition;
+static const esp_partition_t * partition;
 // 文件系统初始化函数
 esp_vfs_spiffs_conf_t spiffs_conf = {
     .base_path = "/spiffs",

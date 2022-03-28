@@ -23,7 +23,7 @@
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
 
-static const char *TAG = "lsocket";
+// static const char *TAG = "lsocket";
 
 /*
 创建socket

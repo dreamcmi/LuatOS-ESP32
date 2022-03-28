@@ -14,7 +14,7 @@
 #define LUAT_LOG_TAG "onchip"
 #include "luat_log.h"
 
-static esp_partition_t * fdb_partition;
+static const esp_partition_t * fdb_partition;
 
 int sfd_onchip_init (void* userdata) {
     fdb_partition = esp_partition_find_first(0x5A, 0x5B, "fdb");

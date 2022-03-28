@@ -33,7 +33,7 @@ pwm2初始化
 */
 static int l_pwm2_init(lua_State *L)
 {
-    esp_err_t err = -1;
+    // esp_err_t err = -1;
     int pwm_timer = luaL_checkinteger(L, 1);
     int pwm_channel = luaL_checkinteger(L, 2);
     int pwm_pin = luaL_checkinteger(L, 3);
@@ -47,8 +47,7 @@ static int l_pwm2_init(lua_State *L)
     conf.timer_num = pwm_timer,
     conf.freq_hz = pwm_period,
     conf.clk_cfg = LEDC_AUTO_CLK,
-    err = ledc_timer_config(&conf);
-    //todo,ESP_ERROR_CHECK(err);
+    ledc_timer_config(&conf);
 
     ledc_channel_config_t ledc_channel = {0};
     ledc_channel.gpio_num = pwm_pin,
@@ -57,8 +56,7 @@ static int l_pwm2_init(lua_State *L)
     ledc_channel.timer_sel = pwm_timer,
     ledc_channel.duty = 0,
     ledc_channel.hpoint = 0,
-    err = ledc_channel_config(&ledc_channel);
-    //todo,ESP_ERROR_CHECK(err);
+    ledc_channel_config(&ledc_channel);
 
     if (pwm_fade)
     {
