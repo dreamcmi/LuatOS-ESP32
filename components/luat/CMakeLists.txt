@@ -37,12 +37,23 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_bmp
             ../../../LuatOS/components/lvgl/exts/lv_png
             ../../../LuatOS/components/lvgl/exts/lv_sjpg
+            ../../../LuatOS/components/lvgl/lv_demos
+            ../../../LuatOS/components/lvgl/lv_demos/src
+            ../../../LuatOS/components/lvgl/lv_demos/src/assets
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_benchmark
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_keypad_encoder
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_music
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_printer
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_stress
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_widgets
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_ex_get_started
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_ex_style
+            ../../../LuatOS/components/lvgl/lv_demos/src/lv_ex_widgets
             ../../../LuatOS/components/network/libtcpip/port
             ../../../LuatOS/components/network/libtcpip/protocol/mqtt
             ../../../LuatOS/components/ymodem
             ../../../LuatOS/components/cmux
             ../../../LuatOS/components/shell
-            ../../../LuatOS/components/ymodem
 
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
@@ -72,12 +83,12 @@ idf_component_register(
             ../../../LuatOS/components/lvgl/exts/lv_gif
             ../../../LuatOS/components/lvgl/exts/lv_png
             ../../../LuatOS/components/lvgl/exts/lv_qrcode
+            ../../../LuatOS/components/lvgl/lv_demos
             ../../../LuatOS/components/network/libtcpip
             ../../../LuatOS/components/network/libtcpip/protocol/mqtt
             ../../../LuatOS/components/ymodem
             ../../../LuatOS/components/cmux
             ../../../LuatOS/components/shell
-            ../../../LuatOS/components/ymodem
 
     REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client esp_hw_support mqtt sdmmc fatfs led_strip miniz esp_websocket_client
 )
