@@ -15,10 +15,12 @@ static luat_timer_t* timers[FREERTOS_TIMER_COUNT] = {0};
 static void luat_timer_callback(TimerHandle_t xTimer) {
     //LLOGD("timer callback");
     rtos_msg_t msg;
-    luat_timer_t *timer = (luat_timer_t*) pvTimerGetTimerID(xTimer);
-    msg.handler = timer->func;
+    size_t timer_id = (size_t)parg;
+    luat_timer_t *timer = luat_timer_get(timer_id);
+    if (timer == NULL)
+        return;
     msg.ptr = timer;
-    msg.arg1 = 0;
+    msg.arg1 = timer_id;
     msg.arg2 = 0;
     luat_msgbus_put(&msg, 0);
     // int re = luat_msgbus_put(&msg, 0);
@@ -44,7 +46,7 @@ int luat_timer_start(luat_timer_t* timer) {
         LLOGE("too many timers");
         return 1; // too many timer!!
     }
-    os_timer = xTimerCreate("luat_timer", timer->timeout / portTICK_RATE_MS, timer->repeat, timer, luat_timer_callback);
+    os_timer = xTimerCreate("luat_timer", timer->timeout / portTICK_RATE_MS, timer->repeat, (void)timer->id, luat_timer_callback);
     //LLOGD("timer id=%ld, osTimerNew=%p", timerIndex, os_timer);
     if (!os_timer) {
         LLOGE("xTimerCreate FAIL");
