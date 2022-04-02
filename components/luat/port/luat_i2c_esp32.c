@@ -7,8 +7,8 @@
 #include "luat_base.h"
 #include "luat_i2c.h"
 
-#define LUAT_LOG_TAG "luat.i2c"
-#include "luat_log.h"
+// #define LUAT_LOG_TAG "luat.i2c"
+// #include "luat_log.h"
 
 #include "pinmap.h"
 #include "driver/i2c.h"
@@ -21,6 +21,7 @@
 #define WRITE_BIT I2C_MASTER_WRITE /*!< I2C master write */
 #define READ_BIT I2C_MASTER_READ   /*!< I2C master read */
 
+/*
 //写IIC寄存器
 // SensorAdd 从机地址
 // addr 寄存器地址
@@ -58,6 +59,7 @@ uint8_t IIC_RD_Reg(i2c_port_t num, int SensorAdd, uint8_t addr)
     i2c_cmd_link_delete(cmd);
     return data;
 }
+*/
 
 int luat_i2c_exist(int id)
 {
@@ -189,28 +191,28 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len)
     }
 }
 
-int luat_i2c_write_reg(int id, int addr, int reg, uint16_t value)
-{
-    if (luat_i2c_exist(id))
-    {
-        int ret = IIC_WR_Reg(id, addr, reg, value);
-        return ret == 0 ? 0 : -1;
-    }
-    else
-    {
-        return -1;
-    }
-}
+// int luat_i2c_write_reg(int id, int addr, int reg, uint16_t value)
+// {
+//     if (luat_i2c_exist(id))
+//     {
+//         int ret = IIC_WR_Reg(id, addr, reg, value);
+//         return ret == 0 ? 0 : -1;
+//     }
+//     else
+//     {
+//         return -1;
+//     }
+// }
 
-int luat_i2c_read_reg(int id, int addr, int reg, uint16_t *value)
-{
-    if (luat_i2c_exist(id))
-    {
-        *value = IIC_RD_Reg(id, addr, reg);
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
-}
+// int luat_i2c_read_reg(int id, int addr, int reg, uint16_t *value)
+// {
+//     if (luat_i2c_exist(id))
+//     {
+//         *value = IIC_RD_Reg(id, addr, reg);
+//         return 0;
+//     }
+//     else
+//     {
+//         return -1;
+//     }
+// }
