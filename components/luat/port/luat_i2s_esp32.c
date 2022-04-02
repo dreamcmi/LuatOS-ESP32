@@ -47,7 +47,7 @@ static int l_i2s_setup(lua_State *L)
         .dma_buf_len = 160,
         .use_apll = false,
         .tx_desc_auto_clear = true};
-    i2s_driver_install(i2s_num, &i2s_config, 0, NULL); //todo error check
+    i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
 #if CONFIG_IDF_TARGET_ESP32C3
     i2s_pin_config_t pin_config = {
         .bck_io_num = _C3_I2S0_SCLK,
@@ -89,18 +89,18 @@ static int l_i2s_close(lua_State *L)
         lua_pushinteger(L, -1);
         return 1;
     }
-    i2s_stop(i2s_num); //todo error check
+    i2s_stop(i2s_num);
     err = i2s_driver_uninstall(i2s_num);
     lua_pushinteger(L, err);
     return 1;
 }
+
 /*
 i2s写
 @api i2s.send(id,buff)
 @int i2sid
 @string buff
 @return int esp_err_t
-@return int 已写长度
 @usage
 i2s.send(0,string.fromHex("ff"))
 */
@@ -119,31 +119,55 @@ static int l_i2s_send(lua_State *L)
     const char *sdata = luaL_checklstring(L, 2, &len);
     err = i2s_write(i2s_num, sdata, len, &bytes_write, portMAX_DELAY);
     i2s_zero_dma_buffer(i2s_num);
-    lua_pushinteger(L, err);
-    lua_pushinteger(L, bytes_write);
-    return 2;
+    if (bytes_write < len)
+    {
+        lua_pushinteger(L, ESP_ERR_TIMEOUT);    // if timeout, bytes_write < len.
+    }
+    else
+    {
+        lua_pushinteger(L, err);
+    }
+    return 1;
 }
 
-// static int l_i2s_recv(lua_State *L)
-// {
-//     esp_err_t err = -1;
-//     size_t bytes_read = 0;
-//     size_t len = 0;
+/*
+i2s读
+@api i2s.send(id,len)
+@int i2sid
+@int 读长度,默认1024
+@return int esp_err_t
+@usage
+i2s.send(0,256)
+*/
+static int l_i2s_recv(lua_State *L)
+{
+    esp_err_t err = -1;
+    size_t bytes_read = 0;
 
-//     int i2s_num = luaL_checkinteger(L, 1);
-//     if (i2s_num >= I2S_NUM_MAX)
-//     {
-//         lua_pushinteger(L, -1);
-//         return 1;
-//     }
-//     int rlen = luaL_optinteger(L, 2, 1024);
-//     int *mic_data = malloc(rlen);
-//     memset(mic_data, 0, rlen);
-//     err = i2s_read(i2s_num, mic_data, rlen, &bytes_read, 100);
-//     lua_pushinteger(L, err);
-//     lua_pushinteger(L, bytes_read);
-//     return 2;
-// }
+    int i2s_num = luaL_checkinteger(L, 1);
+    if (i2s_num >= I2S_NUM_MAX)
+    {
+        lua_pushinteger(L, -1);
+        return 1;
+    }
+    int rlen = luaL_optinteger(L, 2, 1024);
+    char *mic_data = (char *)calloc(rlen, sizeof(char));
+    if (mic_data == NULL)
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+    err = i2s_read(i2s_num, mic_data, rlen, &bytes_read, 100);
+    if (err == 0)
+    {
+        lua_pushlstring(L, mic_data, rlen);
+    }
+    else
+    {
+        lua_pushnil(L);
+    }
+    return 1;
+}
 
 #include "rotable.h"
 static const rotable_Reg reg_i2s[] =
@@ -151,6 +175,7 @@ static const rotable_Reg reg_i2s[] =
         {"setup", l_i2s_setup, 0},
         {"close", l_i2s_close, 0},
         {"send", l_i2s_send, 0},
+        {"recv", l_i2s_recv, 0},
 
         {"RLCH", NULL, I2S_CHANNEL_FMT_RIGHT_LEFT},
         {"ARCH", NULL, I2S_CHANNEL_FMT_ALL_RIGHT},
