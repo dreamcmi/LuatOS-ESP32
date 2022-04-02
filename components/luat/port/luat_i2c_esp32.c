@@ -143,6 +143,7 @@ int luat_i2c_send(int id, int addr, void *buff, size_t len)
 {
     if (luat_i2c_exist(id))
     {
+#if 0
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         if (cmd != NULL)
         {
@@ -158,6 +159,10 @@ int luat_i2c_send(int id, int addr, void *buff, size_t len)
         {
             return -2; // 内存不足
         }
+#else
+        esp_err_t err = i2c_master_write_to_device(id, addr, (const uint8_t *)buff, len, 1000 / portTICK_RATE_MS);
+        return err == 0 ? 0 : -1;
+#endif
     }
     else
     {
@@ -169,6 +174,7 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len)
 {
     if (luat_i2c_exist(id))
     {
+#if 0
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         if (cmd != NULL)
         {
@@ -184,6 +190,10 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len)
         {
             return -2; // 内存不足
         }
+#else
+        esp_err_t err = i2c_master_read_from_device(id, addr, (uint8_t *)buff, len, 1000 / portTICK_RATE_MS);
+        return err == 0 ? 0 : -1;
+#endif
     }
     else
     {
