@@ -121,7 +121,7 @@ static int l_i2s_send(lua_State *L)
     i2s_zero_dma_buffer(i2s_num);
     if (bytes_write < len)
     {
-        lua_pushinteger(L, ESP_ERR_TIMEOUT);    // if timeout, bytes_write < len.
+        lua_pushinteger(L, ESP_ERR_TIMEOUT); // if timeout, bytes_write < len.
     }
     else
     {
@@ -166,6 +166,7 @@ static int l_i2s_recv(lua_State *L)
     {
         lua_pushnil(L);
     }
+    free(mic_data);
     return 1;
 }
 
