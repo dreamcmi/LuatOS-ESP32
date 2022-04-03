@@ -448,10 +448,16 @@ static int l_wlan_set_mode(lua_State *L)
         switch (mode)
         {
         case WIFI_MODE_STA:
-            wifi_sta_netif = esp_netif_create_default_wifi_sta();
+            if (!wifi_sta_netif)
+            {
+                wifi_sta_netif = esp_netif_create_default_wifi_sta();
+            }
             break;
         case WIFI_MODE_AP:
-            wifi_ap_netif = esp_netif_create_default_wifi_ap();
+            if (!wifi_ap_netif)
+            {
+                wifi_ap_netif = esp_netif_create_default_wifi_ap();
+            }
             break;
         default:
             break;
