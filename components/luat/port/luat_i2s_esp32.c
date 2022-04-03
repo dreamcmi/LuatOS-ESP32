@@ -117,7 +117,7 @@ static int l_i2s_send(lua_State *L)
         return 1;
     }
     const char *sdata = luaL_checklstring(L, 2, &len);
-    err = i2s_write(i2s_num, sdata, len, &bytes_write, portMAX_DELAY);
+    err = i2s_write(i2s_num, sdata, len, &bytes_write, 100 / portTICK_RATE_MS);
     i2s_zero_dma_buffer(i2s_num);
     if (bytes_write < len)
     {
@@ -157,7 +157,7 @@ static int l_i2s_recv(lua_State *L)
         lua_pushnil(L);
         return 1;
     }
-    err = i2s_read(i2s_num, mic_data, rlen, &bytes_read, 100);
+    err = i2s_read(i2s_num, mic_data, rlen, &bytes_read, 100 / portTICK_RATE_MS);
     if (err == 0)
     {
         lua_pushlstring(L, mic_data, rlen);

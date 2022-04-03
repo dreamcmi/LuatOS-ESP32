@@ -111,7 +111,7 @@ static int l_twai_recv(lua_State *L)
 {
     esp_err_t err = -1;
     twai_message_t message = {0};
-    err = twai_receive(&message, 10 / portTICK_RATE_MS);
+    err = twai_receive(&message, 100 / portTICK_RATE_MS);
     if (err == ESP_OK)
     {
         if (message.identifier == luaL_checkinteger(L, 1))
@@ -143,7 +143,7 @@ local arg = twai.getAlerts()
 static int l_twai_get_alerts(lua_State *L)
 {
     uint32_t alerts = 0;
-    twai_read_alerts(&alerts, 10 / portTICK_RATE_MS);
+    twai_read_alerts(&alerts, 100 / portTICK_RATE_MS);
     lua_pushinteger(L, alerts);
     return 1;
 }
