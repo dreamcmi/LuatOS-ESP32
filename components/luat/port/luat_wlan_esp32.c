@@ -26,11 +26,13 @@
 static const char *TAG = "LWLAN";
 
 static EventGroupHandle_t s_wifi_event_group;
-esp_event_handler_instance_t instance_wifi;
-esp_event_handler_instance_t instance_got_ip;
-esp_event_handler_instance_t instance_scan;
+static esp_event_handler_instance_t instance_wifi;
+static esp_event_handler_instance_t instance_got_ip;
+static esp_event_handler_instance_t instance_scan;
 
-esp_netif_t *wifi_netif = NULL;
+static esp_netif_t *wifi_sta_netif = NULL;
+static esp_netif_t *wifi_ap_netif = NULL;
+// static esp_netif_t *wifi_apsta_netif = NULL;
 
 static bool smart_config_active = false;
 
@@ -239,15 +241,15 @@ end)
         {
         case SC_EVENT_SCAN_DONE:
             lua_getglobal(L, "sys_pub");
-/*
-@sys_pub wlan
-smartconfig扫描完成
-WIFI_SCAN_DONE
-@usage
-sys.subscribe("WIFI_SCAN_DONE", function ()
-    log.info("wlan", "WIFI_SCAN_DONE")
-end)
-*/
+            /*
+            @sys_pub wlan
+            smartconfig扫描完成
+            WIFI_SCAN_DONE
+            @usage
+            sys.subscribe("WIFI_SCAN_DONE", function ()
+                log.info("wlan", "WIFI_SCAN_DONE")
+            end)
+            */
             lua_pushstring(L, "WIFI_SCAN_DONE");
             lua_call(L, 1, 0);
             break;
@@ -446,10 +448,10 @@ static int l_wlan_set_mode(lua_State *L)
         switch (mode)
         {
         case WIFI_MODE_STA:
-            wifi_netif = esp_netif_create_default_wifi_sta();
+            wifi_sta_netif = esp_netif_create_default_wifi_sta();
             break;
         case WIFI_MODE_AP:
-            wifi_netif = esp_netif_create_default_wifi_ap();
+            wifi_ap_netif = esp_netif_create_default_wifi_ap();
             break;
         default:
             break;
@@ -603,6 +605,14 @@ static int l_wlan_deinit(lua_State *L)
     esp_err_t err = -1;
     esp_wifi_stop();                 // todo error check
     esp_event_loop_delete_default(); // todo error check
+    if (wlan_ini.mode == WIFI_MODE_STA)
+    {
+        esp_netif_destroy_default_wifi(wifi_sta_netif);
+    }
+    else if (wlan_ini.mode == WIFI_MODE_AP)
+    {
+        esp_netif_destroy_default_wifi(wifi_ap_netif);
+    }
     err = esp_wifi_deinit();
     lua_pushinteger(L, err);
     return 1;
@@ -830,10 +840,10 @@ static int l_wlan_dhcp(lua_State *L)
         switch (mode)
         {
         case 0:
-            err = esp_netif_dhcpc_stop(wifi_netif);
+            err = esp_netif_dhcpc_stop(wifi_sta_netif);
             break;
         case 1:
-            err = esp_netif_dhcpc_start(wifi_netif);
+            err = esp_netif_dhcpc_start(wifi_sta_netif);
             break;
         default:
             break;
@@ -844,10 +854,10 @@ static int l_wlan_dhcp(lua_State *L)
         switch (mode)
         {
         case 0:
-            err = esp_netif_dhcps_stop(wifi_netif);
+            err = esp_netif_dhcps_stop(wifi_ap_netif);
             break;
         case 1:
-            err = esp_netif_dhcps_start(wifi_netif);
+            err = esp_netif_dhcps_start(wifi_ap_netif);
             break;
         default:
             break;
@@ -885,9 +895,14 @@ static int l_wlan_set_ip(lua_State *L)
 
     sscanf(netmask, "%d.%d.%d.%d", &a, &b, &c, &d);
     IP4_ADDR(&ip_info.netmask, a, b, c, d);
-
-    err = esp_netif_set_ip_info(wifi_netif, &ip_info);
-
+    if (wlan_ini.mode == WIFI_MODE_STA)
+    {
+        err = esp_netif_set_ip_info(wifi_sta_netif, &ip_info);
+    }
+    else if (wlan_ini.mode == WIFI_MODE_AP)
+    {
+        err = esp_netif_set_ip_info(wifi_ap_netif, &ip_info);
+    }
     lua_pushinteger(L, err);
     return 1;
 }
@@ -904,7 +919,14 @@ static int l_wlan_set_hostname(lua_State *L)
 {
     esp_err_t err = -1;
     const char *name = luaL_checkstring(L, 1);
-    err = esp_netif_set_hostname(wifi_netif, name);
+    if (wlan_ini.mode == WIFI_MODE_STA)
+    {
+        err = esp_netif_set_hostname(wifi_sta_netif, name);
+    }
+    else if (wlan_ini.mode == WIFI_MODE_AP)
+    {
+        err = esp_netif_set_hostname(wifi_ap_netif, name);
+    }
     lua_pushinteger(L, err);
     return 1;
 }
@@ -1013,8 +1035,8 @@ static const rotable_Reg reg_wlan[] =
         {"P11N", NULL, WIFI_PROTOCOL_11N},
         {"LR", NULL, WIFI_PROTOCOL_LR},
 
-        {"HT20" , NULL, WIFI_BW_HT20},
-        {"HT40" , NULL, WIFI_BW_HT40},
+        {"HT20", NULL, WIFI_BW_HT20},
+        {"HT40", NULL, WIFI_BW_HT40},
 
         {NULL, NULL, 0}};
 

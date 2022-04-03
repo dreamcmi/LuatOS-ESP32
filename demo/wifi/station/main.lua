@@ -7,7 +7,6 @@ local STA_MODE = 0
 
 sys.taskInit(
     function()
-        local w = wlan
         log.info("wlan", "wlan_init:", wlan.init())
 
         wlan.setMode(wlan.STATION)
