@@ -111,6 +111,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_RTC
     {"rtc", luaopen_rtc}, // 实时时钟
 #endif
+#ifdef LUAT_USE_WDT
+    {"wdt", luaopen_wdt},
+#endif
 //-----------------------------------------------------------------------
 // 工具库, 按需选用
 #ifdef LUAT_USE_CRYPTO
@@ -208,7 +211,7 @@ static const luaL_Reg loadedlibs[] = {
     {"fatfs", luaopen_fatfs},
 #endif
 #ifdef LUAT_USE_YMODEM
-  {"ymodem", luaopen_ymodem},
+    {"ymodem", luaopen_ymodem},
 #endif
     {NULL, NULL}};
 

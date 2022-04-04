@@ -33,7 +33,7 @@
 
 #if CONFIG_IDF_TARGET_ESP32C3
 #if LUAT_USE_ESPSSL
-#define LUAT_HEAP_SIZE (80 * 1024)  // ssl占用较大,缩小16klua heap
+#define LUAT_HEAP_SIZE (80 * 1024) // ssl占用较大,缩小16klua heap
 #else
 #define LUAT_HEAP_SIZE (96 * 1024)
 #endif
@@ -122,6 +122,8 @@ static void uart0_irq_task(void *arg)
     vTaskDelete(NULL);
 }
 
+TaskHandle_t luatosHandle = NULL;
+
 void app_main(void)
 {
     // 如果使能debug,需要高一点的波特率
@@ -181,6 +183,6 @@ void app_main(void)
     xTimerStart(os_timer, 0);
 #endif
 
-    // xTaskCreate(luat_main, "luat_main", 16384, NULL, 12, NULL);
-    luat_main();
+    xTaskCreate(luat_main, "luat_main", 16384, NULL, 2, &luatosHandle);
+    // luat_main();
 }

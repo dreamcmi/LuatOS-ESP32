@@ -34,6 +34,7 @@
 #define LUAT_USE_PWM  1
 #define LUAT_USE_PWM2  1
 #define LUAT_USE_RMT 1
+#define LUAT_USE_WDT 1
 
 #define LUAT_USE_WLAN 1
 #define LUAT_USE_ESPNOW 1
