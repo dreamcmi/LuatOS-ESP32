@@ -10,6 +10,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#if CONFIG_IDF_TARGET_ESP32S3
+#include "esp32s3/clk.h"
+#elif CONFIG_IDF_TARGET_ESP32C3
+#include "esp32c3/clk.h"
+#else
+#error "luat_mcu_esp32 target error"
+#endif
+
+#include "esp_pm.h"
 #include "esp_system.h"
 // #include "esp_efuse.h"
 #include "sdkconfig.h"
@@ -41,20 +50,25 @@ const char *luat_mcu_unique_id(size_t *t)
 
 int luat_mcu_set_clk(size_t mhz)
 {
-    return 0;
+    int xtal_freq = rtc_clk_xtal_freq_get();
+#if CONFIG_IDF_TARGET_ESP32S3
+    esp_pm_config_esp32s3_t pm_config = {
+#elif CONFIG_IDF_TARGET_ESP32C3
+    esp_pm_config_esp32c3_t pm_config = {
+#endif
+        .max_freq_mhz = (int)mhz,
+        .min_freq_mhz = (mhz < xtal_freq ? mhz : xtal_freq),
+    };
+    esp_err_t err = esp_pm_configure(&pm_config);
+    return err;
 }
 
 int luat_mcu_get_clk(void)
 {
-#if CONFIG_IDF_TARGET_ESP32C3
-    return CONFIG_ESP32C3_DEFAULT_CPU_FREQ_MHZ;
-#elif CONFIG_IDF_TARGET_ESP32S3
-    return CONFIG_ESP32S3_DEFAULT_CPU_FREQ_MHZ;
-#else
-    return 0;
-#endif
+    return (esp_clk_cpu_freq() / MHZ);
 }
 
-uint32_t luat_mcu_hz(void) {
+uint32_t luat_mcu_hz(void)
+{
     return configTICK_RATE_HZ;
 }
