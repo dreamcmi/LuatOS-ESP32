@@ -83,7 +83,7 @@ static void gpio_irq_task(void *arg)
     vTaskDelete(NULL);
 }
 
-static xQueueHandle uart0_evt_queue = NULL;
+xQueueHandle uart0_evt_queue = NULL;
 static void uart0_irq_task(void *arg)
 {
     uart_event_t event = {0};

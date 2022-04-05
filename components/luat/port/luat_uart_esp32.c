@@ -14,40 +14,11 @@
 #include "driver/uart.h"
 #include "esp_log.h"
 static const char *TAG = "LUART";
-// static xQueueHandle uart0_evt_queue = NULL;
+#ifndef LUAT_USE_SHELL
+extern xQueueHandle uart0_evt_queue;
+#endif
 static xQueueHandle uart1_evt_queue = NULL;
 static xQueueHandle uart2_evt_queue = NULL;
-
-// static void uart0_irq_task(void *arg)
-// {
-//     uart_event_t event = {0};
-//     rtos_msg_t msg = {0};
-//     char buffer[1024] = {0};
-//     int len = 0;
-//     while (true)
-//     {
-//         if (xQueueReceive(uart0_evt_queue, (void *)&event, (portTickType)portMAX_DELAY))
-//         {
-//             switch (event.type)
-//             {
-//             case UART_DATA:
-//                 msg.handler = l_uart_handler;
-//                 msg.ptr = NULL;
-//                 msg.arg1 = 0; //uart1
-//                 msg.arg2 = 1; //recv
-//                 luat_msgbus_put(&msg, 0);
-//                 len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
-//                 luat_shell_push(buffer, len);
-//                 xQueueReset(uart0_evt_queue);
-//                 break;
-//             default:
-//                 // ESP_LOGE("uart", "uart1 event type: %d", event.type);
-//                 break;
-//             }
-//         }
-//     }
-//     vTaskDelete(NULL);
-// }
 
 static void uart1_irq_task(void *arg)
 {
@@ -134,7 +105,9 @@ int luat_uart_setup(luat_uart_t *uart)
     switch (uart->id)
     {
     case 0:
-        // uart_driver_install(0, uart->bufsz, 1024 * 2, 20, &uart0_evt_queue, 0);
+#ifndef LUAT_USE_SHELL
+        uart_driver_install(0, uart->bufsz, 1024 * 2, 20, &uart0_evt_queue, 0);
+#endif
         break;
     case 1:
         uart_driver_install(1, uart->bufsz, 1024 * 2, 20, &uart1_evt_queue, 0);
