@@ -163,6 +163,8 @@ int luat_uart_setup(luat_uart_t *uart)
     }
     switch (uart->id)
     {
+    case 0:
+        break;
     case 1:
 #if CONFIG_IDF_TARGET_ESP32C3
         uart_set_pin(1, _C3_U1TX, _C3_U1RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
