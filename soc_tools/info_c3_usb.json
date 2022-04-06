@@ -1,0 +1,62 @@
+{
+    "version" : 1,
+    "chip" : {
+        "type" : "esp32",
+        "ram"  :  {
+            "total" : 400,
+            "sys" : 64,
+            "lua" : 96
+        }
+    },
+    "bl": {
+    	"file" : "bootloader.bin"
+    },
+	"partition": {
+    	"file" : "partition-table.bin"
+    },
+    "rom": {
+        "file" : "luatos_esp32.bin",
+        "fs" : {
+            "script" : {
+                "offset" : "0",
+                "size" : 256,
+				"type": "luadb"
+            }
+        },
+        "version-core": "v0001",
+        "version-bsp" : "v0001",
+        "mark" : "default",
+        "build" : {
+            "build_at" : "",
+            "build_by" : "",
+            "build_host" : "",
+            "build_system" : ""
+        }
+    },
+    "script" : {
+		"file" : "script.bin",
+        "lua" : "5.3",
+        "bitw" : 32,
+        "use-luac" : true,
+        "use-debug" : true
+    },
+	"fs" : {
+		"total_len" : 448,
+		"format_len" : "1000"
+	},
+    "user" : {
+        "project" : "",
+        "version" : ""
+    },
+	"download" : {
+		"bl_addr" : "ffffffff",
+		"partition_addr" : "ffffffff",
+		"core_addr" : "00000000",
+		"app_addr" : "00000000",
+		"script_addr" : "00310000",
+		"nvm_addr" : "00000000",
+		"fs_addr" : "00390000",
+		"force_br" : "0",
+		"extra_param" : "002f0200"
+	}
+}
