@@ -25,6 +25,9 @@
 
 static const char *TAG = "LWLAN";
 
+#define LUAT_LOG_TAG "wlan"
+#include "luat_log.h"
+
 static EventGroupHandle_t s_wifi_event_group;
 static esp_event_handler_instance_t instance_wifi;
 static esp_event_handler_instance_t instance_got_ip;
@@ -63,6 +66,20 @@ static int l_wlan_handler(lua_State *L, void *ptr)
     {
         switch (event)
         {
+        case WIFI_EVENT_SCAN_DONE:
+            lua_getglobal(L, "sys_pub");
+/*
+@sys_pub wlan
+扫描完成
+WLAN_SCAN_DONE
+@usage
+sys.taskInit(function()
+    sys.waitUntil("WLAN_SCAN_DONE")
+end)
+*/
+            lua_pushstring(L, "WLAN_SCAN_DONE");
+            lua_call(L, 1, 0);
+            break;
         case WIFI_EVENT_STA_START:
             lua_getglobal(L, "sys_pub");
 /*
@@ -327,6 +344,11 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     msg.ptr = NULL;
     ESP_LOGI(TAG, "event_handler %s %d", event_base, event_id);
 
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_SCAN_DONE)
+    {
+        msg.arg1 = WIFI_EVENT_SCAN_DONE;
+        msg.arg2 = 0;
+    }
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
         msg.arg1 = WIFI_EVENT_STA_START;
@@ -492,6 +514,91 @@ static int l_wlan_init(lua_State *L)
     lua_pushinteger(L, err);
     return 1;
 }
+
+/*
+开始扫网,通常配合wlan.scanResult使用
+@api wlan.scan()
+@return boolean 启动结果,一般为true
+@usage 
+-- 扫描并查询结果
+wlan.scan()
+sys.waitUntil("WLAN_SCAN_DONE", 30000)
+local re = wlan.scanResult()
+for i in ipairs(re) do
+    log.info("wlan", "info", re[i].ssid, re[i].rssi)
+end
+*/
+static int l_wlan_scan(lua_State *L)
+{
+    esp_wifi_start();
+    esp_wifi_scan_stop();
+    lua_pushboolean(L, esp_wifi_scan_start(NULL, true) == ESP_OK);
+    return 1;
+}
+
+
+/*
+获取扫网结果,需要先执行wlan.scan,并等待WLAN_SCAN_DONE事件
+@api wlan.scanResult(num)
+@int 最大结果数量,默认50
+@return table 扫描结果的数组
+@usage 
+-- 扫描并查询结果
+wlan.scan()
+sys.waitUntil("WLAN_SCAN_DONE", 30000)
+local re = wlan.scanResult()
+for i in ipairs(re) do
+    log.info("wlan", "info", re[i].ssid, re[i].rssi)
+end
+*/
+static int l_wlan_scan_get_result(lua_State *L) {
+    uint16_t num = luaL_optinteger(L, 1, 20);                        /* 查询扫描结果数量 */
+    uint16_t ap_count = 0;
+    wifi_ap_record_t *ap_info = (wifi_ap_record_t *)malloc(num*sizeof(wifi_ap_record_t));
+    esp_wifi_scan_get_ap_records(&num, ap_info);
+    if (esp_wifi_scan_get_ap_num(&ap_count)==ESP_OK) {
+        LLOGI("wlan_scan_get_result >> %ld", ap_count);
+    }
+    lua_createtable(L, num, 0);
+    if (ap_count > 0) {
+        if (ap_count < num) {
+            num = ap_count;
+        }
+        for (size_t i = 0; i < num; i++)
+        {
+            wifi_ap_record_t info = ap_info[i];
+            lua_pushinteger(L, i+1);
+
+            // local info = {}
+            lua_createtable(L, 0, 5);
+
+            // info.ssid = xxx
+            lua_pushliteral(L, "ssid");
+            lua_pushlstring(L, (const char *)info.ssid, 33);
+            lua_settable(L, -3);
+
+            // info.rssi = xxx
+            lua_pushliteral(L, "rssi");
+            lua_pushinteger(L, info.rssi);
+            lua_settable(L, -3);
+
+            // info.channel = xxx
+            lua_pushliteral(L, "channel");
+            lua_pushinteger(L, info.primary);
+            lua_settable(L, -3);
+
+            // info.bssid = xxx
+            lua_pushliteral(L, "bssid");
+            lua_pushlstring(L, (const char *)info.bssid, 6);
+            lua_settable(L, -3);
+
+            // re[i+1] = info
+            lua_settable(L, -3);
+        }
+    }
+    return 1;
+}
+
 
 /*
 连接wifi,成功启动联网线程不等于联网成功!!
@@ -993,6 +1100,9 @@ static int l_wlan_get_config(lua_State *L)
 static const rotable_Reg reg_wlan[] =
     {
         {"init", l_wlan_init, 0},
+        {"scan", l_wlan_scan, 0},
+        { "scan_get_info", l_wlan_scan_get_result, 0},
+        { "scanResult", l_wlan_scan_get_result, 0},
         {"getMode", l_wlan_get_mode, 0},
         {"setMode", l_wlan_set_mode, 0},
         {"connect", l_wlan_connect, 0},
