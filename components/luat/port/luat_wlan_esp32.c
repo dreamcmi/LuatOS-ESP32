@@ -22,6 +22,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_smartconfig.h"
+#include <tcpip_adapter.h>
 
 static const char *TAG = "LWLAN";
 
@@ -640,6 +641,23 @@ static int l_wlan_connect(lua_State *L)
 }
 
 /*
+wifi是否已经获取ip
+@api wlan.ready()
+@return boolean 已经有ip返回true,否则返回false
+@usage 
+-- 查询是否已经wifi联网
+if wlan.ready() then
+    log.info("wlan", "wifi ok", "Let's Rock!")
+end
+*/
+static int l_wlan_ready(lua_State *L) {
+    tcpip_adapter_ip_info_t ipInfo; 
+    tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
+    lua_pushboolean(L, ipInfo.ip.addr = 0?1:0);
+    return 1;
+}
+
+/*
 创建ap
 @api wlan.createAP(ssid,password)
 @string ssid  wifi的SSID
@@ -1105,8 +1123,9 @@ static const rotable_Reg reg_wlan[] =
     {
         {"init", l_wlan_init, 0},
         {"scan", l_wlan_scan, 0},
-        { "scan_get_info", l_wlan_scan_get_result, 0},
-        { "scanResult", l_wlan_scan_get_result, 0},
+        {"scan_get_info", l_wlan_scan_get_result, 0},
+        {"scanResult", l_wlan_scan_get_result, 0},
+        {"ready", l_wlan_ready, 0},
         {"getMode", l_wlan_get_mode, 0},
         {"setMode", l_wlan_set_mode, 0},
         {"connect", l_wlan_connect, 0},
