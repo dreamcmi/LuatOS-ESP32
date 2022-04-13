@@ -28,6 +28,8 @@ static const char *TAG = "LWLAN";
 #define LUAT_LOG_TAG "wlan"
 #include "luat_log.h"
 
+#define GET_SCAN_LIST_SIZE 20
+
 static EventGroupHandle_t s_wifi_event_group;
 static esp_event_handler_instance_t instance_wifi;
 static esp_event_handler_instance_t instance_got_ip;
@@ -552,9 +554,10 @@ for i in ipairs(re) do
 end
 */
 static int l_wlan_scan_get_result(lua_State *L) {
-    uint16_t num = luaL_optinteger(L, 1, 20);                        /* 查询扫描结果数量 */
     uint16_t ap_count = 0;
-    wifi_ap_record_t *ap_info = (wifi_ap_record_t *)malloc(num*sizeof(wifi_ap_record_t));
+    wifi_ap_record_t ap_info[GET_SCAN_LIST_SIZE] = {0};
+    uint16_t num = luaL_optinteger(L, 1, 20);                        /* 查询扫描结果数量 */
+    if (num>GET_SCAN_LIST_SIZE)num = GET_SCAN_LIST_SIZE;
     esp_wifi_scan_get_ap_records(&num, ap_info);
     if (esp_wifi_scan_get_ap_num(&ap_count)==ESP_OK) {
         LLOGI("wlan_scan_get_result >> %ld", ap_count);
@@ -595,8 +598,9 @@ static int l_wlan_scan_get_result(lua_State *L) {
             // re[i+1] = info
             lua_settable(L, -3);
         }
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 
