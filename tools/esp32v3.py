@@ -172,7 +172,7 @@ def pkgRom(chip):
             elif chip == "esp32s3":
                 shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_s3.json", 'tmp/')
                 os.rename("tmp/info_s3.json","tmp/info.json")
-            
+            shutil.copy(config["pkg"]["Repo"] + "components/luat/include/luat_conf_bsp.h", 'tmp/')
             # 改下bsp版本号
             # with open('./tmp/info.json', 'r', encoding='utf-8') as f:
             #     fir_info = json.load(f)
