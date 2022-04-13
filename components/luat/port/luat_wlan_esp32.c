@@ -651,7 +651,7 @@ if wlan.ready() then
 end
 */
 static int l_wlan_ready(lua_State *L) {
-    tcpip_adapter_ip_info_t ipInfo; 
+    tcpip_adapter_ip_info_t ipInfo = {0}; 
     tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
     lua_pushboolean(L, ipInfo.ip.addr = 0?1:0);
     return 1;
