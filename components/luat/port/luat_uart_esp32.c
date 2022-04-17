@@ -106,7 +106,11 @@ int luat_uart_setup(luat_uart_t *uart)
     {
     case 0:
 #ifndef LUAT_USE_SHELL
-        uart_driver_install(0, uart->bufsz, 1024 * 2, 20, &uart0_evt_queue, 0);
+        // uart_driver_install(0, uart->bufsz, 1024 * 2, 20, &uart0_evt_queue, 0);
+        uart_set_baudrate(0, uart_config.baud_rate);
+        uart_set_word_length(0, uart_config.data_bits);
+        uart_set_parity(0, uart_config.parity);
+        uart_set_stop_bits(0, uart_config.stop_bits);
 #endif
         break;
     case 1:
