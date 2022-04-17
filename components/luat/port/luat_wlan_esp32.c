@@ -651,9 +651,17 @@ if wlan.ready() then
 end
 */
 static int l_wlan_ready(lua_State *L) {
-    tcpip_adapter_ip_info_t ipInfo = {0}; 
-    tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
-    lua_pushboolean(L, ipInfo.ip.addr == 0?0:1);
+    if(wifi_sta_netif != NULL)
+    {
+        esp_netif_ip_info_t ipInfo = {0};
+        esp_netif_get_ip_info(wifi_sta_netif, &ipInfo);
+        lua_pushboolean(L, ipInfo.ip.addr == 0?0:1);
+    }
+    else
+    {
+        LLOGE("WIFI STA NETIF NOT INIT");
+        lua_pushboolean(L, 0);
+    }
     return 1;
 }
 
