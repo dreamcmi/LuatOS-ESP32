@@ -33,8 +33,8 @@ static void uart1_irq_task(void *arg)
                 // printf("uart1 data\n");
                 msg.handler = l_uart_handler;
                 msg.ptr = NULL;
-                msg.arg1 = 1; //uart1
-                msg.arg2 = 1; //recv
+                msg.arg1 = 1; // uart1
+                msg.arg2 = 1; // recv
                 luat_msgbus_put(&msg, 0);
                 xQueueReset(uart1_evt_queue);
             }
@@ -55,8 +55,8 @@ static void uart2_irq_task(void *arg)
             {
                 msg.handler = l_uart_handler;
                 msg.ptr = NULL;
-                msg.arg1 = 2; //uart2
-                msg.arg2 = 1; //recv
+                msg.arg1 = 2; // uart2
+                msg.arg2 = 1; // recv
                 luat_msgbus_put(&msg, 0);
                 xQueueReset(uart2_evt_queue);
             }
@@ -192,8 +192,16 @@ int luat_uart_close(int uartid)
 {
     if (luat_uart_exist(uartid))
     {
-        uart_driver_delete(uartid);
-        return 0;
+        if (uartid == 0)
+        {
+            LLOGE("UART0 Can not close");
+            return -1;
+        }
+        else
+        {
+            esp_err_t err = uart_driver_delete(uartid);
+            return err == 0 ? 0 : -1;
+        }
     }
     else
         return -1;
