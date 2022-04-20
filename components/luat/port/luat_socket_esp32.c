@@ -16,7 +16,7 @@
 #include <sys/param.h>
 #include "esp_system.h"
 #include "esp_event.h"
-#include "esp_log.h"
+// #include "esp_log.h"
 #include "esp_netif.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
@@ -164,6 +164,71 @@ static int l_socket_dns(lua_State *L)
     return 1;
 }
 
+/*
+绑定IP端口
+@api socket.bind(sock_handle,ip,port)
+@int sock_handle
+@string ip 0.0.0.0表示INADDR_ANY
+@int port 端口
+@return err
+@usage
+socket.bind(sock, "0.0.0.0", 8684)
+*/
+static int l_socket_bind(lua_State *L)
+{
+    size_t len = 0;
+    int sock = luaL_checkinteger(L, 1);
+    const char *host_ip = luaL_checklstring(L, 2, &len);
+    int port = luaL_checkinteger(L, 3);
+    struct sockaddr_storage dest_addr;
+
+    struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
+    dest_addr_ip4->sin_addr.s_addr = inet_addr(host_ip);
+    dest_addr_ip4->sin_family = AF_INET;
+    dest_addr_ip4->sin_port = htons(port);
+    int err = bind(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
+socket监听
+@api socket.listen(sock,num)
+@int sock_handle
+@int num 最大数量,默认1
+@return err
+@usage
+socket.listen(sock)
+*/
+static int l_socket_listen(lua_State *L)
+{
+    int sock = luaL_checkinteger(L, 1);
+    int num = luaL_optinteger(L, 2, 1);
+
+    int err = listen(sock, num);
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+/*
+socket通过
+@api socket.accept(sock)
+@int sock_handle
+@return sock_hanle 连接设备对应的handle
+@usage
+local c = socket.accept(sock)
+*/
+static int l_socket_accept(lua_State *L)
+{
+    int sock = luaL_checkinteger(L, 1);
+    struct sockaddr_storage source_addr;
+    socklen_t addr_len = sizeof(source_addr);
+
+    int csock = accept(sock, (struct sockaddr *)&source_addr, &addr_len);
+    lua_pushinteger(L, csock);
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_socket[] =
     {
@@ -173,6 +238,9 @@ static const rotable_Reg reg_socket[] =
         {"recv", l_socket_recv, 0},
         {"close", l_socket_close, 0},
         {"dns", l_socket_dns, 0},
+        {"bind", l_socket_bind, 0},
+        {"listen", l_socket_listen, 0},
+        {"accept", l_socket_accept, 0},
 
         {"TCP", NULL, SOCK_STREAM},
         {"UDP", NULL, SOCK_DGRAM},
