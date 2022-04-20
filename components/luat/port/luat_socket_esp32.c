@@ -27,11 +27,11 @@
 
 /*
 创建socket
-@api socket.creat(sockType)
+@api socket.create(sockType)
 @int socket.TCP socket.UDP
 @return int sock_handle 用于后续操作
 @usage
-sock = socket.creat(socket.TCP)
+sock = socket.create(socket.TCP)
 */
 static int l_socket_create(lua_State *L)
 {
