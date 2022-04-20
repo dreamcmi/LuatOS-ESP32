@@ -6,12 +6,18 @@
 
 #include "luat_base.h"
 
+#include "mp3dec.h"
+#include "string.h"
+
 #include "driver/i2s.h"
 #include "esp_system.h"
 // #include "esp_check.h"
 #include "esp_err.h"
 
 #include "pinmap.h"
+
+#define LUAT_LOG_TAG "i2s"
+#include "luat_log.h"
 
 /*
 i2s初始化
@@ -170,6 +176,163 @@ static int l_i2s_recv(lua_State *L)
     return 1;
 }
 
+// typedef struct
+// {
+//     char header[3];   /*!< Always "TAG" */
+//     char title[30];   /*!< Audio title */
+//     char artist[30];  /*!< Audio artist */
+//     char album[30];   /*!< Album name */
+//     char year[4];     /*!< Char array of year */
+//     char comment[30]; /*!< Extra comment */
+//     char genre;       /*!< See "https://en.wikipedia.org/wiki/ID3" */
+// } __attribute__((packed)) mp3_id3_header_v1_t;
+
+typedef struct
+{
+    char header[3]; /*!< Always "ID3" */
+    char ver;       /*!< Version, equals to3 if ID3V2.3 */
+    char revision;  /*!< Revision, should be 0 */
+    char flag;      /*!< Flag byte, use Bit[7..5] only */
+    char size[4];   /*!< TAG size */
+} __attribute__((packed)) mp3_id3_header_v2_t;
+
+typedef struct
+{
+    i2s_port_t port;
+    const char *path;
+} play_mp3_handle_t;
+
+static void play_mp3(void *handle)
+{
+    int sample_rate = 0;
+    MP3FrameInfo frame_info = {0};
+    uint8_t *read_buf = NULL;
+    uint8_t *output = NULL;
+    HMP3Decoder mp3_decoder = MP3InitDecoder();
+    play_mp3_handle_t *h = (play_mp3_handle_t *)handle;
+
+    FILE *fp = fopen(h->path, "rb");
+    if (fp == NULL)
+    {
+        LLOGE("MP3PLAYER:NO FILE");
+        goto clean_up;
+    }
+
+    read_buf = malloc(MAINBUF_SIZE);
+    if (read_buf == NULL)
+    {
+        LLOGE("MP3PLAYER:Make Read Buff But memory not enough!");
+        goto clean_up;
+    };
+
+    output = malloc(1152 * sizeof(int16_t) * 2);
+    if (output == NULL)
+    {
+        LLOGE("MP3PLAYER:Make Output Buff But memory not enough!");
+        goto clean_up;
+    };
+
+    if (mp3_decoder == NULL)
+    {
+        LLOGE("MP3PLAYER:Init MP3Decoder But memory not enough!");
+        goto clean_up;
+    }
+    
+    /* Get ID3V2 head */
+    mp3_id3_header_v2_t tag = {0};
+    if (sizeof(mp3_id3_header_v2_t) == fread(&tag, 1, sizeof(mp3_id3_header_v2_t), fp))
+    {
+        if (memcmp("ID3", (const void *)&tag, sizeof(tag.header)) == 0)
+        {
+            int tag_len =
+                ((tag.size[0] & 0x7F) << 21) +
+                ((tag.size[1] & 0x7F) << 14) +
+                ((tag.size[2] & 0x7F) << 7) +
+                ((tag.size[3] & 0x7F) << 0);
+            fseek(fp, tag_len - sizeof(mp3_id3_header_v2_t), SEEK_SET);
+        }
+        else
+        {
+            /* Not ID3V2 header */
+            fseek(fp, 0, SEEK_SET);
+        }
+    }
+
+    /* Start MP3 decoding */
+    int bytes_left = 0;
+    unsigned char *read_ptr = read_buf;
+    i2s_zero_dma_buffer(h->port);
+
+    do
+    {
+        /* Read `mainDataBegin` size to RAM */
+        if (bytes_left < MAINBUF_SIZE)
+        {
+            memmove(read_buf, read_ptr, bytes_left);
+            size_t bytes_read = fread(read_buf + bytes_left, 1, MAINBUF_SIZE - bytes_left, fp);
+            bytes_left = bytes_left + bytes_read;
+            read_ptr = read_buf;
+        }
+
+        /* Find MP3 sync word from read buffer */
+        int offset = MP3FindSyncWord(read_buf, MAINBUF_SIZE);
+
+        if (offset >= 0)
+        {
+            read_ptr += offset;   /* Data start point */
+            bytes_left -= offset; /* In buffer */
+            int mp3_dec_err = MP3Decode(mp3_decoder, &read_ptr, &bytes_left, (int16_t *)output, 0);
+            if (mp3_dec_err != ERR_MP3_NONE)
+            {
+                LLOGE("MP3PLAYER:Can't decode MP3 frame:%d", mp3_dec_err);
+                goto clean_up;
+            }
+
+            MP3GetLastFrameInfo(mp3_decoder, &frame_info);
+            if (sample_rate != frame_info.samprate)
+            {
+                sample_rate = frame_info.samprate;
+                uint32_t bits_cfg = frame_info.bitsPerSample;
+                i2s_channel_t channel = (frame_info.nChans == 1) ? I2S_CHANNEL_MONO : I2S_CHANNEL_STEREO;
+                i2s_set_clk(h->port, sample_rate, bits_cfg, channel);
+            }
+
+            size_t i2s_bytes_written = 0;
+            size_t output_size = frame_info.outputSamps * frame_info.nChans;
+            i2s_write(h->port, output, output_size, &i2s_bytes_written, portMAX_DELAY);
+        }
+        else
+        {
+            LLOGE("MP3PLAYER:MP3 sync word not found!");
+            bytes_left = 0;
+            continue;
+        }
+    } while (true);
+
+clean_up:
+    i2s_zero_dma_buffer(h->port);
+    if (NULL != mp3_decoder)
+        MP3FreeDecoder(mp3_decoder);
+    if (NULL != fp)
+        fclose(fp);
+    if (NULL != read_buf)
+        free(read_buf);
+    if (NULL != output)
+        free(output);
+    vTaskDelete(NULL);
+}
+
+static int l_i2s_mp3player(lua_State *L)
+{
+    play_mp3_handle_t handle = {0};
+    handle.port = luaL_optinteger(L, 1, 0);
+    handle.path = luaL_checkstring(L, 2);
+
+    BaseType_t re = xTaskCreate(play_mp3, "play_mp3", 4096, &handle, 10, NULL);
+    lua_pushinteger(L, re == pdPASS ? 0 : 1);
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_i2s[] =
     {
@@ -177,6 +340,7 @@ static const rotable_Reg reg_i2s[] =
         {"close", l_i2s_close, 0},
         {"send", l_i2s_send, 0},
         {"recv", l_i2s_recv, 0},
+        {"mp3player", l_i2s_mp3player, 0},
 
         {"RLCH", NULL, I2S_CHANNEL_FMT_RIGHT_LEFT},
         {"ARCH", NULL, I2S_CHANNEL_FMT_ALL_RIGHT},
