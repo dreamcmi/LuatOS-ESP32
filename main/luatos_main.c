@@ -139,6 +139,10 @@ void app_main(void)
     free(mac);
     printf("IDF_VERSION:%d.%d.%d\n", ESP_IDF_VERSION_MAJOR, ESP_IDF_VERSION_MINOR, ESP_IDF_VERSION_PATCH);
 
+#ifdef ESP_BETA_VERSION
+    printf("The current version is in beta mode, please do not use it in a production environment!\n");
+#endif
+
 #ifdef CONFIG_SPIRAM
     psram_size_t t = psram_get_size();
     switch (t)
