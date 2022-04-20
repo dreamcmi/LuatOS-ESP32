@@ -14,18 +14,18 @@ jobs:
           pip3 install --upgrade pip
           mkdir -p ~/esp
           cd ~/esp
-          git clone -b v4.4 --recursive https://github.com/espressif/esp-idf.git
+          git clone -b v4.4.1 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
           ./install.sh esp32c3
       - name: get LuatOS repo
         run: |
           cd ..
           git clone https://github.com/openLuat/LuatOS
-      - name: patch src
-        run: |
-          cp patches/001_v4.4_fix_smartconfig_ack.patch ~/esp/esp-idf
-          cd ~/esp/esp-idf
-          git apply 001_v4.4_fix_smartconfig_ack.patch
+      # - name: patch src
+      #   run: |
+      #     cp patches/001_v4.4_fix_smartconfig_ack.patch ~/esp/esp-idf
+      #     cd ~/esp/esp-idf
+      #     git apply 001_v4.4_fix_smartconfig_ack.patch
       - name: build c3
         run: |
           source ~/esp/esp-idf/export.sh
