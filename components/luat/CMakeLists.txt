@@ -7,7 +7,6 @@ idf_component_register(
             ../../../LuatOS/luat/packages/lua-cjson
             ../../../LuatOS/luat/packages/eink
             ../../../LuatOS/luat/packages/epaper
-            ../../../LuatOS/luat/packages/qrcode
             ../../../LuatOS/luat/packages/u8g2
             ../../../LuatOS/luat/packages/fatfs
             ../../../LuatOS/luat/packages/lfs
@@ -54,6 +53,7 @@ idf_component_register(
             ../../../LuatOS/components/shell
             ../../../LuatOS/components/gtfont
             ../../../LuatOS/components/tjpgd
+            ../../../LuatOS/components/qrcode
 
     INCLUDE_DIRS include 
             ../../../LuatOS/lua/include 
@@ -61,7 +61,6 @@ idf_component_register(
             ../../../LuatOS/luat/packages/lua-cjson
             ../../../LuatOS/luat/packages/eink
             ../../../LuatOS/luat/packages/epaper
-            ../../../LuatOS/luat/packages/qrcode
             ../../../LuatOS/luat/packages/u8g2
             ../../../LuatOS/luat/packages/fatfs
             ../../../LuatOS/luat/packages/lfs
@@ -91,6 +90,7 @@ idf_component_register(
             ../../../LuatOS/components/shell
             ../../../LuatOS/components/gtfont
             ../../../LuatOS/components/tjpgd
+            ../../../LuatOS/components/qrcode
 
     REQUIRES lua freertos spiffs vfs esp_adc_cal bt mbedtls esp_http_client esp_hw_support mqtt sdmmc fatfs led_strip miniz esp_websocket_client libhelix-mp3
 )
