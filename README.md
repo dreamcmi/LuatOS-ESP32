@@ -23,8 +23,9 @@
 │  │  ├─freertos	(freertos移植层)
 │  │  ├─include		(用户头文件目录)
 │  │  └─port		(接口移植目录)
-│  └─net		
-│      └─binding	(lwip接口)
+│  ├─led_strip		(ws2812库)
+│  ├─libhelix-mp3	(mp3解码库)
+│  ├─miniz			(压缩库)
 ├─demo				(lua示例)
 ├─doc				(开发相关文档)
 ├─img				(介绍用相关图片)

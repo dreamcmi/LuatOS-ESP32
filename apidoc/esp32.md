@@ -200,3 +200,26 @@ log.info("esp32","temp",esp32.temp())
 
 ---
 
+## esp32.errToName(err)
+
+esp_err转文字
+
+**参数**
+
+| 传入值类型 | 解释      |
+| ---------- | --------- |
+| int        | esp_err_t |
+
+**返回值**
+
+| 返回值类型 | 解释 |
+| ---------- | ---- |
+| string     | err  |
+
+**例子**
+
+```lua
+log.info("esp32.err_name",esp32.errToName(0))
+```
+
+---

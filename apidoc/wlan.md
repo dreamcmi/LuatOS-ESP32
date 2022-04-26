@@ -179,6 +179,29 @@ wlan.stop()
 
 ```
 
+## wlan.ready()
+
+wifi是否已获取ip
+
+**参数**
+
+无
+
+**返回值**
+
+| 返回值类型 | 解释                           |
+| ---------- | ------------------------------ |
+| boolean    | 已经有ip返回true,否则返回false |
+
+**例子**
+
+```lua
+-- 查询是否已经wifi联网
+if wlan.ready() then
+    log.info("wlan", "wifi ok", "Let's Rock!")
+end
+```
+
 ---
 
 ## wlan.deinit()
@@ -481,3 +504,67 @@ t = wlan.getConfig(0)
 log.info("wlan", "wifi connected info", t.ssid, t.password, t.bssid:toHex())
 
 ```
+
+## wlan.scan()
+
+开始扫网,通常配合wlan.scanResult使用
+
+**参数**
+
+无
+
+**返回值**
+
+| 返回值类型 | 解释                |
+| ---------- | ------------------- |
+| boolean    | 启动结果,一般为true |
+
+**例子**
+
+```lua
+wlan.scan()
+sys.waitUntil("WLAN_SCAN_DONE", 30000)
+local re = wlan.scanResult()
+for i in ipairs(re) do
+    log.info("wlan", "info", re[i].ssid, re[i].rssi)
+end
+```
+
+---
+
+## wlan.scanResult(num)
+
+获取扫网结果,需要先执行wlan.scan,并等待WLAN_SCAN_DONE事件
+
+**参数**
+
+| 输入值类型 | 解释                |
+| ---------- | ------------------- |
+| int        | 最大结果数量,默认50 |
+
+**返回值**
+
+| 返回值类型 | 解释           |
+| ---------- | -------------- |
+| table      | 扫描结果的数组 |
+
+**例子**
+
+```lua
+-- 扫描并查询结果
+wlan.scan()
+sys.waitUntil("WLAN_SCAN_DONE", 30000)
+local re = wlan.scanResult()
+for i in ipairs(re) do
+    log.info("wlan", "info", re[i].ssid, re[i].rssi)
+end
+```
+
+---
+
+
+
+
+
+
+

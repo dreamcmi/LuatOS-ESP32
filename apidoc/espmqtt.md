@@ -74,28 +74,6 @@ log.info("mqttc", "client", mqttc)
 
 ---
 
-## espmqtt.stop(client)
-
-销毁客户端,清理相关资源
-
-**参数**
-
-|传入值类型|解释|
-|-|-|
-|userdata|通过espmqtt.init创建的句柄|
-
-**返回值**
-
-|返回值类型|解释|
-|-|-|
-|bool|成功返回true,否则返回false|
-
-**例子**
-
-无
-
----
-
 ## espmqtt.subscribe(client, topic, qos)
 
 订阅一个主题

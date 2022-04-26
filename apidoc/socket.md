@@ -1,6 +1,6 @@
 # socket - socket操作库
 
-## socket.creat(sockType)
+## socket.create(sockType)
 
 创建socket
 
@@ -19,7 +19,7 @@
 **例子**
 
 ```lua
-sock = socket.creat(socket.TCP)
+sock = socket.create(socket.TCP)
 
 ```
 
@@ -114,7 +114,6 @@ local data, len = socket.recv(sock)
 |传入值类型|解释|
 |-|-|
 |int|sock_handle|
-|return|none|
 
 **返回值**
 
@@ -144,14 +143,92 @@ socket.close(sock)
 
 **返回值**
 
-无
+| 返回值类型 | 解释 |
+| ---------- | ---- |
+| string     | ip   |
 
 **例子**
 
 ```lua
-socket.dns("wiki.luatos.com")
-
+local ip = socket.dns("wiki.luatos.com")
 ```
 
 ---
+
+## socket.bind(sock_handle,ip,port)
+
+绑定IP端口
+
+**参数**
+
+| 传入值类型 | 解释                      |
+| ---------- | ------------------------- |
+| int        | sock_handle               |
+| string     | ip  0.0.0.0表示INADDR_ANY |
+| int        | port 端口                 |
+
+**返回值**
+
+| 返回值类型 | 解释 |
+| ---------- | ---- |
+| int        | err  |
+
+**例子**
+
+```lua
+socket.bind(sock, "0.0.0.0", 8684)
+```
+
+---
+
+## socket.listen(sock,num)
+
+socket监听
+
+**参数**
+
+| 传入值类型 | 解释               |
+| ---------- | ------------------ |
+| int        | sock_handle        |
+| int        | 最大监听数量,默认1 |
+
+**返回值**
+
+| 返回值类型 | 解释 |
+| ---------- | ---- |
+| int        | err  |
+
+**例子**
+
+```lua
+socket.listen(sock)
+```
+
+---
+
+## socket.accept(sock)
+
+socket通过
+
+**参数**
+
+| 传入值类型 | 解释        |
+| ---------- | ----------- |
+| int        | sock_handle |
+
+**返回值**
+
+| 返回值类型 | 解释                      |
+| ---------- | ------------------------- |
+| int        | 链接设备对应的sock_handle |
+
+**例子**
+
+```lua
+local c = socket.accept(sock)
+```
+
+---
+
+
 
