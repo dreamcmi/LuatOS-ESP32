@@ -6,7 +6,7 @@
 extern TaskHandle_t luatosHandle;
 int luat_wdt_init(size_t timeout)
 {
-    esp_err_t err = esp_task_wdt_init((timeout / 1000), false);
+    esp_err_t err = esp_task_wdt_init((timeout / 1000), true);
     if (err != 0)
     {
         return err;
