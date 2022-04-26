@@ -74,7 +74,7 @@ static int l_i2s_setup(lua_State *L)
 #error "I2S SETUP ERROR Please make sure the target is esp32c3 or esp32s3"
 #endif
     err = i2s_set_pin(i2s_num, &pin_config);
-    lua_pushinteger(L, err);
+    lua_pushboolean(L, err == 0);
     return 1;
 }
 
@@ -97,7 +97,7 @@ static int l_i2s_close(lua_State *L)
     }
     i2s_stop(i2s_num);
     err = i2s_driver_uninstall(i2s_num);
-    lua_pushinteger(L, err);
+    lua_pushboolean(L, err == 0);
     return 1;
 }
 
@@ -237,7 +237,7 @@ static void play_mp3(void *handle)
         LLOGE("MP3PLAYER:Init MP3Decoder But memory not enough!");
         goto clean_up;
     }
-    
+
     /* Get ID3V2 head */
     mp3_id3_header_v2_t tag = {0};
     if (sizeof(mp3_id3_header_v2_t) == fread(&tag, 1, sizeof(mp3_id3_header_v2_t), fp))
@@ -329,7 +329,7 @@ static int l_i2s_mp3player(lua_State *L)
     handle.path = luaL_checkstring(L, 2);
 
     BaseType_t re = xTaskCreate(play_mp3, "play_mp3", 4096, &handle, 10, NULL);
-    lua_pushinteger(L, re == pdPASS ? 0 : 1);
+    lua_pushboolean(L, re == pdPASS);
     return 1;
 }
 
