@@ -143,14 +143,17 @@ int luat_i2c_send(int id, int addr, void *buff, size_t len, uint8_t stop)
 {
     if (luat_i2c_exist(id))
     {
-#if 0
+#if 1
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         if (cmd != NULL)
         {
             i2c_master_start(cmd);
             i2c_master_write_byte(cmd, (addr << 1) | WRITE_BIT, ACK_CHECK_EN);
             i2c_master_write(cmd, (const uint8_t *)buff, len, ACK_CHECK_EN);
-            i2c_master_stop(cmd);
+            if (stop)
+            {
+                i2c_master_stop(cmd);
+            }
             i2c_master_cmd_begin(id, cmd, 1000 / portTICK_RATE_MS);
             i2c_cmd_link_delete(cmd);
             return 0;
@@ -174,7 +177,7 @@ int luat_i2c_recv(int id, int addr, void *buff, size_t len)
 {
     if (luat_i2c_exist(id))
     {
-#if 0
+#if 1
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         if (cmd != NULL)
         {
