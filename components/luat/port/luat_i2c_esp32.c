@@ -139,7 +139,7 @@ int luat_i2c_close(int id)
     }
 }
 
-int luat_i2c_send(int id, int addr, void *buff, size_t len)
+int luat_i2c_send(int id, int addr, void *buff, size_t len, uint8_t stop)
 {
     if (luat_i2c_exist(id))
     {
