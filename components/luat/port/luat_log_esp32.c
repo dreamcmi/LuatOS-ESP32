@@ -29,7 +29,8 @@ void luat_nprint(char *s, size_t l) {
         luat_cmux_write(LUAT_CMUX_CH_LOG,  CMUX_FRAME_UIH & ~ CMUX_CONTROL_PF,s, l);
     }else
 #endif
-    luat_uart_write(luat_log_uart_port, s, l);
+    // luat_uart_write(luat_log_uart_port, s, l);
+    printf("%.*s\n", l, s);
 }
 
 void luat_log_write(char *s, size_t l) {
@@ -38,7 +39,8 @@ void luat_log_write(char *s, size_t l) {
         luat_cmux_write(LUAT_CMUX_CH_LOG,  CMUX_FRAME_UIH & ~ CMUX_CONTROL_PF,s, l);
     }else
 #endif
-    luat_uart_write(luat_log_uart_port, s, l);
+    //luat_uart_write(luat_log_uart_port, s, l);
+    printf("%.*s\n", l, s);
 }
 
 void luat_log_set_level(int level) {
