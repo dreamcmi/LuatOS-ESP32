@@ -30,7 +30,7 @@ void luat_nprint(char *s, size_t l) {
     }else
 #endif
     // luat_uart_write(luat_log_uart_port, s, l);
-    printf("%.*s\n", l, s);
+    printf("%.*s", l, s);
 }
 
 void luat_log_write(char *s, size_t l) {
@@ -40,7 +40,7 @@ void luat_log_write(char *s, size_t l) {
     }else
 #endif
     //luat_uart_write(luat_log_uart_port, s, l);
-    printf("%.*s\n", l, s);
+    printf("%.*s", l, s);
 }
 
 void luat_log_set_level(int level) {
