@@ -26,7 +26,7 @@ logging.basicConfig(format='- [%(levelname)s]: %(message)s', level=logging.INFO)
 
 
 def flashFs(fspath, port, baud, chip, offset, size):
-    if chip == "esp32c3" or chip == "esp32s3":
+    if chip == "esp32c3" or chip == "esp32c3-usb" or chip == "esp32s3":
         if getattr(sys, 'frozen', False):
             bundle_dir = sys._MEIPASS
         else:
@@ -83,12 +83,15 @@ def flashFs(fspath, port, baud, chip, offset, size):
         logging.error("not support chip")
         sys.exit(-1)
 
+    board = chip
+    if board == "esp32c3-usb":
+        board = "esp32c3"
     command = ['--port', port,
-               '--baud', baud,
-               '--chip', chip,
-               'write_flash',
-               offset,
-               "script.bin"]
+                '--baud', baud,
+                '--chip', board,
+                'write_flash',
+                offset,
+                "script.bin"]
     if config[chip]["Luadb"]:
         command[-2] = config[chip]["LuadbOffset"]
         command[-1] = "disk.fs"
@@ -138,12 +141,12 @@ def pkgRom(chip):
         if not config['pkg']['Release']:
             logging.warning("user build")
             git_sha1 = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
-            firmware_name = "LuatOS-SoC_" + str(chip).upper() + '_' + \
+            firmware_name = "LuatOS-SoC_" + str(chip).upper().replace("-", "_")  + '_' + \
                             git_sha1.decode() + "_" + \
                             time.strftime("%Y%m%d%H%M%S", time.localtime())
         else:
             logging.warning("Release build")
-            firmware_name = "LuatOS-SoC_" + versionBsp+ '_'  +str(chip).upper() 
+            firmware_name = "LuatOS-SoC_" + versionBsp+ '_'  + str(chip).upper().replace("-", "_") 
 
         # 进入合并流程
         base_offset = 0x0
@@ -209,12 +212,15 @@ def pkgRom(chip):
 
 
 def flashRom(rom, port, baud, chip):
-    if chip == "esp32c3" or chip == "esp32s3":
+    if chip == "esp32c3" or "esp32c3-usb" or chip == "esp32s3":
         if not os.path.isfile(rom):
             logging.error("Firmware not configured")
             sys.exit(-1)
-        command_erase = ['--chip', chip, '--port', port, '--baud', baud, 'erase_flash']
-        command = ['--chip', chip, '--port', port, '--baud', baud, 'write_flash', '0x0', rom]
+        board = chip
+        if board == "esp32c3-usb":
+            board = "esp32c3"
+        command_erase = ['--chip', board, '--port', port, '--baud', baud, 'erase_flash']
+        command = ['--chip', board, '--port', port, '--baud', baud, 'write_flash', '0x0', rom]
         if config["pkg"]["SocSupport"]:
             if not os.path.exists('tmp'):
                 os.mkdir('tmp')
@@ -251,7 +257,7 @@ def flashRom(rom, port, baud, chip):
 
 
 def get_version():
-    return '3.1.2'
+    return '3.1.3'
 
 
 if __name__ == '__main__':
