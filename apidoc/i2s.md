@@ -101,9 +101,9 @@ i2s.close(0)
 
 ---
 
-## i2s.mp3player(path)
+## i2s.mp3playerStart(id,path)
 
-i2s播放mp3
+mp3播放
 
 **参数**
 
@@ -121,6 +121,46 @@ i2s播放mp3
 **例子**
 
 ```lua
-i2s.mp3player("")
+i2s.mp3playerStart(0,"spiffs/test.mp3")
+```
+
+## i2s.mp3playerPause()
+
+mp3播放暂停
+
+**参数**
+
+无
+
+**返回值**
+
+| 返回值类型 | 解释                       |
+| ---------- | -------------------------- |
+| boolean    | 成功返回true,否则返回false |
+
+**例子**
+
+```lua
+i2s.mp3playerPause()
+```
+
+## i2s.mp3playerStop()
+
+mp3播放终止
+
+**参数**
+
+无
+
+**返回值**
+
+| 返回值类型 | 解释                       |
+| ---------- | -------------------------- |
+| boolean    | 成功返回true,否则返回false |
+
+**例子**
+
+```lua
+i2s.mp3playerStop()
 ```
 

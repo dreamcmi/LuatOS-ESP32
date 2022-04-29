@@ -202,9 +202,12 @@ typedef struct
     const char *path;
 } play_mp3_handle_t;
 
+static QueueHandle_t audio_event_queue = NULL;
+static uint8_t AUDIO_EVENT_PAUSE = 1;
 static void play_mp3(void *handle)
 {
     int sample_rate = 0;
+    uint8_t audio_event = 0;
     MP3FrameInfo frame_info = {0};
     uint8_t *read_buf = NULL;
     uint8_t *output = NULL;
@@ -265,6 +268,16 @@ static void play_mp3(void *handle)
 
     do
     {
+        if (pdPASS == xQueueReceive(audio_event_queue, &audio_event, 0))
+        {
+            if (AUDIO_EVENT_PAUSE == audio_event)
+            {
+                i2s_zero_dma_buffer(I2S_NUM_0);
+                xQueuePeek(audio_event_queue, &audio_event, portMAX_DELAY);
+                continue;
+            }
+        }
+
         /* Read `mainDataBegin` size to RAM */
         if (bytes_left < MAINBUF_SIZE)
         {
@@ -322,14 +335,62 @@ clean_up:
     vTaskDelete(NULL);
 }
 
-static int l_i2s_mp3player(lua_State *L)
+/*
+mp3播放
+@api i2s.mp3player(id,path)
+@int i2s id
+@string mp3文件路径
+@return boolean 成功为true
+@usage
+i2s.mp3playerStart(0,"/spiffs/test.mp3")
+*/
+static TaskHandle_t mp3PlayerHandle = NULL;
+static int l_i2s_mp3player_start(lua_State *L)
 {
     play_mp3_handle_t handle = {0};
     handle.port = luaL_optinteger(L, 1, 0);
     handle.path = luaL_checkstring(L, 2);
 
-    BaseType_t re = xTaskCreate(play_mp3, "play_mp3", 4096, &handle, 10, NULL);
+    audio_event_queue = xQueueCreate(4, sizeof(uint8_t));
+    if (audio_event_queue == NULL)
+    {
+        LLOGE("audio_event_queue init error");
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    BaseType_t re = xTaskCreate(play_mp3, "play_mp3", 4096, &handle, 10, &mp3PlayerHandle);
     lua_pushboolean(L, re == pdPASS);
+    return 1;
+}
+
+/*
+mp3播放暂停
+@api i2s.mp3playerPause()
+@return boolean 成功为true
+@usage
+i2s.mp3playerPause()
+*/
+static int l_i2s_mp3player_pause(lua_State *L)
+{
+    uint8_t event = AUDIO_EVENT_PAUSE;
+    BaseType_t re = xQueueSend(audio_event_queue, &event, 0);
+    lua_pushboolean(L, re == pdPASS);
+    return 1;
+}
+
+/*
+mp3播放终止
+@api i2s.mp3playerStop()
+@return boolean 成功为true
+@usage
+i2s.mp3playerStop()
+*/
+static int l_i2s_mp3player_stop(lua_State *L)
+{
+    i2s_zero_dma_buffer(I2S_NUM_0);
+    vTaskDelete(mp3PlayerHandle);
+    vQueueDelete(audio_event_queue);
+    lua_pushboolean(L, true);
     return 1;
 }
 
@@ -340,7 +401,9 @@ static const rotable_Reg reg_i2s[] =
         {"close", l_i2s_close, 0},
         {"send", l_i2s_send, 0},
         {"recv", l_i2s_recv, 0},
-        {"mp3player", l_i2s_mp3player, 0},
+        {"mp3playerStart", l_i2s_mp3player_start, 0},
+        {"mp3playerPause", l_i2s_mp3player_pause, 0},
+        {"mp3playerStop", l_i2s_mp3player_stop, 0},
 
         {"RLCH", NULL, I2S_CHANNEL_FMT_RIGHT_LEFT},
         {"ARCH", NULL, I2S_CHANNEL_FMT_ALL_RIGHT},
