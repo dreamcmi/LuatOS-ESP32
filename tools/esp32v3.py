@@ -98,11 +98,11 @@ def flashFs(fspath, port, baud, chip, offset, size):
 
 
 def pkgRom(chip):
-    if chip == "esp32c3" or chip == "esp32s3":
+    if chip == "esp32c3" or chip == "esp32c3-usb" or chip == "esp32s3":
         # 查找固件位置
         with open(config['pkg']['Repo'] + '/build/' + "flasher_args.json", 'r', encoding='utf-8') as flash_args:
             j = json.load(flash_args)
-            if j['extra_esptool_args']['chip'] != chip:
+            if j['extra_esptool_args']['chip'] != chip and j['extra_esptool_args']['chip']+"-usb" != chip:
                 logging.error("The selected chip is inconsistent with the build")
                 sys.exit(-1)
             ss = sorted(
@@ -169,6 +169,9 @@ def pkgRom(chip):
             if chip == "esp32c3":
                 shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_c3.json", 'tmp/')
                 os.rename("tmp/info_c3.json","tmp/info.json")
+            elif chip == "esp32c3-usb":
+                shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_c3_usb.json", 'tmp/')
+                os.rename("tmp/info_c3_usb.json","tmp/info.json")
             elif chip == "esp32s3":
                 shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_s3.json", 'tmp/')
                 os.rename("tmp/info_s3.json","tmp/info.json")
@@ -259,7 +262,7 @@ if __name__ == '__main__':
     config = toml.load("config.toml")
     parser = argparse.ArgumentParser(description="ESP32 Flash Tool")
     parser.add_argument('-v', '--version', action='version', version=get_version(), help='Show version')
-    parser.add_argument('-t', '--target', help='Chip型号:esp32c3,esp32s3')
+    parser.add_argument('-t', '--target', help='Chip型号:esp32c3,esp32c3-usb,esp32s3')
     parser.add_argument('-f', '--fs', action="store_true", help='下载脚本')
     parser.add_argument('-r', '--rom', action="store_true", help='下载底层固件')
     parser.add_argument('-p', '--pkg', action="store_true", help='打包固件')

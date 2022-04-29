@@ -14,6 +14,17 @@ FsOffset = "0x390000"
 FsSize = "0x70000"
 LuadbOffset = "0x310000"
 
+[esp32c3-usb]
+Type = "uart"
+COM = "COM3"
+Baud = "2000000"
+Luadb = true
+Firmware = "LuatOS-SoC_V0002-BETA_ESP32C3-USB.soc"
+FsPath = "../demo/pwm2"
+FsOffset = "0x390000"
+FsSize = "0x70000"
+LuadbOffset = "0x310000"
+
 [esp32s3]
 Type = "uart"
 COM = "COM4"
