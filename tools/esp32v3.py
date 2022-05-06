@@ -32,9 +32,7 @@ def flashFs(fspath, port, baud, chip, offset, size):
         else:
             bundle_dir = os.path.dirname(os.path.abspath(__file__))
         # luac
-        if not os.path.exists('tmp'):
-            os.mkdir('tmp')
-        else:
+        if os.path.exists('tmp'):
             shutil.rmtree('tmp')
         
         cmd = ""
