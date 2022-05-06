@@ -36,25 +36,30 @@ def flashFs(fspath, port, baud, chip, offset, size):
             os.mkdir('tmp')
         else:
             shutil.rmtree('tmp')
+        
+        cmd = ""
+        if usePlat == "Windows":
+            cmd = bundle_dir + "\\bin\\luac_536_32bits.exe -o" + " tmp/"
+        elif usePlat == "Linux":
+            cmd = bundle_dir + "/bin/luac_536_32bits -o" + " tmp/"
+        else:
+            pass
+        # windows和linux执行luac,mac暂跳过不执行
+        if cmd != "":
             os.mkdir('tmp')
-        for root, dirs, name in os.walk(fspath):
-            for i in range(len(name)):
-                if name[i].endswith(".lua"):
-                    if usePlat == "Windows":
-                        cmd = bundle_dir + "\\bin\\luac_536_32bits.exe -o" + " tmp/" + \
-                              os.path.basename(name[i]) + "c " + fspath + os.path.basename(name[i])
-                    elif usePlat == "Linux":
-                        cmd = bundle_dir + "/bin/luac_536_32bits -o" + " tmp/" + \
-                              os.path.basename(name[i]) + "c " + fspath + os.path.basename(name[i])
+            for root, dirs, name in os.walk(fspath):
+                for i in range(len(name)):
+                    if name[i].endswith(".lua"):
+                        cmdd =  cmd + os.path.basename(name[i]) + "c " + fspath + os.path.basename(name[i])
+                        a = os.system(cmdd)
+                        if a != 0:
+                            logging.error("luac failed")
+                            sys.exit(-1)
+                    # 其他文件直接拷贝
                     else:
-                        logging.error("The platform {} is not support".format(usePlat))
-                    a = os.system(cmd)
-                    if a != 0:
-                        logging.error("luac failed")
-                        sys.exit(-1)
-                # 其他文件直接拷贝
-                else:
-                    shutil.copy(fspath + name[i], "tmp/" + os.path.basename(name[i]))
+                        shutil.copy(fspath + name[i], "tmp/" + os.path.basename(name[i]))
+        else:
+            shutil.copytree(fspath, "tmp/")
 
         # 制作fs分区
         if config[chip]["Luadb"]:
@@ -257,7 +262,7 @@ def flashRom(rom, port, baud, chip):
 
 
 def get_version():
-    return '3.1.3'
+    return '3.2.0'
 
 
 if __name__ == '__main__':
