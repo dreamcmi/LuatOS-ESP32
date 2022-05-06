@@ -63,7 +63,7 @@ LuatOS开发QQ群：1061642968
 
 ## 3、相关文档
 
-[API-DOC](./userdoc)
+[API-DOC](./apidoc)
 
 [Support](./doc/SUPPORT.md)
 
