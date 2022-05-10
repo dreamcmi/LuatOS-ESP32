@@ -75,7 +75,12 @@ static esp_err_t l_esphttp_event_handler(esp_http_client_event_t *evt) {
         re->len = evt->data_len;
         memcpy(re->buff, evt->data, evt->data_len);
         msg.arg2 = (uint32_t) re;
-        luat_msgbus_put(&msg, 0);
+        int ret = luat_msgbus_put(&msg, 0);
+        if (ret != 0) {
+            LLOGE("luat_msgbus_put ret %d", ret);
+            luat_heap_free(re);
+            return ESP_OK;
+        }
     }
     else { // 缺省, 直接给
         luat_msgbus_put(&msg, 0);
