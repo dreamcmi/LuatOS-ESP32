@@ -274,7 +274,7 @@ void luat_os_exit_cri(void)
 
 void luat_meminfo_sys(size_t *total, size_t *used, size_t *max_used)
 {
-    *used = esp_get_free_heap_size();
-    *max_used = esp_get_free_heap_size();
     *total = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
+    *used = *total - esp_get_free_heap_size();
+    *max_used = *total - esp_get_minimum_free_heap_size();
 }
