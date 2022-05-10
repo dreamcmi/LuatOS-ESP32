@@ -56,11 +56,11 @@ int luat_timer_start(luat_timer_t* timer) {
     timers[timerIndex] = timer;
     
     timer->os_timer = os_timer;
-    int re = xTimerStart(os_timer, 1);
+    int re = xTimerStart(os_timer, 10/ portTICK_RATE_MS);
     //LLOGD("timer id=%ld timeout=%ld start=%ld", timerIndex, timer->timeout, re);
     if (re != pdPASS) {
         LLOGE("xTimerStart FAIL");
-        xTimerDelete(os_timer, 1);
+        xTimerDelete(os_timer, 10/ portTICK_RATE_MS);
         timers[timerIndex] = NULL;
     }
     return re == pdPASS ? 0 : -1;
