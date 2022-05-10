@@ -6,10 +6,10 @@
 
 #ifndef LUAT_CONF_BSP
 #define LUAT_CONF_BSP
-#define LUAT_BSP_VERSION "V0002"
+#define LUAT_BSP_VERSION "V0003-BETA"
 
 // ESP32系列开发中标识
-// #define ESP_BETA_VERSION 1
+#define ESP_BETA_VERSION 1
 
 #define LUAT_MODULE_SEARCH_PATH   "/spiffs/%s.luac", "/spiffs/%s.lua",\
   "/luadb/%s.luac", "/luadb/%s.lua",\
