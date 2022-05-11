@@ -11,7 +11,7 @@ sys.taskInit(
         log.info("wlan", "wlan_init:", wlan.init())
 
         wlan.setMode(wlan.STATION)
-        wlan.connect("uiot", "1234567890")
+        wlan.connect("uiot", "1234567890", true) -- 第三参数是自动重连
 
         -- 等到成功获取ip就代表连上局域网了
         result, data = sys.waitUntil("IP_READY")
