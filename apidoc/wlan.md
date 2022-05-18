@@ -562,6 +562,29 @@ end
 
 ---
 
+## wlan.setMac(mode,mac)
+
+wlan获取配置信息
+
+**参数**
+
+| 传入值类型 | 解释            |
+| ---------- | --------------- |
+| int        | mode STA:0 AP:1 |
+| string     | 6位mac地址      |
+
+**返回值**
+
+| 返回值类型 | 解释      |
+| ---------- | --------- |
+| int        | esp_err_t |
+
+**例子**
+
+```lua
+wlan.setMac(1, string.fromHex("60AAF973090E"))
+```
+
 
 
 

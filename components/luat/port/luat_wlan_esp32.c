@@ -1133,7 +1133,7 @@ wlan设置自定义mac
 @string mac 6位mac地址
 @return esp_err_t
 @usage
-wlan.setMac(1, string.fromHex(60AAF973090E))
+wlan.setMac(1, string.fromHex("60AAF973090E"))
 */
 static int l_wlan_set_mac(lua_State *L)
 {
