@@ -1126,6 +1126,36 @@ static int l_wlan_get_config(lua_State *L)
     return 1;
 }
 
+/*
+wlan设置自定义mac
+@api  wlan.setMac(mode,mac)
+@int mode STA:0 AP:1
+@string mac 6位mac地址
+@return esp_err_t
+@usage
+wlan.setMac(1, string.fromHex(60AAF973090E))
+*/
+static int l_wlan_set_mac(lua_State *L)
+{
+    int mode = luaL_checkinteger(L, 1);
+    uint8_t mac[6] = {0};
+    size_t len = 0;
+    const char *m = luaL_checklstring(L, 2, &len);
+    if (len == 6)
+    {
+        memcpy(mac, m, 6);
+    }
+    else
+    {
+        LLOGE("mac len != 6,input len is %d",len);
+        lua_pushinteger(L, -1);
+        return 1;
+    }
+    esp_err_t err = esp_wifi_set_mac((wifi_interface_t)mode, (const uint8_t)mac);
+    lua_pushinteger(L, err);
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_wlan[] =
     {
@@ -1153,6 +1183,7 @@ static const rotable_Reg reg_wlan[] =
         {"setHostname", l_wlan_set_hostname, 0},
         {"smartconfig", l_wlan_smartconfig, 0},
         {"taskSmartconfig", l_wlan_task_smartconfig, 0},
+        {"setMac", l_wlan_set_mac, 0},
         // {"smartconfigStop", l_wlan_smartconfig_stop, 0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
