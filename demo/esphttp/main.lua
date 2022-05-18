@@ -18,7 +18,7 @@ sys.taskInit(
         log.info("wlan", "wlan_init:", wlan.init())
 
         wlan.setMode(wlan.STATION)
-        wlan.connect("switch_wlan", "1234567890")
+        wlan.connect("switch_wlan", "1234567890", true) -- 第三参数是自动重连
 
         -- 参数已配置完成，后台将自动开始连接wifi
 
