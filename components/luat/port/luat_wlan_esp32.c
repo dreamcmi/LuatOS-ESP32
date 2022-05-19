@@ -22,7 +22,6 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_smartconfig.h"
-#include <tcpip_adapter.h>
 
 static const char *TAG = "LWLAN";
 
@@ -1151,7 +1150,7 @@ static int l_wlan_set_mac(lua_State *L)
         lua_pushinteger(L, -1);
         return 1;
     }
-    esp_err_t err = esp_wifi_set_mac((wifi_interface_t)mode, (const uint8_t)mac);
+    esp_err_t err = esp_wifi_set_mac((wifi_interface_t)mode, (const uint8_t *)mac);
     lua_pushinteger(L, err);
     return 1;
 }
