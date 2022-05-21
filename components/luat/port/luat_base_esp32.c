@@ -41,6 +41,7 @@ LUAMOD_API int luaopen_twai(lua_State *L);
 LUAMOD_API int luaopen_sdmmc(lua_State *L);
 LUAMOD_API int luaopen_miniz(lua_State *L);
 LUAMOD_API int luaopen_espws(lua_State *L);
+LUAMOD_API int luaopen_espnimble(lua_State *L);
 
 static const luaL_Reg loadedlibs[] = {
     {"_G", luaopen_base},               // _G
@@ -160,6 +161,9 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_BLE
     {"ble", luaopen_ble}, // ble操作
+#endif
+#ifdef LUAT_USENIMBLE
+    {"nimble", luaopen_espnimble}, // ble操作
 #endif
 #ifdef LUAT_USE_ESPHTTP
     {"esphttp", luaopen_esphttp}, // esphttp
