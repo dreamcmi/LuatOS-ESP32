@@ -116,3 +116,7 @@ void luat_gpio_close(int pin)
         gpio_reset_pin(pin);
     }
 }
+
+void luat_gpio_pulse(int pin, uint16_t delay_ns, uint8_t *level, uint16_t len) {
+
+}
