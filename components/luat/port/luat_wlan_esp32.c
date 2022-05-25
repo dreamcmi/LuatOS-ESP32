@@ -595,6 +595,12 @@ static int l_wlan_scan_get_result(lua_State *L) {
             lua_pushlstring(L, (const char *)info.bssid, 6);
             lua_settable(L, -3);
 
+            // info.authmode = xxx
+            lua_pushliteral(L, "authmode");
+            printf("authmode:%d\n",info.authmode);
+            lua_pushinteger(L, (int)info.authmode);
+            lua_settable(L, -3);
+
             // re[i+1] = info
             lua_settable(L, -3);
         }
