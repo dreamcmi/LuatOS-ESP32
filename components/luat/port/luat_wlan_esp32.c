@@ -597,7 +597,6 @@ static int l_wlan_scan_get_result(lua_State *L) {
 
             // info.authmode = xxx
             lua_pushliteral(L, "authmode");
-            printf("authmode:%d\n",info.authmode);
             lua_pushinteger(L, (int)info.authmode);
             lua_settable(L, -3);
 
