@@ -36,8 +36,6 @@ idf_component_register(
                 ../../../LuatOS/components/lvgl/exts/lv_bmp
                 ../../../LuatOS/components/lvgl/exts/lv_png
                 ../../../LuatOS/components/lvgl/exts/lv_sjpg
-                ../../../LuatOS/components/lvgl/lv_demos
-                ../../../LuatOS/components/lvgl/lv_demos/src
                 ../../../LuatOS/components/lvgl/lv_demos/src/assets
                 ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_benchmark
                 ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_keypad_encoder
@@ -47,16 +45,13 @@ idf_component_register(
                 ../../../LuatOS/components/lvgl/lv_demos/src/lv_demo_widgets
                 ../../../LuatOS/components/lvgl/lv_demos/src/lv_ex_get_started
                 ../../../LuatOS/components/lvgl/lv_demos/src/lv_ex_style
-                ../../../LuatOS/components/lvgl/lv_demos/src/lv_ex_widgets
                 ../../../LuatOS/components/ymodem
                 ../../../LuatOS/components/cmux
                 ../../../LuatOS/components/shell
                 ../../../LuatOS/components/gtfont
                 ../../../LuatOS/components/tjpgd
                 ../../../LuatOS/components/qrcode
-                # ../../../LuatOS/components/network/adapter
-                # ../../../LuatOS/components/network/libtcpip
-                # ../../../LuatOS/components/network/libtcpip/protocol/mqtt
+                ../../../LuatOS/components/luatfonts
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
@@ -86,15 +81,13 @@ idf_component_register(
                 ../../../LuatOS/components/lvgl/exts/lv_png
                 ../../../LuatOS/components/lvgl/exts/lv_qrcode
                 ../../../LuatOS/components/lvgl/lv_demos
-                ../../../LuatOS/components/network/libtcpip
-                ../../../LuatOS/components/network/libtcpip/protocol/mqtt
-                # ../../../LuatOS/components/network/adapter
                 ../../../LuatOS/components/ymodem
                 ../../../LuatOS/components/cmux
                 ../../../LuatOS/components/shell
                 ../../../LuatOS/components/gtfont
                 ../../../LuatOS/components/tjpgd
                 ../../../LuatOS/components/qrcode
+                ../../../LuatOS/components/luatfonts
 
         REQUIRES 
                 lua 
