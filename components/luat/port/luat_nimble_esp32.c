@@ -309,26 +309,26 @@ static int luat_nimble_connect_event(lua_State *L, void *ptr)
     lua_geti(L, LUA_REGISTRYINDEX, luat_nimble_cb.adv_callback);
 
     lua_newtable(L);
-    lua_pushstring(L, "type");
+    lua_pushliteral(L, "type");
     lua_pushinteger(L, event->type); // t["type"]
     lua_settable(L, -3);
 
-    lua_pushstring(L, "connect");
+    lua_pushliteral(L, "connect");
     lua_newtable(L);             // t["connect"] = {}
-    lua_pushstring(L, "status"); // t["connect"]["status"]
+    lua_pushliteral(L, "status"); // t["connect"]["status"]
     lua_pushinteger(L, event->connect.status);
     lua_settable(L, -3);
-    lua_pushstring(L, "conn_handle"); // t["connect"]["conn_handle"]
+    lua_pushliteral(L, "conn_handle"); // t["connect"]["conn_handle"]
     lua_pushinteger(L, event->connect.conn_handle);
     lua_settable(L, -3);
     lua_settable(L, -3);
 
-    lua_pushstring(L, "disconnect");
+    lua_pushliteral(L, "disconnect");
     lua_newtable(L);             // t["disconnect"] = {}
-    lua_pushstring(L, "reason"); // t["disconnect"]["reason"]
+    lua_pushliteral(L, "reason"); // t["disconnect"]["reason"]
     lua_pushinteger(L, event->disconnect.reason);
     lua_settable(L, -3);
-    lua_pushstring(L, "conn_handle"); // t["disconnect"]["conn_handle"]
+    lua_pushliteral(L, "conn_handle"); // t["disconnect"]["conn_handle"]
     lua_pushinteger(L, event->disconnect.conn.conn_handle);
     lua_settable(L, -3);
     lua_settable(L, -3);
@@ -366,32 +366,32 @@ static int luat_nimble_scan_event(lua_State *L, void *ptr)
     lua_geti(L, LUA_REGISTRYINDEX, luat_nimble_cb.adv_callback);
 
     lua_newtable(L);
-    lua_pushstring(L, "type");
+    lua_pushliteral(L, "type");
     lua_pushinteger(L, event->type); // t["type"]
     lua_settable(L, -3);
 
-    lua_pushstring(L, "disc");
+    lua_pushliteral(L, "disc");
     lua_newtable(L);                 // t["disc"] = {}
-    lua_pushstring(L, "event_type"); // t["disc"]["event_type"]
+    lua_pushliteral(L, "event_type"); // t["disc"]["event_type"]
     lua_pushinteger(L, event->disc.event_type);
     lua_settable(L, -3);
-    lua_pushstring(L, "rssi"); // t["disc"]["rssi"]
+    lua_pushliteral(L, "rssi"); // t["disc"]["rssi"]
     lua_pushinteger(L, event->disc.rssi);
     lua_settable(L, -3);
-    lua_pushstring(L, "addr"); // t["disc"]["addr"]
+    lua_pushliteral(L, "addr"); // t["disc"]["addr"]
     lua_pushlstring(L, (const char *)event->disc.addr.val, 6);
     lua_settable(L, -3);
-    lua_pushstring(L, "addr_type"); // t["disc"]["addr_type"]
+    lua_pushliteral(L, "addr_type"); // t["disc"]["addr_type"]
     lua_pushinteger(L, event->disc.addr.type);
     lua_settable(L, -3);
-    lua_pushstring(L, "data"); // t["disc"]["data"]
+    lua_pushliteral(L, "data"); // t["disc"]["data"]
     lua_pushlstring(L, (const char *)event->disc.data, event->disc.length_data);
     lua_settable(L, -3);
     lua_settable(L, -3);
 
-    lua_pushstring(L, "disc_complete");
+    lua_pushliteral(L, "disc_complete");
     lua_newtable(L);             // t["disc_complete"] = {}
-    lua_pushstring(L, "reason"); // t["disc_complete"]["reason"]
+    lua_pushliteral(L, "reason"); // t["disc_complete"]["reason"]
     lua_pushinteger(L, event->disc_complete.reason);
     lua_settable(L, -3);
     lua_settable(L, -3);
@@ -430,33 +430,33 @@ static int luat_nimble_adv_event(lua_State *L, void *ptr)
     lua_geti(L, LUA_REGISTRYINDEX, luat_nimble_cb.adv_callback);
 
     lua_newtable(L);
-    lua_pushstring(L, "type");
+    lua_pushliteral(L, "type");
     lua_pushinteger(L, event->type); // t["type"]
     lua_settable(L, -3);
 
-    lua_pushstring(L, "connect");
+    lua_pushliteral(L, "connect");
     lua_newtable(L);             // t["connect"] = {}
-    lua_pushstring(L, "status"); // t["connect"]["status"]
+    lua_pushliteral(L, "status"); // t["connect"]["status"]
     lua_pushinteger(L, event->connect.status);
     lua_settable(L, -3);
-    lua_pushstring(L, "conn_handle"); // t["connect"]["conn_handle"]
+    lua_pushliteral(L, "conn_handle"); // t["connect"]["conn_handle"]
     lua_pushinteger(L, event->connect.conn_handle);
     lua_settable(L, -3);
     lua_settable(L, -3);
 
-    lua_pushstring(L, "disconnect");
+    lua_pushliteral(L, "disconnect");
     lua_newtable(L);             // t["disconnect"] = {}
-    lua_pushstring(L, "reason"); // t["disconnect"]["reason"]
+    lua_pushliteral(L, "reason"); // t["disconnect"]["reason"]
     lua_pushinteger(L, event->disconnect.reason);
     lua_settable(L, -3);
-    lua_pushstring(L, "conn_handle"); // t["disconnect"]["conn_handle"]
+    lua_pushliteral(L, "conn_handle"); // t["disconnect"]["conn_handle"]
     lua_pushinteger(L, event->disconnect.conn.conn_handle);
     lua_settable(L, -3);
     lua_settable(L, -3);
 
-    lua_pushstring(L, "adv_complete"); // t["adv_complete"] = {}
+    lua_pushliteral(L, "adv_complete"); // t["adv_complete"] = {}
     lua_newtable(L);
-    lua_pushstring(L, "reason"); // t["adv_complete"]["reason"]
+    lua_pushliteral(L, "reason"); // t["adv_complete"]["reason"]
     lua_pushinteger(L, event->adv_complete.reason);
     lua_settable(L, -3);
     lua_settable(L, -3);
@@ -661,7 +661,7 @@ static int l_nimble_gap_adv_set_fields(lua_State *L)
 {
     if (!lua_istable(L, 1))
     {
-        lua_pushliteral(L, "l_nimble_gap_adv_set_fields need table");
+        lua_pushstring(L, "l_nimble_gap_adv_set_fields need table");
         lua_error(L);
         return 0;
     }
@@ -707,7 +707,7 @@ static int l_nimble_gap_adv_rsp_set_fields(lua_State *L)
 {
     if (!lua_istable(L, 1))
     {
-        lua_pushliteral(L, "l_nimble_gap_adv_set_fields need table");
+        lua_pushstring(L, "l_nimble_gap_adv_set_fields need table");
         lua_error(L);
         return 0;
     }

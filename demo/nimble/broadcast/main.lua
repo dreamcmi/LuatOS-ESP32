@@ -4,31 +4,31 @@ VERSION = "1.0.0"
 sys = require "sys"
 
 function adv_callback(evt)
-    if evt["type"] == nimble.BLE_GAP_EVENT_DISCONNECT then
+    if evt.type == nimble.BLE_GAP_EVENT_DISCONNECT then
         log.info(
             "ble",
             "adv_callback",
             "BLE_GAP_EVENT_DISCONNECT",
-            evt["disconnect"]["reason"],
-            evt["disconnect"]["conn_handle"]
+            evt.disconnect.reason,
+            evt.disconnect.conn_handle
         )
         advertise()
-    elseif evt["type"] == nimble.BLE_GAP_EVENT_CONNECT then
+    elseif evt.type == nimble.BLE_GAP_EVENT_CONNECT then
         log.info(
             "ble",
             "adv_callback",
             "BLE_GAP_EVENT_CONNECT",
-            evt["connect"]["status"],
-            evt["connect"]["conn_handle"]
+            evt.connect.status,
+            evt.connect.conn_handle
         )
-    elseif evt["type"] == nimble.BLE_GAP_EVENT_ADV_COMPLETE then
-        log.info("ble", "adv_callback", "BLE_GAP_EVENT_ADV_COMPLETE", evt["adv_complete"]["reason"])
-    elseif evt["type"] == nimble.BLE_GAP_EVENT_CONN_UPDATE then
+    elseif evt.type == nimble.BLE_GAP_EVENT_ADV_COMPLETE then
+        log.info("ble", "adv_callback", "BLE_GAP_EVENT_ADV_COMPLETE", evt.adv_complete.reason)
+    elseif evt.type == nimble.BLE_GAP_EVENT_CONN_UPDATE then
         log.info("ble", "adv_callback", "BLE_GAP_EVENT_CONN_UPDATE")
-    elseif evt["type"] == nimble.BLE_GAP_EVENT_CONN_UPDATE_REQ then
+    elseif evt.type == nimble.BLE_GAP_EVENT_CONN_UPDATE_REQ then
         log.info("ble", "BLE_GAP_EVENT_CONN_UPDATE_REQ")
     else
-        log.error("ble", "adv_callback", "adv_callback", evt["type"])
+        log.error("ble", "adv_callback", "adv_callback", evt.type)
     end
 end
 
