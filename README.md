@@ -85,3 +85,6 @@ LuatOS开发QQ群：1061642968
 
 本项目遵循 Apache License 2.0 开源。
 
+## 6、Donators
+
+如果你喜欢`LuatOS For ESP32` , [要不给开发者来杯咖啡吧~](https://www.openthing.cn/donate/)
