@@ -32,7 +32,7 @@
 #define LUAT_USE_I2C  1
 #define LUAT_USE_SPI  1
 // #define LUAT_USE_TWAI 1
-// #define LUAT_USE_I2S 1
+#define LUAT_USE_I2S 1
 #define LUAT_USE_ADC  1
 #define LUAT_USE_PWM  1
 #define LUAT_USE_PWM2  1
