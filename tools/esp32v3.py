@@ -194,7 +194,7 @@ def pkgRom(chip):
             #     else:
             #         pass
             # f.close()
-            z = zipfile.ZipFile(firmware_name + ".soc", "w")
+            z = zipfile.ZipFile(firmware_name + ".soc", "w", compression=zipfile.ZIP_DEFLATED)
             if os.path.isdir("tmp"):
                 for d in os.listdir("tmp"):
                     z.write("tmp/" + d, arcname=d)
