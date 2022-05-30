@@ -151,38 +151,138 @@ espnow.addPeer(string.fromHex("0016EAAE3C40"),"lmk1234567890123")
 static int l_espnow_add_peer(lua_State *L)
 {
     size_t len = 0;
-    esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
-    if (peer == NULL)
-    {
-        ESP_LOGE(TAG, "Malloc peer information fail");
-        return 0;
-    }
-    memset(peer, 0, sizeof(esp_now_peer_info_t));
+    bool encry_sta = false;
+    esp_now_peer_info_t peer = {0};
     const char *peer_mac = luaL_checklstring(L, 1, &len);
-    // printf(MACSTR"\n",MAC2STR(peer_mac));
+    if (lua_isstring(L, 2))
+    {
+        encry_sta = true;
+    }
     if (memcmp(broadcast_mac, peer_mac, 6) != 0)
     {
         // 非广播流程
-        size_t len2 = 0;
-        const char *lmk_key = luaL_checklstring(L, 2, &len2);
-        memcpy(peer->peer_addr, peer_mac, ESP_NOW_ETH_ALEN);
-        peer->channel = 0;
-        peer->ifidx = ESP_IF_WIFI_STA;
-        peer->encrypt = true;
-        memcpy(peer->lmk, lmk_key, ESP_NOW_KEY_LEN);
+        memcpy(peer.peer_addr, peer_mac, ESP_NOW_ETH_ALEN);
+        // peer.channel = 0;
+        peer.ifidx = ESP_IF_WIFI_STA;
+        peer.encrypt = encry_sta;
+        if (encry_sta)
+        {
+            size_t len2 = 0;
+            const char *lmk_key = luaL_checklstring(L, 2, &len2);
+            memcpy(peer.lmk, lmk_key, ESP_NOW_KEY_LEN);
+        }
     }
     else
     {
         // 广播流程
-        memcpy(peer->peer_addr, peer_mac, ESP_NOW_ETH_ALEN);
-        peer->channel = 0;
-        peer->ifidx = ESP_IF_WIFI_STA;
-        peer->encrypt = false;
+        memcpy(peer.peer_addr, peer_mac, ESP_NOW_ETH_ALEN);
+        // peer.channel = 0;
+        peer.ifidx = ESP_IF_WIFI_STA;
+        peer.encrypt = false;
     }
-    esp_err_t err = esp_now_add_peer(peer);
-    free(peer);
+    esp_err_t err = esp_now_add_peer(&peer);
     lua_pushinteger(L, err);
     return 1;
+}
+
+/*
+删除espnow peer
+@api espnow.delPeer(mac)
+@string mac地址
+@return int esp_err
+@usage
+espnow.delPeer(string.fromHex("0016EAAE3C40"))
+*/
+static int l_espnow_del_peer(lua_State *L)
+{
+    size_t len = 0;
+    const char *peer_mac = luaL_checklstring(L, 1, &len);
+    if (len != 6)
+    {
+        LLOGE("peer_mac len %d is not correct!", len);
+        lua_pushinteger(L, ESP_ERR_INVALID_ARG);
+        return 1;
+    }
+    else
+    {
+        lua_pushinteger(L, esp_now_del_peer((const uint8_t *)peer_mac));
+        return 1;
+    }
+}
+
+/*
+获取espnow peer config
+@api espnow.getPeer(mac)
+@string mac地址
+@return table {lmk="",encrypt=""}
+@usage
+espnow.getPeer(string.fromHex("0016EAAE3C40"))
+*/
+static int l_espnow_get_peer(lua_State *L)
+{
+    esp_now_peer_info_t info = {0};
+    size_t len = 0;
+    const char *peer_mac = luaL_checklstring(L, 1, &len);
+    if (len != 6)
+    {
+        LLOGE("peer_mac len %d is not correct!", len);
+        lua_pushinteger(L, ESP_ERR_INVALID_ARG);
+        return 1;
+    }
+    else
+    {
+        esp_now_get_peer((const uint8_t *)peer_mac, &info);
+        lua_newtable(L);
+        lua_pushliteral(L, "lmk");
+        lua_pushlstring(L, (const char *)info.lmk, ESP_NOW_KEY_LEN);
+        lua_settable(L, -3);
+        lua_pushliteral(L, "encrypt");
+        lua_pushboolean(L, info.encrypt);
+        lua_settable(L, -3);
+        return 1;
+    }
+}
+
+/*
+获取espnow peer状态
+@api espnow.isPeerExist(mac)
+@string mac地址
+@return boolean  存在为true,否则为flase
+@usage
+espnow.isPeerExist(string.fromHex("0016EAAE3C40"))
+*/
+static int l_espnow_is_peer_exist(lua_State *L)
+{
+    size_t len = 0;
+    const char *peer_mac = luaL_checklstring(L, 1, &len);
+    if (len != 6)
+    {
+        LLOGE("peer_mac len %d is not correct!", len);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    else
+    {
+        lua_pushboolean(L, esp_now_is_peer_exist((const uint8_t *)peer_mac));
+        return 1;
+    }
+}
+
+/*
+espnow peer数量查询
+@api espnow.getPeerNum()
+@return int peer总数
+@return int 加密peer总数
+@usage
+total,encrypt = espnow.getPeerNum()
+*/
+static int l_espnow_get_peer_num(lua_State *L)
+{
+    esp_now_peer_num_t num = {0};
+    esp_now_get_peer_num(&num);
+    lua_pushinteger(L, num.total_num);
+    lua_pushinteger(L, num.encrypt_num);
+    return 2;
 }
 
 /*
@@ -228,6 +328,10 @@ static const rotable_Reg reg_espnow[] =
         {"init", l_espnow_init, 0},
         {"setPmk", l_espnow_set_pmk, 0},
         {"addPeer", l_espnow_add_peer, 0},
+        {"getPeer", l_espnow_get_peer, 0},
+        {"delPeer", l_espnow_del_peer, 0},
+        {"isPeerExist", l_espnow_is_peer_exist, 0},
+        {"getPeerNum", l_espnow_get_peer_num, 0},
         {"send", l_espnow_send, 0},
         {"deinit", l_espnow_deinit, 0},
         {NULL, NULL, 0}};
