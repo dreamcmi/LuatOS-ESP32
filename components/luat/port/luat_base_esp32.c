@@ -36,7 +36,6 @@ LUAMOD_API int luaopen_ble(lua_State *L);
 LUAMOD_API int luaopen_ntp(lua_State *L);
 LUAMOD_API int luaopen_esphttp(lua_State *L);
 LUAMOD_API int luaopen_espmqtt(lua_State *L);
-LUAMOD_API int luaopen_i2s(lua_State *L);
 LUAMOD_API int luaopen_twai(lua_State *L);
 LUAMOD_API int luaopen_sdmmc(lua_State *L);
 LUAMOD_API int luaopen_miniz(lua_State *L);
@@ -90,9 +89,6 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_ADC
     {"adc", luaopen_adc}, // ADC模块
 #endif
-#ifdef LUAT_USE_SDIO
-    {"sdio", luaopen_sdio}, // SDIO模块
-#endif
 #ifdef LUAT_USE_PWM
     {"pwm", luaopen_pwm}, // PWM模块
 #endif
@@ -104,9 +100,6 @@ static const luaL_Reg loadedlibs[] = {
 #endif
 #ifdef LUAT_USE_MCU
     {"mcu", luaopen_mcu}, // MCU特有的一些操作
-#endif
-#ifdef LUAT_USE_HWTIMER
-    {"hwtimer", luaopen_hwtimer}, // 硬件定时器
 #endif
 #ifdef LUAT_USE_RTC
     {"rtc", luaopen_rtc}, // 实时时钟
