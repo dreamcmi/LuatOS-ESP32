@@ -259,3 +259,30 @@ Update:
 1. ESP-IDF版本升级v4.4.1
 
 其余更新请参考主库进度
+
+## 2022.05.31
+
+### ESP32 V0003
+
+Fix:
+
+1. ide的一堆莫名调试问题
+2. uid获取方式
+3. meminfo显示问题
+
+Add:
+
+1. wlan.setMac
+2. crypto支持ZERO对齐模式
+3. espnow增加客户端管理接口
+
+Update:
+
+1. esp32v3.py 支持mac平台
+2. esp32v3.py 支持固件压缩
+3. i2s库统一到官方
+
+Feature：
+
+即将支持全新版BLE库.
+
