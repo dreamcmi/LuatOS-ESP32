@@ -6,7 +6,7 @@
 
 #ifndef LUAT_CONF_BSP
 #define LUAT_CONF_BSP
-#define LUAT_BSP_VERSION "V0003"
+#define LUAT_BSP_VERSION "V0004-BETA"
 
 // ESP32系列开发中标识
 // #define ESP_BETA_VERSION 1
@@ -16,7 +16,7 @@
   "/%s.luac", "/%s.lua",\
   "",
 
-// #define LUAT_MAIN_DEMO 1
+#define LUAT_MAIN_DEMO 1
 
 //----------------------------------
 // 使用Luat VFS(虚拟文件系统)和内置库文件, 与esp32的vfs不冲突
