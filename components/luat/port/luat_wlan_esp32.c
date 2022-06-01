@@ -577,7 +577,8 @@ static int l_wlan_scan_get_result(lua_State *L) {
 
             // info.ssid = xxx
             lua_pushliteral(L, "ssid");
-            lua_pushlstring(L, (const char *)info.ssid, 33);
+            info.ssid[32] = 0;
+            lua_pushstring(L, (const char *)info.ssid);
             lua_settable(L, -3);
 
             // info.rssi = xxx
