@@ -94,19 +94,20 @@
 // 单色屏, 支持i2c/spi
 #define LUAT_USE_DISP
 #define LUAT_USE_U8G2
-#define U8G2_USE_SH1106
-#define U8G2_USE_ST7567
 
 /**************FONT*****************/
 /**********U8G2&LCD FONT*************/
-// #define USE_U8G2_UNIFONT_SYMBOLS
-// #define USE_U8G2_OPPOSANSM12_CHINESE
+#define USE_U8G2_OPPOSANSM_ENGLISH 1
+// #define USE_U8G2_OPPOSANSM8_CHINESE
+// #define USE_U8G2_OPPOSANSM10_CHINESE
+#define USE_U8G2_OPPOSANSM12_CHINESE
 // #define USE_U8G2_OPPOSANSM16_CHINESE
 // #define USE_U8G2_OPPOSANSM24_CHINESE
-// #define USE_U8G2_OPPOSANSM32_CHINESE
 /**********LVGL FONT*************/
 // #define LV_FONT_OPPOSANS_M_8
 // #define LV_FONT_OPPOSANS_M_10
+// #define LV_FONT_OPPOSANS_M_12
+// #define LV_FONT_OPPOSANS_M_16
 
 
 // ---------------------
