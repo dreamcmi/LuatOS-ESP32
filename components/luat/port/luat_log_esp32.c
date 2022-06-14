@@ -10,11 +10,14 @@
 #include "printf.h"
 #include "luat_cmux.h"
 #include "luat_conf_bsp.h"
+#include "luat_shell.h"
 
 extern luat_cmux_t cmux_ctx;
 
 static uint8_t luat_log_uart_port = 0;
 static uint8_t luat_log_level_cur = LUAT_LOG_DEBUG;
+
+void luat_shell_write(char *buff, size_t len);
 
 #define LOGLOG_SIZE 1024
 static char log_printf_buff[LOGLOG_SIZE]  = {0};
@@ -30,7 +33,8 @@ void luat_nprint(char *s, size_t l) {
     }else
 #endif
     // luat_uart_write(luat_log_uart_port, s, l);
-    printf("%.*s", l, s);
+    //printf("%.*s", l, s);
+    luat_shell_write(s, l);
 }
 
 void luat_log_write(char *s, size_t l) {
@@ -40,7 +44,8 @@ void luat_log_write(char *s, size_t l) {
     }else
 #endif
     //luat_uart_write(luat_log_uart_port, s, l);
-    printf("%.*s", l, s);
+    //printf("%.*s", l, s);
+    luat_shell_write(s, l);
 }
 
 void luat_log_set_level(int level) {
@@ -103,3 +108,11 @@ void luat_log_printf(int level, const char* _fmt, ...) {
         luat_log_write(log_printf_buff, len);
     }
 }
+
+
+void luat_shell_write(char *buff, size_t len)
+{
+    //art_write_bytes(0, (const char *)buff, len);
+    printf("%.*s", len, buff);
+}
+

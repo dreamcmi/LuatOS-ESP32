@@ -84,6 +84,8 @@ static void gpio_irq_task(void *arg)
 }
 
 xQueueHandle uart0_evt_queue = NULL;
+#define UART0_BUFFER_SIZE 1024
+static char uart0_buffer[UART0_BUFFER_SIZE] = {0};
 static void uart0_irq_task(void *arg)
 {
     uart_event_t event = {0};
@@ -91,7 +93,6 @@ static void uart0_irq_task(void *arg)
     rtos_msg_t msg = {0};
 #endif
 #ifdef LUAT_USE_SHELL
-    char buffer[1024] = {0};
     int len = 0;
 #endif
     while (true)
@@ -101,13 +102,15 @@ static void uart0_irq_task(void *arg)
             if (event.timeout_flag || event.size > (1024 * 2 - 200))
             {
 #ifdef LUAT_USE_SHELL
-                memset(buffer, 0, 1024);
-                len = uart_read_bytes(0, buffer, 1024, 10 / portTICK_RATE_MS);
+                //memset(uart0_buffer, 0, UART0_BUFFER_SIZE);
+                len = uart_read_bytes(0, uart0_buffer, UART0_BUFFER_SIZE - 1, 10 / portTICK_RATE_MS);
+                if (len < 1)
+                    continue;
                 // for (size_t i = 0; i < len; i++){
                 //     LLOGD("buffer[%d]:0x%02X",i,buffer[i]);
                 // }
-                buffer[len] = 0x00; // 确保结尾
-                luat_shell_push(buffer, len);
+                uart0_buffer[len] = 0x00; // 确保结尾
+                luat_shell_push(uart0_buffer, len);
 #else
                 msg.handler = l_uart_handler;
                 msg.ptr = NULL;
@@ -123,6 +126,11 @@ static void uart0_irq_task(void *arg)
 }
 
 TaskHandle_t luatosHandle = NULL;
+void luat_shell_poweron(void) ;
+
+void run_luat_main(void* args) {
+    luat_main();
+}
 
 void app_main(void)
 {
@@ -131,7 +139,7 @@ void app_main(void)
     // uart0是log口,早开一下中断会不会更好呢？？
     uart_driver_install(0, 1024 * 2, 1024 * 2, 20, &uart0_evt_queue, 0);
     uart_pattern_queue_reset(0, 20);
-    xTaskCreate(uart0_irq_task, "uart0_irq_task", 4096, NULL, 10, NULL);
+    xTaskCreate(uart0_irq_task, "uart0_irq_task", 2048, NULL, 10, NULL);
 
     uint8_t *mac = malloc(10);
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
@@ -186,7 +194,27 @@ void app_main(void)
     os_timer = xTimerCreate("lvgl", 10 / portTICK_RATE_MS, true, NULL, luat_lvgl_callback);
     xTimerStart(os_timer, 0);
 #endif
-
-    xTaskCreate(luat_main, "luat_main", 16384, NULL, 2, &luatosHandle);
+#ifdef CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
+    luat_shell_poweron();
+#endif
+    xTaskCreate(run_luat_main, "luat_main", 12*1024, NULL, 2, &luatosHandle);
     // luat_main();
 }
+
+#ifdef CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
+int usb_serial_jtag_read_bytes(void* buf, uint32_t length, TickType_t ticks_to_wait);
+static char* shell_tmp_buff[1024];
+void luat_shell_thread_entry(void* args) {
+    int ret = 0;
+    while (1) {
+        ret = usb_serial_jtag_read_bytes(shell_tmp_buff, 512, 1000);
+        if (ret > 0) {
+            luat_shell_push(shell_tmp_buff, ret);
+        }
+    }
+}
+
+void luat_shell_poweron(void) {
+    xTaskCreate(luat_shell_thread_entry, "luat_shell", 1024, NULL, 2, NULL);
+}
+#endif

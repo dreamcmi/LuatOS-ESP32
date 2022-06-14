@@ -172,11 +172,6 @@ int luat_uart_write(int uartid, void *data, size_t length)
         return -1;
 }
 
-void luat_shell_write(char *buff, size_t len)
-{
-    uart_write_bytes(0, (const char *)buff, len);
-}
-
 int luat_uart_read(int uartid, void *buffer, size_t length)
 {
     if (luat_uart_exist(uartid))
