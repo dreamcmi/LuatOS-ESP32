@@ -54,3 +54,7 @@ LUAT_WEAK int luat_spi_device_send(luat_spi_device_t* spi_dev, const char* send_
     return ret;
 }
 
+int luat_spi_device_config(luat_spi_device_t* spi_dev){
+    return 0;
+}
+
