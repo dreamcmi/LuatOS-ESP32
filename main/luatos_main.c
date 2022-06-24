@@ -73,11 +73,12 @@ static void gpio_irq_task(void *arg)
         {
             // printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num));
             pin_level = gpio_get_level(io_num);
-            msg.handler = l_gpio_handler;
-            msg.ptr = NULL;
-            msg.arg1 = io_num;
-            msg.arg2 = pin_level;
-            luat_msgbus_put(&msg, 0);
+            // msg.handler = l_gpio_handler;
+            // msg.ptr = NULL;
+            // msg.arg1 = io_num;
+            // msg.arg2 = pin_level;
+            // luat_msgbus_put(&msg, 0);
+            luat_gpio_irq_default(io_num, pin_level);
         }
     }
     vTaskDelete(NULL);
@@ -215,6 +216,6 @@ void luat_shell_thread_entry(void* args) {
 }
 
 void luat_shell_poweron(void) {
-    xTaskCreate(luat_shell_thread_entry, "luat_shell", 1024, NULL, 2, NULL);
+    // xTaskCreate(luat_shell_thread_entry, "luat_shell", 1024, NULL, 2, NULL);
 }
 #endif
