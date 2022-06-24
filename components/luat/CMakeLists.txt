@@ -52,6 +52,7 @@ idf_component_register(
                 ../../../LuatOS/components/tjpgd
                 ../../../LuatOS/components/qrcode
                 ../../../LuatOS/components/luatfonts
+                ../../../LuatOS/components/common
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
@@ -88,6 +89,7 @@ idf_component_register(
                 ../../../LuatOS/components/tjpgd
                 ../../../LuatOS/components/qrcode
                 ../../../LuatOS/components/luatfonts
+                ../../../LuatOS/components/common
 
         REQUIRES 
                 lua 
