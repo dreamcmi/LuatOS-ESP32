@@ -42,12 +42,13 @@ typedef struct esphttpc
     char* body;
     long cwait_topic_id;
     esp_http_client_handle_t client;
-    uint
+    int lua_ref_id;
 }esphttpc_t;
 
 static int l_esphttp_event_cb(lua_State *L, void* ptr) {
     rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
     esphttpc_t* httpc = (esphttpc_t*)msg->ptr;
+    //LLOGD("esphttp event %d", msg->arg1);
     if (httpc && httpc->cwait_topic_id) {
         long cwait_id = httpc->cwait_topic_id;
         httpc->cwait_topic_id = 0;
@@ -63,10 +64,18 @@ static int l_esphttp_event_cb(lua_State *L, void* ptr) {
         luat_cbcwait(L, httpc->cwait_topic_id, 2);
         return 0; 
     }
+    //LLOGD("call sys_pub");
     lua_getglobal(L, "sys_pub");
     if (lua_isfunction(L, -1)) {
         lua_pushstring(L, "ESPHTTP_EVT");
-        lua_pushlightuserdata(L, ptr);
+        if (httpc->lua_ref_id == 0) { // 已经释放了? 不可能吧
+            return 0;
+        }
+        lua_geti(L, LUA_REGISTRYINDEX, httpc->lua_ref_id);
+        if (msg->arg1 == HTTP_EVENT_ON_FINISH) { // 请求已经完成, 释放httpc的引用
+            luaL_unref(L, LUA_REGISTRYINDEX, httpc->lua_ref_id);
+            httpc->lua_ref_id = 0;
+        }
         lua_pushinteger(L, msg->arg1);
         if (msg->arg1 == HTTP_EVENT_ON_DATA) {
             resp_data_t* re = (resp_data_t*)msg->arg2;
@@ -150,23 +159,25 @@ static int l_esphttp_init(lua_State *L) {
         LLOGW("init with method and url!!!");
         return 0;
     }
-    // esphttpc_t* httpc = lua_newuserdata(L, sizeof(esphttpc_t));
-    // if (httpc == NULL) {
-    //     LLOGW("out of memory when malloc httpc");
-    //     return 0;
-    // }
-    // memset(httpc, 0, sizeof(esphttpc_t));
+    esphttpc_t* httpc = lua_newuserdata(L, sizeof(esphttpc_t));
+    if (httpc == NULL) {
+        LLOGW("out of memory when malloc httpc");
+        return 0;
+    }
+    memset(httpc, 0, sizeof(esphttpc_t));
 
-    // conf.method = luaL_checkinteger(L, 1);
-    // conf.url = luaL_checkstring(L, 2);
-    // conf.event_handler = l_esphttp_event_handler;
-    // conf.keep_alive_enable = false;
-    // conf.user_data = (void*)httpc;
-    // esp_http_client_handle_t client = esp_http_client_init(&conf);
-    // if (client != NULL) {
-    //     httpc->client = client;
-    //     return 1;
-    // }
+    conf.method = luaL_checkinteger(L, 1);
+    conf.url = luaL_checkstring(L, 2);
+    conf.event_handler = l_esphttp_event_handler;
+    conf.keep_alive_enable = false;
+    conf.user_data = (void*)httpc;
+    esp_http_client_handle_t client = esp_http_client_init(&conf);
+    if (client != NULL) {
+        lua_pushvalue(L, -1);
+        httpc->lua_ref_id = luaL_ref(L, LUA_REGISTRYINDEX);
+        httpc->client = client;
+        return 1;
+    }
     return 0;
 }
 
@@ -179,7 +190,7 @@ static int l_esphttp_init(lua_State *L) {
 @return int 底层返回值,调试用
 */
 static int l_esphttp_set_post_field(lua_State *L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
@@ -223,7 +234,7 @@ static void esphttp_client_perform_t(void* ptr) {
 @return int 底层返回值,调试用
 */
 static int l_esphttp_perform(lua_State *L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
@@ -255,7 +266,7 @@ static int l_esphttp_perform(lua_State *L) {
 @return int 底层返回值,调试用
 */
 static int l_esphttp_cleanup(lua_State *L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
@@ -280,7 +291,7 @@ static int l_esphttp_cleanup(lua_State *L) {
 @return int 例如200/404
 */
 static int l_esphttp_get_status_code(lua_State *L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         lua_pushinteger(L, 0);
         return 1;
@@ -305,7 +316,7 @@ static int l_esphttp_get_status_code(lua_State *L) {
 @return int 例如123
 */
 static int l_esphttp_get_content_length(lua_State *L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         lua_pushinteger(L, 0);
         return 1;
@@ -330,7 +341,7 @@ static int l_esphttp_get_content_length(lua_State *L) {
 @return string 响应的全部或者片段, 若读取完成,就返回空字符串
 */
 static int l_esp_http_client_read_response(lua_State *L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
@@ -362,7 +373,7 @@ static int l_esp_http_client_read_response(lua_State *L) {
 @return int 底层返回的状态码,调试用
 */
 static int l_esp_http_client_set_header(lua_State* L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         lua_pushboolean(L, 0);
         return 1;
@@ -392,7 +403,7 @@ static int l_esp_http_client_set_header(lua_State* L) {
 @return string 成功返回字符串,否则返回nil
 */
 static int l_esp_http_client_get_header(lua_State* L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         return 0;
     }
@@ -415,7 +426,7 @@ static int l_esp_http_client_get_header(lua_State* L) {
 }
 
 static int l_esphttp_is_done(lua_State* L) {
-    if (!lua_islightuserdata(L, 1)) {
+    if (!lua_isuserdata(L, 1)) {
         LLOGW("check your client , which is init by esphttp.init");
         lua_pushboolean(L, 0);
         return 1;
