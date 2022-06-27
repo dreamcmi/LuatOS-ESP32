@@ -4,13 +4,13 @@ idf_component_register(
                 port
                 ../../../LuatOS/luat/modules 
                 ../../../LuatOS/luat/vfs
-                ../../../LuatOS/luat/packages/lua-cjson
-                ../../../LuatOS/luat/packages/eink
-                ../../../LuatOS/luat/packages/epaper
-                ../../../LuatOS/luat/packages/u8g2
-                ../../../LuatOS/luat/packages/fatfs
-                ../../../LuatOS/luat/packages/lfs
-                ../../../LuatOS/luat/packages/minmea 
+                ../../../LuatOS/components/lua-cjson
+                ../../../LuatOS/components/eink
+                ../../../LuatOS/components/epaper
+                ../../../LuatOS/components/u8g2
+                ../../../LuatOS/components/fatfs
+                ../../../LuatOS/components/lfs
+                ../../../LuatOS/components/minmea 
                 ../../../LuatOS/components/cjson
                 ../../../LuatOS/components/coremark
                 ../../../LuatOS/components/sfud
@@ -57,13 +57,13 @@ idf_component_register(
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
                 ../../../LuatOS/luat/include 
-                ../../../LuatOS/luat/packages/lua-cjson
-                ../../../LuatOS/luat/packages/eink
-                ../../../LuatOS/luat/packages/epaper
-                ../../../LuatOS/luat/packages/u8g2
-                ../../../LuatOS/luat/packages/fatfs
-                ../../../LuatOS/luat/packages/lfs
-                ../../../LuatOS/luat/packages/minmea
+                ../../../LuatOS/components/lua-cjson
+                ../../../LuatOS/components/eink
+                ../../../LuatOS/components/epaper
+                ../../../LuatOS/components/u8g2
+                ../../../LuatOS/components/fatfs
+                ../../../LuatOS/components/lfs
+                ../../../LuatOS/components/minmea
                 ../../../LuatOS/components/cjson
                 ../../../LuatOS/components/coremark
                 ../../../LuatOS/components/sfud
