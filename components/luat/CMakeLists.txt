@@ -53,6 +53,8 @@ idf_component_register(
                 ../../../LuatOS/components/qrcode
                 ../../../LuatOS/components/luatfonts
                 ../../../LuatOS/components/common
+                ../../../LuatOS/components/lora
+                ../../../LuatOS/components/lora/sx126x
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
@@ -90,6 +92,7 @@ idf_component_register(
                 ../../../LuatOS/components/qrcode
                 ../../../LuatOS/components/luatfonts
                 ../../../LuatOS/components/common
+                ../../../LuatOS/components/lora
 
         REQUIRES 
                 lua 

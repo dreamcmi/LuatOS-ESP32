@@ -169,6 +169,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_MINIZ
     {"miniz", luaopen_miniz},
 #endif
+#ifdef LUAT_USE_LORA
+  {"lora", luaopen_lora},
+#endif
 //-----------------------------------------------------------------------
 // 显示库
 #ifdef LUAT_USE_LVGL
