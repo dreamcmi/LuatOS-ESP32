@@ -8,8 +8,11 @@
 #include "luat_gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "soc/gpio_reg.h"
 
 #include "driver/gpio.h"
+
+#define GPIO_OUT_DATA	(*(volatile unsigned int*)(GPIO_OUT_REG))
 
 static uint8_t uart_isr_sta = 0;
 
@@ -117,6 +120,16 @@ void luat_gpio_close(int pin)
     }
 }
 
-void luat_gpio_pulse(int pin, uint8_t *level, uint16_t len, uint16_t delay_ns) {
-
+void IRAM_ATTR luat_gpio_pulse(int pin, uint8_t *level, uint16_t len, uint16_t delay_ns) {
+    volatile uint32_t del=delay_ns;
+    vPortEnterCritical();
+    for(int i=0; i<len; i++){
+        if(level[i/8]&(0x80>>(i%8)))
+            GPIO_OUT_DATA |= (0x00000001<<pin);
+        else 
+            GPIO_OUT_DATA &= ~(0x00000001<<pin);
+        del = delay_ns;
+        while(del--);
+    }
+    vPortExitCritical();
 }
