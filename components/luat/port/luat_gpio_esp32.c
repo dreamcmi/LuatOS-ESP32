@@ -121,6 +121,7 @@ void luat_gpio_close(int pin)
 }
 
 void IRAM_ATTR luat_gpio_pulse(int pin, uint8_t *level, uint16_t len, uint16_t delay_ns) {
+#if CONFIG_IDF_TARGET_ESP32C3
     volatile uint32_t del=delay_ns;
     vPortEnterCritical();
     for(int i=0; i<len; i++){
@@ -132,4 +133,5 @@ void IRAM_ATTR luat_gpio_pulse(int pin, uint8_t *level, uint16_t len, uint16_t d
         while(del--);
     }
     vPortExitCritical();
+#endif
 }
