@@ -315,8 +315,8 @@ static int l_espmqtt_publish(lua_State* L) {
     const char* data = luaL_checklstring(L, 3, &data_len);
     int qos = luaL_optinteger(L, 4, 0);
     int retain = luaL_optinteger(L, 5, 0);
-    int ret = esp_mqtt_client_publish(client, topic, data, data_len, qos, retain);
-    lua_pushboolean(L, ret == ESP_OK ? 1 : 0);
+    int msgid = esp_mqtt_client_publish(client, topic, data, data_len, qos, retain);
+    lua_pushboolean(L, msgid != -1 ? 1 : 0);
     lua_pushinteger(L, ret);
     return 2;
 }
