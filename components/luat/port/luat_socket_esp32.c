@@ -11,6 +11,8 @@
 @date    2022.2.15
 */
 #include "luat_base.h"
+#include "luat_msgbus.h"
+#include "luat_malloc.h"
 #include "stdio.h"
 #include <string.h>
 #include <sys/param.h>
@@ -23,7 +25,11 @@
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
 
-// static const char *TAG = "lsocket";
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#define LUAT_LOG_TAG "socket"
+#include "luat_log.h"
 
 /*
 创建socket
@@ -41,16 +47,45 @@ static int l_socket_create(lua_State *L)
     return 1;
 }
 
+typedef struct luat_socket_connect
+{
+    long cwait_id;
+    int socket_id;
+    struct sockaddr_in dst;
+}luat_socket_connect_t;
+
+static int l_socket_connect_cb(lua_State *L, void* ptr) {
+    rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
+    luat_socket_connect_t * tmp = (luat_socket_connect_t *)ptr;
+    lua_pushinteger(L, msg->arg1);
+    luat_cbcwait(L, tmp->cwait_id, 1);
+    return 0;
+}
+
+static void t_socket_connect(void* ptr) {
+    luat_socket_connect_t * tmp = (luat_socket_connect_t *)ptr;
+    int err = connect(tmp->socket_id, &tmp->dst, sizeof(struct sockaddr_in6));
+    fcntl(tmp->socket_id, F_SETFL, O_NONBLOCK);
+    
+    rtos_msg_t msg = {0};
+    msg.handler = l_socket_connect_cb;
+    msg.ptr = ptr;
+    msg.arg1 = err;
+    luat_msgbus_put(&msg, 0);
+}
+
 /*
 连接socket
-@api socket.connect(sock_handle,ip,port)
-@int sock_handle
-@string ip
-@int port
-@return int err
+@api socket.connect(sock_handle,ip,port, async)
+@int socket 句柄
+@string     服务器ip
+@int        服务器端口
+@boolean    是否异步
+@return int err 是否成功
 @usage
-err = socket.connect(sock, "112.125.89.8", 33863)
-log.info("socket","connect",err)
+local cwait = socket.connect(sock, "112.125.89.8", 33863, true)
+local ret = cwait:wait()
+log.info("socket","connect", err)
 */
 static int l_socket_connect(lua_State *L)
 {
@@ -59,14 +94,25 @@ static int l_socket_connect(lua_State *L)
     int sock = luaL_checkinteger(L, 1);
     const char *host_ip = luaL_checklstring(L, 2, &len);
     int host_port = luaL_checkinteger(L, 3);
+    int async = lua_toboolean(L, 4);
 
     dest_addr.sin_addr.s_addr = inet_addr(host_ip);
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_port = htons(host_port);
 
-    int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
-    fcntl(sock, F_SETFL, O_NONBLOCK);
-    lua_pushinteger(L, err);
+    if (async) {
+        luat_socket_connect_t * tmp = luat_heap_malloc(sizeof(luat_socket_connect_t));
+        memcpy(&tmp->dst, &dest_addr, sizeof(struct sockaddr_in));
+        tmp->cwait_id = luat_pushcwait(L);
+        int ret = xTaskCreate(t_socket_connect, "scon", 4096, (void *)tmp, 3, NULL);
+        LLOGD("socket connect cwait start ret %d", ret);
+        return 1;
+    }
+    else {
+        int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
+        fcntl(sock, F_SETFL, O_NONBLOCK);
+        lua_pushinteger(L, err);
+    }
     return 1;
 }
 
