@@ -50,7 +50,6 @@
 #define LUAT_USE_MCU  1
 #define LUAT_USE_RTC 1
 // #define LUAT_USE_ESPSSL 1
-#define LUAT_USE_TJPGD
 
 //----------------------------
 // 常用工具库, 按需启用, cjson和pack是强烈推荐启用的
@@ -87,6 +86,7 @@
 // UI
 // LCD  是彩屏, 若使用LVGL就必须启用LCD
 #define LUAT_USE_LCD
+#define LUAT_USE_TJPGD
 // EINK 是墨水屏
 #define LUAT_USE_EINK
 
@@ -97,6 +97,7 @@
 #define LUAT_USE_U8G2
 
 /**************FONT*****************/
+#define LUAT_USE_FONTS
 /**********U8G2&LCD FONT*************/
 #define USE_U8G2_OPPOSANSM_ENGLISH 1
 // #define USE_U8G2_OPPOSANSM8_CHINESE
@@ -120,8 +121,14 @@
 
 #define LV_MEM_CUSTOM 1
 
-// #define LUAT_USE_LVGL_INDEV 1 // 输入设备
-// #define LV_USE_LOG 0
+#ifdef LUAT_USE_LVGL
+#ifdef LUAT_USE_TJPGD
+#undef LUAT_USE_TJPGD
+#endif
+#endif
+
+#define LUAT_USE_LVGL_INDEV 1 // 输入设备
+// #define LV_USE_LOG 1
 
 #define LUAT_USE_LVGL_ARC   //圆弧 无依赖
 #define LUAT_USE_LVGL_BAR   //进度条 无依赖
