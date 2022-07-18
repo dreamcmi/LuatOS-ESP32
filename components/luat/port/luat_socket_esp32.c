@@ -31,6 +31,10 @@
 #define LUAT_LOG_TAG "socket"
 #include "luat_log.h"
 
+#define META_SOCKET "SOCKET*"
+
+#define to_socket(L)	((int*)luaL_checkudata(L, 1, META_SOCKET))
+
 /*
 创建socket
 @api socket.create(sockType)
@@ -256,18 +260,80 @@ static int l_socket_listen(lua_State *L)
     return 1;
 }
 
+//----------------------------------------------------
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "luat_malloc.h"
+#include "luat_msgbus.h"
+
+
+static int l_socket_accept_cb(lua_State *L, void* ptr) {
+    rtos_msg_t* msg = (rtos_msg_t*)lua_topointer(L, -1);
+    lua_getglobal(L, "sys_pub");
+    if (lua_isnil(L, -1)) {
+        return 0;
+    }
+    lua_pushstring(L, "S_ACCEPT");
+    int* tmp = lua_newuserdata(L, sizeof(int));
+    *tmp = msg->arg1;
+    luaL_setmetatable(L, META_SOCKET);
+    lua_pushinteger(L, msg->arg2);
+    lua_call(L, 3, 0);
+    return 0;
+}
+
+
+static void socket_accept_entry(void* params) {
+    int sock = (int)params;
+    rtos_msg_t msg = {0};
+    int csock = 0;
+    struct sockaddr_storage source_addr = {0};
+    socklen_t addr_len = sizeof(source_addr);
+
+    msg.handler = l_socket_accept_cb;
+
+    while (1) {
+        LLOGI("socket wait accept %d", sock);
+        int csock = accept(sock, (struct sockaddr *)&source_addr, &addr_len);
+        LLOGI("socket accept %d", csock);
+        msg.arg1 = csock;
+        msg.arg2 = sock;
+        luat_msgbus_put(&msg, 1);
+        if (csock <= 1) {
+            break;
+        }
+    }
+    LLOGI("end of accept %d", csock);
+    vTaskDelete(NULL);
+}
+
 /*
-socket通过
-@api socket.accept(sock)
-@int sock_handle
-@return sock_hanle 连接设备对应的handle
+socket监听
+@api socket.accept(sock, tp)
+@int socket套接字
+@int 监听类型, 0 同步阻塞(不推荐), 1 异步监听(topic模式), 当前模式0.
+@return sock_hanle 同步模式返回socket id, 异步模式返回启动线程的结果true或者nil
 @usage
 local c = socket.accept(sock)
 */
 static int l_socket_accept(lua_State *L)
 {
     int sock = luaL_checkinteger(L, 1);
-    struct sockaddr_storage source_addr;
+    if (lua_isinteger(L, 2)) {
+        LLOGD("start async socket accept for %d", socket);
+        int ret = xTaskCreate(socket_accept_entry, "saccept", 4096, (void*)sock, 10, NULL);
+        if (ret == pdPASS) {
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+        else {
+            LLOGW("fail to start accept thread ret %d", ret);
+            return 0;
+        }
+    }
+    LLOGD("start sync socket accept for %d", socket);
+
+    struct sockaddr_storage source_addr = {0};
     socklen_t addr_len = sizeof(source_addr);
 
     int csock = accept(sock, (struct sockaddr *)&source_addr, &addr_len);
@@ -275,26 +341,70 @@ static int l_socket_accept(lua_State *L)
     return 1;
 }
 
-#include "rotable.h"
-static const rotable_Reg reg_socket[] =
-    {
-        {"create", l_socket_create, 0},
-        {"connect", l_socket_connect, 0},
-        {"send", l_socket_send, 0},
-        {"recv", l_socket_recv, 0},
-        {"close", l_socket_close, 0},
-        {"dns", l_socket_dns, 0},
-        {"bind", l_socket_bind, 0},
-        {"listen", l_socket_listen, 0},
-        {"accept", l_socket_accept, 0},
+static int socket_gc(lua_State *L){
+    int* s = to_socket(L);
+    if (s == NULL)
+        return 0;
+    int fd = *s;
+    close(fd);
+    return 0;
+}
 
-        {"TCP", NULL, SOCK_STREAM},
-        {"UDP", NULL, SOCK_DGRAM},
-        {"RAW", NULL, SOCK_RAW},
-        {NULL, NULL, 0}};
+static int socket_fd(lua_State *L){
+    int* s = to_socket(L);
+    if (s == NULL)
+        return 0;
+    int fd = *s;
+    lua_pushinteger(L, fd);
+    return 1;
+}
+
+static int socket_meta_index(lua_State *L) {
+    // void* fdata = lua_touserdata(L, 1);
+    // if (fdata == NULL)
+    //     return 0;
+    // int fd = (int)fdata;
+    if (lua_isstring(L, 2)) {
+        const char* keyname = luaL_checkstring(L, 2);
+        if (!strcmp("__gc", keyname)) {
+            lua_pushcfunction(L, socket_gc);
+            return 1;
+        }
+        if (!strcmp("fd", keyname)) {
+            lua_pushcfunction(L, socket_fd);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+#include "rotable2.h"
+static const rotable_Reg_t reg_socket[] =
+{
+    {"create", ROREG_FUNC(l_socket_create)},
+    {"connect", ROREG_FUNC(l_socket_connect)},
+    {"send", ROREG_FUNC(l_socket_send)},
+    {"recv", ROREG_FUNC(l_socket_recv)},
+    {"close", ROREG_FUNC(l_socket_close)},
+    {"dns", ROREG_FUNC(l_socket_dns)},
+    {"bind", ROREG_FUNC(l_socket_bind)},
+    {"listen", ROREG_FUNC(l_socket_listen)},
+    {"accept", ROREG_FUNC(l_socket_accept)},
+
+    {"TCP", ROREG_INT(SOCK_STREAM)},
+    {"UDP", ROREG_INT(SOCK_DGRAM)},
+    {"RAW", ROREG_INT(SOCK_RAW)},
+    {NULL, ROREG_INT(0)}
+};
 
 LUAMOD_API int luaopen_socket(lua_State *L)
 {
-    luat_newlib(L, reg_socket);
+    luaL_newmetatable(L, META_SOCKET);
+    lua_pushcfunction(L, socket_meta_index);
+    lua_setfield(L, -2, "__index");
+    lua_pop(L, 1);  /* pop new metatable */
+
+    luat_newlib2(L, reg_socket);
+
     return 1;
 }
