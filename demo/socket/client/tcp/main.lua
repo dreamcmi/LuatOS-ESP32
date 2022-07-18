@@ -9,9 +9,9 @@ sys.taskInit(
         ret = wlan.init()
         log.info("wlan", "wlan_init:", ret)
         wlan.setMode(wlan.STATION)
-        wlan.connect("xxxx", "123456789")
+        wlan.connect("xxxx", "123456789", 1)
         -- 等到成功获取ip就代表连上局域网了
-        result, data = sys.waitUntil("IP_READY")
+        result, data = sys.waitUntil("IP_READY", 30000)
         log.info("wlan", "IP_READY", result, data)
 
         log.info("socket", "begin socket")
@@ -36,7 +36,7 @@ sys.taskInit(
                 log.info("socket", "len", len)
                 log.info("socket", "data", data)
             end
-            sys.wait(1000)
+            sys.wait(50)
         end
         log.info("socket", "end")
     end
