@@ -8,7 +8,7 @@ sys.taskInit(
     function()
         log.info("wlan", "wlan_init:", wlan.init())
         wlan.setMode(wlan.STATION)
-        wlan.connect("xxxx", "123456789")
+        wlan.connect("xxxx", "123456789", 1)
         -- 等到成功获取ip就代表连上局域网了
         result, data = sys.waitUntil("IP_READY")
         log.info("wlan", "IP_READY", result, data)
@@ -24,9 +24,13 @@ sys.taskInit(
                 log.info("socket.client", "data", data)
                 log.info("socket.client", "len", len)
                 -- socket.send(sock, "hello lua esp32c3")
+            elseif len and len < 0 then
+                log.info("socket", "closed")
+                break
             end
-            sys.wait(1000)
+            sys.wait(50)
         end
+        socket.close(sock)
     end
 )
 

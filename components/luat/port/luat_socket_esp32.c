@@ -123,9 +123,9 @@ static int l_socket_connect(lua_State *L)
 /*
 发送数据
 @api socket.send(sock_handle,data)
-@int sock_handle
-@string data
-@return int err
+@int socket句柄
+@string 待发送的数据,只能是字符串
+@return int 返回值
 @usage
 socket.send(sock, "hello lua esp32")
 */
@@ -142,28 +142,36 @@ static int l_socket_send(lua_State *L)
 /*
 接收数据
 @api socket.recv(sock_handle)
-@int sock_handle
-@return string data
-@return int len
+@int socket句柄
+@return string 数据, 可能是nil , 空字符串, 有长度字符串, 3种情况
+@return int 若>=0,数据长度, 若<0, 则代表异常,此时数据必为nil,不要再读数据了
 @usage
 local data, len = socket.recv(sock)
+if data then
+    log.info("socket", "data", #data, data)
+else
+    if len < 0 then
+        log.info("socket", "closed")
+        socket.close(sock)
+    end
+end
 */
 static int l_socket_recv(lua_State *L)
 {
     int sock = luaL_checkinteger(L, 1);
     char rx_buffer[1024];
-    int len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
-    if (len < 0)
+    int ret = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
+    if (ret < 0)
     {
-        // ESP_LOGE(TAG, "recv failed: errno %d", errno);
-        return 0;
+        lua_pushnil(L);
+        lua_pushinteger(L, ret);
     }
     else
     {
-        lua_pushlstring(L, (const char *)rx_buffer, len);
-        lua_pushinteger(L, len);
-        return 2;
+        lua_pushlstring(L, (const char *)rx_buffer, ret);
+        lua_pushinteger(L, ret);
     }
+    return 2;
 }
 
 /*

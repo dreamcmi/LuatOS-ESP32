@@ -17,10 +17,14 @@ function handle_client(csock)
                 log.info("socket", "close")
                 break
             end
+        elseif len and len < 0 then
+            log.info("socket", "client closed")
+            break
         end
         sys.wait(50)
     end
     socket.close(s)
+    log.info("socket", "client", "处理结束")
 end
 
 sys.taskInit(

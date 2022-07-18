@@ -37,9 +37,13 @@ sys.taskInit(
                 end
                 log.info("socket", "len", len)
                 log.info("socket", "data", data)
+            elseif len and len < 0 then
+                log.info("socket", "closed")
+                break
             end
             sys.wait(50)
         end
+        socket.close(sock)
         log.info("socket", "end")
     end
 )
