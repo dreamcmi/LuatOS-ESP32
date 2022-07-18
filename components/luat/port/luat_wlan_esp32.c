@@ -1161,6 +1161,18 @@ static int l_wlan_set_mac(lua_State *L)
     return 1;
 }
 
+/*
+wlan获取信号强度
+@api  wlan.rssi()
+@return int 信号强度
+*/
+static int l_wlan_rssi(lua_State *L) {
+    wifi_ap_record_t ap;
+    esp_wifi_sta_get_ap_info(&ap);
+    lua_pushinteger(L, ap.rssi);
+    return 1;
+}
+
 #include "rotable.h"
 static const rotable_Reg reg_wlan[] =
     {
@@ -1189,6 +1201,7 @@ static const rotable_Reg reg_wlan[] =
         {"smartconfig", l_wlan_smartconfig, 0},
         {"taskSmartconfig", l_wlan_task_smartconfig, 0},
         {"setMac", l_wlan_set_mac, 0},
+        {"rssi", l_wlan_rssi, 0},
         // {"smartconfigStop", l_wlan_smartconfig_stop, 0},
 
         {"NONE", NULL, WIFI_MODE_NULL},
