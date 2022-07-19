@@ -50,12 +50,12 @@ static int l_pwm2_init(lua_State *L)
     ledc_timer_config(&conf);
 
     ledc_channel_config_t ledc_channel = {0};
-    ledc_channel.gpio_num = pwm_pin,
-    ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE,
-    ledc_channel.channel = pwm_channel,
-    ledc_channel.timer_sel = pwm_timer,
-    ledc_channel.duty = 0,
-    ledc_channel.hpoint = 0,
+    ledc_channel.gpio_num = pwm_pin;
+    ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
+    ledc_channel.channel = pwm_channel;
+    ledc_channel.timer_sel = pwm_timer;
+    ledc_channel.duty = 0;
+    ledc_channel.hpoint = 0;
     ledc_channel_config(&ledc_channel);
 
     if (pwm_fade)
