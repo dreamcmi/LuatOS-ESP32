@@ -43,10 +43,10 @@ static int l_pwm2_init(lua_State *L)
 
     ledc_timer_config_t conf = {0};
     conf.speed_mode = LEDC_LOW_SPEED_MODE;
-    conf.duty_resolution = pwm_bit,
-    conf.timer_num = pwm_timer,
-    conf.freq_hz = pwm_period,
-    conf.clk_cfg = LEDC_AUTO_CLK,
+    conf.duty_resolution = pwm_bit;
+    conf.timer_num = pwm_timer;
+    conf.freq_hz = pwm_period;
+    conf.clk_cfg = LEDC_AUTO_CLK;
     ledc_timer_config(&conf);
 
     ledc_channel_config_t ledc_channel = {0};
