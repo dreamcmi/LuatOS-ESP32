@@ -170,7 +170,10 @@ static const luaL_Reg loadedlibs[] = {
     {"miniz", luaopen_miniz},
 #endif
 #ifdef LUAT_USE_LORA
-  {"lora", luaopen_lora},
+    {"lora", luaopen_lora},
+#endif
+#ifdef LUAT_USE_MLX90640
+    {"mlx90640", luaopen_mlx90640},
 #endif
 //-----------------------------------------------------------------------
 // 显示库
