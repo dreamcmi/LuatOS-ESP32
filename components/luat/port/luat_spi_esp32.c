@@ -224,10 +224,22 @@ int luat_spi_send(int spi_id, const char *send_buf, size_t length)
     esp_err_t ret = -1;
     if (spi_id == 2)
     {
-        memset(&t, 0, sizeof(t));
-        t.length = length * 8;
-        t.tx_buffer = send_buf;
-        ret = spi_device_polling_transmit(spi2_handle, &t);
+        while (length > 0) {
+            memset(&t, 0, sizeof(t));
+            if (length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { // 限制每次发送大小
+                t.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+                t.tx_buffer = send_buf;
+                ret = spi_device_polling_transmit(spi2_handle, &t);
+                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            }
+            else {
+                t.length = length * 8;
+                t.tx_buffer = send_buf;
+                ret = spi_device_polling_transmit(spi2_handle, &t);
+                break;
+            }
+        }
         return ret == 0 ? length : -1;
     }
 #if CONFIG_IDF_TARGET_ESP32S3
