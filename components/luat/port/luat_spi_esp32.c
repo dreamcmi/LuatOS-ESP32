@@ -147,6 +147,7 @@ int luat_spi_transfer(int spi_id, const char *send_buf, size_t send_length, char
     {
         /* FIX:一句执行发送指令不满4会自动补满,导致多发00 */
         spi_transaction_t send;
+        memset(&send, 0, sizeof(send));
         while (send_length > 0) {
             memset(&send, 0, sizeof(send));
             if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { // 限制每次发送大小
@@ -383,9 +384,22 @@ int luat_spi_device_transfer(luat_spi_device_t *spi_dev, const char *send_buf, s
     {
         spi_transaction_t send;
         memset(&send, 0, sizeof(send));
-        send.length = send_length * 8;
-        send.tx_buffer = send_buf;
-        ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
+        while (send_length > 0) {
+            memset(&send, 0, sizeof(send));
+            if (send_length > SOC_SPI_MAXIMUM_BUFFER_SIZE ) { // 限制每次发送大小
+                send.length = SOC_SPI_MAXIMUM_BUFFER_SIZE  * 8;
+                send.tx_buffer = send_buf;
+                ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
+                send_buf += SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+                send_length -= SOC_SPI_MAXIMUM_BUFFER_SIZE ;
+            }
+            else {
+                send.length = send_length * 8;
+                send.tx_buffer = send_buf;
+                ret = spi_device_polling_transmit(*(spi_device_handle_t *)(spi_dev->user_data), &send);
+                break;
+            }
+        }
         if (ret != 0)
         {
             return -2;
