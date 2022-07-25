@@ -27,7 +27,7 @@ logging.basicConfig(
 
 
 def flashFs(fspath, port, baud, chip, offset, size):
-    if chip == "esp32c3" or chip == "esp32c3-usb" or chip == "esp32s3":
+    if chip == "esp32c3" or chip == "esp32s3":
         if getattr(sys, 'frozen', False):
             bundle_dir = sys._MEIPASS
         else:
@@ -88,12 +88,9 @@ def flashFs(fspath, port, baud, chip, offset, size):
         logging.error("not support chip")
         sys.exit(-1)
 
-    board = chip
-    if board == "esp32c3-usb":
-        board = "esp32c3"
     command = ['--port', port,
                '--baud', baud,
-               '--chip', board,
+               '--chip', chip,
                'write_flash',
                offset,
                "script.bin"]
@@ -105,7 +102,7 @@ def flashFs(fspath, port, baud, chip, offset, size):
 
 
 def pkgRom(chip):
-    if chip == "esp32c3" or chip == "esp32c3-usb" or chip == "esp32s3":
+    if chip == "esp32c3" or chip == "esp32s3":
         # 查找固件位置
         with open(config['pkg']['Repo'] + '/build/' + "flasher_args.json", 'r', encoding='utf-8') as flash_args:
             j = json.load(flash_args)
@@ -178,17 +175,24 @@ def pkgRom(chip):
             shutil.copy(config["pkg"]["Repo"] +
                         "soc_tools/soc_download.exe", 'tmp/')
             if chip == "esp32c3":
-                shutil.copy(config["pkg"]["Repo"] +
-                            "soc_tools/info_c3.json", 'tmp/')
-                os.rename("tmp/info_c3.json", "tmp/info.json")
-            elif chip == "esp32c3-usb":
-                shutil.copy(config["pkg"]["Repo"] +
-                            "soc_tools/info_c3_usb.json", 'tmp/')
-                os.rename("tmp/info_c3_usb.json", "tmp/info.json")
+                if config[chip]['Type'] == "uart":
+                    shutil.copy(config["pkg"]["Repo"] +
+                                "soc_tools/info_c3.json", 'tmp/')
+                    os.rename("tmp/info_c3.json", "tmp/info.json")
+                elif config[chip]['Type'] == "usb":
+                    shutil.copy(config["pkg"]["Repo"] +
+                                "soc_tools/info_c3_usb.json", 'tmp/')
+                    os.rename("tmp/info_c3_usb.json", "tmp/info.json")
             elif chip == "esp32s3":
-                shutil.copy(config["pkg"]["Repo"] +
-                            "soc_tools/info_s3.json", 'tmp/')
-                os.rename("tmp/info_s3.json", "tmp/info.json")
+                if config[chip]['Type'] == "uart":
+                    shutil.copy(config["pkg"]["Repo"] +
+                                "soc_tools/info_s3.json", 'tmp/')
+                    os.rename("tmp/info_c3.json", "tmp/info.json")
+                elif config[chip]['Type'] == "usb":
+                    shutil.copy(config["pkg"]["Repo"] +
+                                "soc_tools/info_s3_usb.json", 'tmp/')
+                    os.rename("tmp/info_c3_usb.json", "tmp/info.json")
+
             shutil.copy(config["pkg"]["Repo"] +
                         "components/luat/include/luat_conf_bsp.h", 'tmp/')
             # 改下bsp版本号
@@ -225,13 +229,10 @@ def pkgRom(chip):
 
 
 def flashRom(rom, port, baud, chip, offset='0x0'):
-    if chip == "esp32c3" or "esp32c3-usb" or chip == "esp32s3":
-        board = chip
-        if board == "esp32c3-usb":
-            board = "esp32c3"
-        command_erase = ['--chip', board, '--port',
+    if chip == "esp32c3"or chip == "esp32s3":
+        command_erase = ['--chip', chip, '--port',
                          port, '--baud', baud, 'erase_flash']
-        command = ['--chip', board, '--port', port,
+        command = ['--chip', chip, '--port', port,
                    '--baud', baud, 'write_flash', offset, rom]
         if config[chip]["Type"] == "uart":
             logging.info("select uart flash")
@@ -255,7 +256,7 @@ def flashRom(rom, port, baud, chip, offset='0x0'):
 
 
 def get_version():
-    return '3.3.0'
+    return '3.3.1'
 
 
 if __name__ == '__main__':
@@ -266,7 +267,7 @@ if __name__ == '__main__':
     config = toml.load("config.toml")
     parser = argparse.ArgumentParser(description="ESP32 Flash Tool")
     parser.add_argument('-v', '--version', action='version', version=get_version(), help='Show version')
-    parser.add_argument('-t', '--target', help='Chip型号:esp32c3,esp32c3-usb,esp32s3')
+    parser.add_argument('-t', '--target', help='Chip型号:esp32c3,esp32s3')
     parser.add_argument('-f', '--fs', action="store_true", help='下载脚本')
     parser.add_argument('-r', '--rom', action="store_true", help='下载底层固件')
     parser.add_argument('-p', '--pkg', action="store_true", help='打包固件')
