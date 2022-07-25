@@ -55,6 +55,7 @@ idf_component_register(
                 ../../../LuatOS/components/common
                 ../../../LuatOS/components/lora
                 ../../../LuatOS/components/lora/sx126x
+                ../../../LuatOS/components/mlx90640-library
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
@@ -93,6 +94,7 @@ idf_component_register(
                 ../../../LuatOS/components/luatfonts
                 ../../../LuatOS/components/common
                 ../../../LuatOS/components/lora
+                ../../../LuatOS/components/mlx90640-library
 
         REQUIRES 
                 lua 

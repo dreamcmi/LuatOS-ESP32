@@ -124,16 +124,15 @@ int luat_fs_init(void)
     ESP_LOGE("vfs", "script partition not found");
     luat_fs_mount(&conf2);
 
+  }
+	
+#endif
 #ifdef LUAT_USE_LVGL
 	luat_lv_fs_init();
 	// lv_bmp_init();
 	// lv_png_init();
 	lv_split_jpeg_init();
 #endif
-  }
-	
-#endif
-
   return 0;
 }
 
