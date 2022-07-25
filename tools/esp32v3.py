@@ -335,4 +335,4 @@ if __name__ == '__main__':
                             chipName,
                             fsAddr,
                             fsLen)
-        shutil.rmtree('./tmp')
+            shutil.rmtree('./tmp')
