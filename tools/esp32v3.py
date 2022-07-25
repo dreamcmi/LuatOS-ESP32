@@ -22,7 +22,8 @@ import toml
 import spiffsgen
 import luadb
 
-logging.basicConfig(format='- [%(levelname)s]: %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='- [%(levelname)s]: %(message)s', level=logging.INFO)
 
 
 def flashFs(fspath, port, baud, chip, offset, size):
@@ -32,53 +33,54 @@ def flashFs(fspath, port, baud, chip, offset, size):
         else:
             bundle_dir = os.path.dirname(os.path.abspath(__file__))
         # luac
-        if os.path.exists('tmp'):
-            shutil.rmtree('tmp')
-        
         cmd = ""
+        if os.path.exists('fstmp'):
+            shutil.rmtree('fstmp')
         if usePlat == "Windows":
-            cmd = bundle_dir + "\\bin\\luac_536_32bits.exe -o" + " tmp/"
+            cmd = bundle_dir + "\\bin\\luac_536_32bits.exe -o" + " fstmp/"
         elif usePlat == "Linux":
-            cmd = bundle_dir + "/bin/luac_536_32bits -o" + " tmp/"
+            cmd = bundle_dir + "/bin/luac_536_32bits -o" + " fstmp/"
         else:
             pass
         # windows和linux执行luac,mac暂跳过不执行
         if cmd != "":
-            os.mkdir('tmp')
+            os.mkdir('fstmp')
             for root, dirs, name in os.walk(fspath):
                 for i in range(len(name)):
                     if name[i].endswith(".lua"):
-                        cmdd =  cmd + os.path.basename(name[i]) + "c " + fspath + os.path.basename(name[i])
+                        cmdd = cmd + \
+                               os.path.basename(
+                                   name[i]) + "c " + fspath + os.path.basename(name[i])
                         a = os.system(cmdd)
                         if a != 0:
                             logging.error("luac failed")
                             sys.exit(-1)
                     # 其他文件直接拷贝
                     else:
-                        shutil.copy(fspath + name[i], "tmp/" + os.path.basename(name[i]))
+                        shutil.copy(
+                            fspath + name[i], "fstmp/" + os.path.basename(name[i]))
         else:
-            shutil.copytree(fspath, "tmp/")
-
+            shutil.copytree(fspath, "fstmp/")
         # 制作fs分区
         if config[chip]["Luadb"]:
-            if not luadb.merge("tmp/"):
+            if not luadb.merge("fstmp/"):
                 logging.error("Luadb merge FAIL!!!")
                 sys.exit(-1)
         else:
             with open('script.bin', 'wb') as image_file:
-                image_size = int(size, 0)
+                image_size = int(str(size), 0)
                 spiffs_build_default = spiffsgen.SpiffsBuildConfig(256, spiffsgen.SPIFFS_PAGE_IX_LEN,
-                                                                4096, spiffsgen.SPIFFS_BLOCK_IX_LEN, 4,
-                                                                32, spiffsgen.SPIFFS_OBJ_ID_LEN,
-                                                                spiffsgen.SPIFFS_SPAN_IX_LEN,
-                                                                True, True, 'little',
-                                                                True, True)
+                                                                   4096, spiffsgen.SPIFFS_BLOCK_IX_LEN, 4,
+                                                                   32, spiffsgen.SPIFFS_OBJ_ID_LEN,
+                                                                   spiffsgen.SPIFFS_SPAN_IX_LEN,
+                                                                   True, True, 'little',
+                                                                   True, True)
                 spiffs = spiffsgen.SpiffsFS(image_size, spiffs_build_default)
-                for root, dirs, files in os.walk("tmp/", followlinks=False):
+                for root, dirs, files in os.walk("fstmp/", followlinks=False):
                     for f in files:
                         full_path = os.path.join(root, f)
-                        spiffs.create_file('/' + os.path.relpath(full_path, "tmp/").replace('\\', '/'),
-                                        full_path)
+                        spiffs.create_file('/' + os.path.relpath(full_path, "fstmp/").replace('\\', '/'),
+                                           full_path)
                 image = spiffs.to_binary()
                 image_file.write(image)
                 image_file.close()
@@ -90,17 +92,16 @@ def flashFs(fspath, port, baud, chip, offset, size):
     if board == "esp32c3-usb":
         board = "esp32c3"
     command = ['--port', port,
-                '--baud', baud,
-                '--chip', board,
-                'write_flash',
-                offset,
-                "script.bin"]
+               '--baud', baud,
+               '--chip', board,
+               'write_flash',
+               offset,
+               "script.bin"]
     if config[chip]["Luadb"]:
-        command[-2] = config[chip]["LuadbOffset"]
         command[-1] = "disk.fs"
     esptool.main(command)
     # 最后删除临时目录
-    shutil.rmtree("tmp")
+    shutil.rmtree("fstmp")
 
 
 def pkgRom(chip):
@@ -108,8 +109,9 @@ def pkgRom(chip):
         # 查找固件位置
         with open(config['pkg']['Repo'] + '/build/' + "flasher_args.json", 'r', encoding='utf-8') as flash_args:
             j = json.load(flash_args)
-            if j['extra_esptool_args']['chip'] != chip and j['extra_esptool_args']['chip']+"-usb" != chip:
-                logging.error("The selected chip is inconsistent with the build")
+            if j['extra_esptool_args']['chip'] != chip and j['extra_esptool_args']['chip'] + "-usb" != chip:
+                logging.error(
+                    "The selected chip is inconsistent with the build")
                 sys.exit(-1)
             ss = sorted(
                 ((o, f) for (o, f) in j['flash_files'].items()),
@@ -142,14 +144,16 @@ def pkgRom(chip):
 
         # 判断打包类型
         if not config['pkg']['Release']:
-            logging.warning("user build")
-            git_sha1 = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
-            firmware_name = "LuatOS-SoC_" + str(chip).upper().replace("-", "_")  + '_' + \
+            logging.info("User build")
+            git_sha1 = subprocess.check_output(
+                ['git', 'rev-parse', '--short', 'HEAD']).strip()
+            firmware_name = "LuatOS-SoC_" + str(chip).upper().replace("-", "_") + '_' + \
                             git_sha1.decode() + "_" + \
                             time.strftime("%Y%m%d%H%M%S", time.localtime())
         else:
-            logging.warning("Release build")
-            firmware_name = "LuatOS-SoC_" + versionBsp+ '_'  + str(chip).upper().replace("-", "_") 
+            logging.info("Release build")
+            firmware_name = "LuatOS-SoC_" + versionBsp + \
+                            '_' + str(chip).upper().replace("-", "_")
 
         # 进入合并流程
         base_offset = 0x0
@@ -171,17 +175,22 @@ def pkgRom(chip):
                 shutil.rmtree('tmp')
                 os.mkdir('tmp')
             shutil.move("luatos_esp32.bin", 'tmp/')
-            shutil.copy(config["pkg"]["Repo"] + "soc_tools/soc_download.exe", 'tmp/')
+            shutil.copy(config["pkg"]["Repo"] +
+                        "soc_tools/soc_download.exe", 'tmp/')
             if chip == "esp32c3":
-                shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_c3.json", 'tmp/')
-                os.rename("tmp/info_c3.json","tmp/info.json")
+                shutil.copy(config["pkg"]["Repo"] +
+                            "soc_tools/info_c3.json", 'tmp/')
+                os.rename("tmp/info_c3.json", "tmp/info.json")
             elif chip == "esp32c3-usb":
-                shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_c3_usb.json", 'tmp/')
-                os.rename("tmp/info_c3_usb.json","tmp/info.json")
+                shutil.copy(config["pkg"]["Repo"] +
+                            "soc_tools/info_c3_usb.json", 'tmp/')
+                os.rename("tmp/info_c3_usb.json", "tmp/info.json")
             elif chip == "esp32s3":
-                shutil.copy(config["pkg"]["Repo"] + "soc_tools/info_s3.json", 'tmp/')
-                os.rename("tmp/info_s3.json","tmp/info.json")
-            shutil.copy(config["pkg"]["Repo"] + "components/luat/include/luat_conf_bsp.h", 'tmp/')
+                shutil.copy(config["pkg"]["Repo"] +
+                            "soc_tools/info_s3.json", 'tmp/')
+                os.rename("tmp/info_s3.json", "tmp/info.json")
+            shutil.copy(config["pkg"]["Repo"] +
+                        "components/luat/include/luat_conf_bsp.h", 'tmp/')
             # 改下bsp版本号
             # with open('./tmp/info.json', 'r', encoding='utf-8') as f:
             #     fir_info = json.load(f)
@@ -194,7 +203,8 @@ def pkgRom(chip):
             #     else:
             #         pass
             # f.close()
-            z = zipfile.ZipFile(firmware_name + ".soc", "w", compression=zipfile.ZIP_DEFLATED)
+            z = zipfile.ZipFile(firmware_name + ".soc", "w",
+                                compression=zipfile.ZIP_DEFLATED)
             if os.path.isdir("tmp"):
                 for d in os.listdir("tmp"):
                     z.write("tmp/" + d, arcname=d)
@@ -214,27 +224,15 @@ def pkgRom(chip):
         sys.exit(-1)
 
 
-def flashRom(rom, port, baud, chip):
+def flashRom(rom, port, baud, chip, offset='0x0'):
     if chip == "esp32c3" or "esp32c3-usb" or chip == "esp32s3":
-        if not os.path.isfile(rom):
-            logging.error("Firmware not configured")
-            sys.exit(-1)
         board = chip
         if board == "esp32c3-usb":
             board = "esp32c3"
-        command_erase = ['--chip', board, '--port', port, '--baud', baud, 'erase_flash']
-        command = ['--chip', board, '--port', port, '--baud', baud, 'write_flash', '0x0', rom]
-        if config["pkg"]["SocSupport"]:
-            if not os.path.exists('tmp'):
-                os.mkdir('tmp')
-            else:
-                shutil.rmtree('tmp')
-                os.mkdir('tmp')
-            zfile = zipfile.ZipFile(config[ChipName]['Firmware'], "r")
-            zfile.extractall('./tmp')
-            command[-1] = "./tmp/luatos_esp32.bin"
-        else:
-            pass
+        command_erase = ['--chip', board, '--port',
+                         port, '--baud', baud, 'erase_flash']
+        command = ['--chip', board, '--port', port,
+                   '--baud', baud, 'write_flash', offset, rom]
         if config[chip]["Type"] == "uart":
             logging.info("select uart flash")
         elif config[chip]["Type"] == "usb":
@@ -251,16 +249,13 @@ def flashRom(rom, port, baud, chip):
         esptool.main(command_erase)
         logging.info("start flash firmware")
         esptool.main(command)
-        
-        if os.path.exists('tmp'):
-            shutil.rmtree('tmp')
     else:
         logging.error("not support chip")
         sys.exit(-1)
 
 
 def get_version():
-    return '3.2.0'
+    return '3.3.0'
 
 
 if __name__ == '__main__':
@@ -277,25 +272,67 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--pkg', action="store_true", help='打包固件')
     args = parser.parse_args()
 
-    ChipName = args.target
-    if ChipName is None:
+    chipName = args.target
+    if chipName is None:
         logging.error("未选择chip")
         sys.exit(-1)
-    if args.pkg:
-        pkgRom(ChipName)
-    if args.rom:
-        flashRom(config[ChipName]['Firmware'],
-                 config[ChipName]['COM'],
-                 config[ChipName]['Baud'],
-                 ChipName)
-    if args.fs:
-        if not config[ChipName]['FsPath'].endswith("/"):
-            Fspath = config[ChipName]['FsPath'] + "/"
-        else:
-            Fspath = config[ChipName]['FsPath']
-        flashFs(Fspath,
-                config[ChipName]['COM'],
-                config[ChipName]['Baud'],
-                ChipName,
-                config[ChipName]['FsOffset'],
-                config[ChipName]['FsSize'])
+    else:
+        if args.pkg:
+            pkgRom(chipName)
+        if args.rom or args.fs:
+            binName = None
+            appAddr = None
+            scriptAddr = None
+            fsAddr = None
+            fsLen = None
+            # 刷固件先解压soc
+            if not os.path.exists('tmp'):
+                os.mkdir('tmp')
+            else:
+                shutil.rmtree('tmp')
+                os.mkdir('tmp')
+            zfile = zipfile.ZipFile(config[chipName]['Firmware'], "r")
+            zfile.extractall('./tmp')
+            # 解析info.json
+            if os.path.isfile('./tmp/info.json'):
+                f = open('./tmp/info.json', 'r')
+                c = f.read()
+                infoJson = json.loads(c)
+                # 获取相关信息
+                binName = infoJson['rom']['file']
+                appAddr = "0x" + infoJson['download']['app_addr']
+                scriptAddr = "0x" + infoJson['download']['script_addr']
+                fsAddr = "0x" + infoJson['download']['fs_addr']
+                fsLen = int(infoJson['fs']['total_len']) * 1024
+                f.close()
+            else:
+                logging.error("固件不合法,找不到info.json")
+                sys.exit(-1)
+            if args.rom:
+                flashRom('./tmp/' + binName,
+                         config[chipName]['COM'],
+                         config[chipName]['Baud'],
+                         chipName,
+                         appAddr)
+            if args.fs:
+                if not config[chipName]['FsPath'].endswith("/"):
+                    Fspath = config[chipName]['FsPath'] + "/"
+                else:
+                    Fspath = config[chipName]['FsPath']
+                if config[chipName]["Luadb"]:
+                    # soc固件刷机 只需要传偏移地址
+                    flashFs(Fspath,
+                            config[chipName]['COM'],
+                            config[chipName]['Baud'],
+                            chipName,
+                            scriptAddr,
+                            0)
+                else:
+                    # 写fs分区 需要传偏移地址和分区大小
+                    flashFs(Fspath,
+                            config[chipName]['COM'],
+                            config[chipName]['Baud'],
+                            chipName,
+                            fsAddr,
+                            fsLen)
+        shutil.rmtree('./tmp')
