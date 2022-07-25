@@ -187,11 +187,11 @@ def pkgRom(chip):
                 if config[chip]['Type'] == "uart":
                     shutil.copy(config["pkg"]["Repo"] +
                                 "soc_tools/info_s3.json", 'tmp/')
-                    os.rename("tmp/info_c3.json", "tmp/info.json")
+                    os.rename("tmp/info_s3.json", "tmp/info.json")
                 elif config[chip]['Type'] == "usb":
                     shutil.copy(config["pkg"]["Repo"] +
                                 "soc_tools/info_s3_usb.json", 'tmp/')
-                    os.rename("tmp/info_c3_usb.json", "tmp/info.json")
+                    os.rename("tmp/info_s3_usb.json", "tmp/info.json")
 
             shutil.copy(config["pkg"]["Repo"] +
                         "components/luat/include/luat_conf_bsp.h", 'tmp/')
