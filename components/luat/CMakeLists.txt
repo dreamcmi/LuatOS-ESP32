@@ -56,6 +56,7 @@ idf_component_register(
                 ../../../LuatOS/components/lora
                 ../../../LuatOS/components/lora/sx126x
                 ../../../LuatOS/components/mlx90640-library
+                ../../../LuatOS/components/crypto
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
