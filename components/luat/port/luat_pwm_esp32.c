@@ -39,7 +39,7 @@ int luat_pwm_setup(luat_pwm_conf_t *conf)
         // printf("init%d\n", pwmid);
         ledc_timer_config_t ledc_timer = {
             .speed_mode = LEDC_LOW_SPEED_MODE,
-            .duty_resolution = LEDC_TIMER_8_BIT,
+            .duty_resolution = LEDC_TIMER_13_BIT,
             .timer_num = pwmid,
             .freq_hz = conf->period,
             .clk_cfg = LEDC_AUTO_CLK,
