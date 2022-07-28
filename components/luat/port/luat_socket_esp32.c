@@ -304,6 +304,7 @@ static void socket_accept_entry(void* params) {
         LLOGI("socket wait accept %d", sock);
         int csock = accept(sock, (struct sockaddr *)&source_addr, &addr_len);
         LLOGI("socket accept %d", csock);
+        fcntl(csock, F_SETFL, O_NONBLOCK);
         msg.arg1 = csock;
         msg.arg2 = sock;
         luat_msgbus_put(&msg, 1);
