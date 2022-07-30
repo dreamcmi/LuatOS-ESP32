@@ -9,16 +9,17 @@ function handle_client(csock)
     local s = csock:fd()
     while 1 do
         -- 尝试接收数据
-        local data, len = socket.recv(s)
-        log.info("socket", "client", s, data, data and #data or 0)
-        if data ~= nil then
+        local data, ret = socket.recv(s)
+        if data ~= nil and ret > 0 then
+            log.info("socket", "client", s, #data, data)
             -- 若数据存在, 处理之, 下列逻辑为测试逻辑
             if data == "close" then
                 log.info("socket", "close")
                 break
             end
-        elseif len and len < 0 then
-            log.info("socket", "client closed")
+            socket.send(s, "echo >> " .. data)
+        elseif ret and ret < 0 then
+            log.info("socket", "client closed", ret)
             break
         end
         sys.wait(50)
@@ -57,6 +58,24 @@ sys.taskInit(
                 log.warn("socket", "监听失败, 5秒后重试")
             end
             socket.close(sock)
+        end
+    end
+)
+
+sys.taskInit(
+    function()
+        -- 开发板上的2个LED
+        local LED_D4 = gpio.setup(12, 0)
+        local LED_D5 = gpio.setup(13, 0)
+        while 1 do
+            LED_D4(0)
+            LED_D5(1)
+            sys.wait(500)
+            LED_D4(1)
+            LED_D5(0)
+            sys.wait(500)
+            log.info("main", "code", "https://gitee.com/dreamcmi/LuatOS-ESP32")
+            log.info("main", "wiki", "https://wiki.luatos.com")
         end
     end
 )

@@ -156,11 +156,38 @@ else
     end
 end
 */
+static int app_tcp_recv_timeout_posix(int s, void *mem, size_t len, int flags, int timeout) {
+    int ret;
+    struct timeval tv;
+    fd_set read_fds;
+    int fd = s;
+
+    FD_ZERO( &read_fds );
+    FD_SET( fd, &read_fds );
+
+    tv.tv_sec  = timeout / 1000;
+    tv.tv_usec = ( timeout % 1000 ) * 1000;
+
+    ret = select( fd + 1, &read_fds, NULL, NULL, timeout == 0 ? NULL : &tv );
+
+    /* Zero fds ready means we timed out */
+    if( ret == 0 )
+        return 0;
+
+    if( ret < 0 )
+    {
+        return ret;
+    }
+
+    /* This call will not block */
+    return recv( fd, mem, len, flags);
+}
+
 static int l_socket_recv(lua_State *L)
 {
     int sock = luaL_checkinteger(L, 1);
     char rx_buffer[1024];
-    int ret = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
+    int ret = app_tcp_recv_timeout_posix(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, 1);
     if (ret < 0)
     {
         lua_pushnil(L);
@@ -304,7 +331,8 @@ static void socket_accept_entry(void* params) {
         LLOGI("socket wait accept %d", sock);
         int csock = accept(sock, (struct sockaddr *)&source_addr, &addr_len);
         LLOGI("socket accept %d", csock);
-        fcntl(csock, F_SETFL, O_NONBLOCK);
+        int flags = fcntl(csock, F_GETFL, 0);
+        fcntl(csock, F_SETFL, flags | O_NONBLOCK);
         msg.arg1 = csock;
         msg.arg2 = sock;
         luat_msgbus_put(&msg, 1);
