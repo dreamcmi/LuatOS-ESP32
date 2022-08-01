@@ -80,6 +80,7 @@ idf_component_register(
                 ../../../LuatOS/components/lvgl/binding
                 ../../../LuatOS/components/lvgl/gen
                 ../../../LuatOS/components/lvgl/font
+                ../../../LuatOS/components/lvgl/src/lv_font
                 ../../../LuatOS/components/lvgl/exts/lv_bmp
                 ../../../LuatOS/components/lvgl/exts/lv_sjpg
                 ../../../LuatOS/components/lvgl/exts/lv_gif
