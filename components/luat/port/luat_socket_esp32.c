@@ -55,7 +55,8 @@ typedef struct luat_socket_connect
 {
     long cwait_id;
     int socket_id;
-    struct sockaddr_in dst;
+    int port;
+    char host[32];
 }luat_socket_connect_t;
 
 static int l_socket_connect_cb(lua_State *L, void* ptr) {
@@ -68,14 +69,25 @@ static int l_socket_connect_cb(lua_State *L, void* ptr) {
 
 static void t_socket_connect(void* ptr) {
     luat_socket_connect_t * tmp = (luat_socket_connect_t *)ptr;
-    int err = connect(tmp->socket_id, &tmp->dst, sizeof(struct sockaddr_in6));
+    struct sockaddr_in dest_addr;
+
+    dest_addr.sin_addr.s_addr = inet_addr(tmp->host);
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(tmp->port);
+
+    LLOGD("connect %d host %s port %d", tmp->socket_id, tmp->host, tmp->port);
+
+    int err = connect(tmp->socket_id, &dest_addr, sizeof(struct sockaddr_in6));
     fcntl(tmp->socket_id, F_SETFL, O_NONBLOCK);
+    LLOGD("socket connect ret %d", err);
     
     rtos_msg_t msg = {0};
     msg.handler = l_socket_connect_cb;
     msg.ptr = ptr;
     msg.arg1 = err;
     luat_msgbus_put(&msg, 0);
+
+    vTaskDelete(NULL);
 }
 
 /*
@@ -100,19 +112,22 @@ static int l_socket_connect(lua_State *L)
     int host_port = luaL_checkinteger(L, 3);
     int async = lua_toboolean(L, 4);
 
-    dest_addr.sin_addr.s_addr = inet_addr(host_ip);
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(host_port);
-
     if (async) {
         luat_socket_connect_t * tmp = luat_heap_malloc(sizeof(luat_socket_connect_t));
-        memcpy(&tmp->dst, &dest_addr, sizeof(struct sockaddr_in));
+        memcpy(tmp->host, host_ip, len + 1);
+        tmp->port = host_port;
         tmp->cwait_id = luat_pushcwait(L);
+        tmp->socket_id = sock;
         int ret = xTaskCreate(t_socket_connect, "scon", 4096, (void *)tmp, 3, NULL);
         LLOGD("socket connect cwait start ret %d", ret);
-        return 1;
+        if (ret == pdPASS)
+            return 1;
+        return 0;
     }
     else {
+        dest_addr.sin_addr.s_addr = inet_addr(host_ip);
+        dest_addr.sin_family = AF_INET;
+        dest_addr.sin_port = htons(host_port);
         int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
         fcntl(sock, F_SETFL, O_NONBLOCK);
         lua_pushinteger(L, err);
