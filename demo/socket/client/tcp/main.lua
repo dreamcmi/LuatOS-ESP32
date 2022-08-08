@@ -45,7 +45,7 @@ sys.taskInit(
             repeat
                 -- 根据需要连接的服务器写, 第4个参数启用非阻塞
                 -- 注意不能填127.0.0.1, 如果是连接电脑的端口, 填电脑的局域网ip
-                cw = socket.connect(sock, "112.125.89.8", 34725, true)
+                cw = socket.connect(sock, "112.125.89.8", 36153, true)
                 if cw then
                     -- 非阻塞式等待
                     ret = cw:wait()
@@ -69,6 +69,7 @@ sys.taskInit(
             log.info("socket", "sendlen", len)
 
             -- 若发送失败, len就小于0, 下面的逻辑就直接跳过了
+            local counter = 0
             while len >= 0 do
                 -- recv是非阻塞, 会马上返回
                 local data, len = socket.recv(sock)
@@ -85,6 +86,18 @@ sys.taskInit(
                 elseif len and len < 0 then
                     log.info("socket", "closed")
                     break
+                end
+                -- 这里模拟一下心跳
+                if len and len == 0 then
+                    -- 没数据, 就需要心跳计数
+                    counter = counter + 1
+                else
+                    -- 有数据就不需要心跳了
+                    counter = 0
+                end
+                if counter > 100 then
+                    counter = 0
+                    len = socket.send(sock, "my heartbeat")
                 end
                 sys.wait(50) -- 延时是为了让出cpu给其他task, 建议大于10ms
             end
