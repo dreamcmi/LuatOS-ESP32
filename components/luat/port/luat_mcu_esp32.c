@@ -13,6 +13,9 @@
 #include "esp_pm.h"
 #include "esp_system.h"
 
+#define LUAT_LOG_TAG "mcu"
+#include "luat_log.h"
+
 // #define UUID_USE_EFUSE
 #define UUID_USE_MAC
 
@@ -81,3 +84,21 @@ uint32_t luat_mcu_hz(void)
 {
     return configTICK_RATE_HZ;
 }
+
+uint64_t luat_mcu_tick64(void) {
+    LLOGE("not support tick64");
+    return 0;
+}
+
+int luat_mcu_us_period(void) {
+    return 1;
+}
+
+uint64_t luat_mcu_tick64_ms(void) {
+    LLOGE("not support tick64");
+    return 0;
+}
+void luat_mcu_set_clk_source(uint8_t source_main, uint8_t source_32k, uint32_t delay) {
+    LLOGE("not support setXTAL");
+}
+
