@@ -58,6 +58,7 @@ idf_component_register(
                 ../../../LuatOS/components/mlx90640-library
                 ../../../LuatOS/components/crypto
                 ../../../LuatOS/components/iotauth
+                ../../../LuatOS/components/i2c-tools
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
@@ -99,6 +100,7 @@ idf_component_register(
                 ../../../LuatOS/components/lora
                 ../../../LuatOS/components/mlx90640-library
                 ../../../LuatOS/components/iotauth
+                ../../../LuatOS/components/i2c-tools
 
         REQUIRES 
                 lua 
