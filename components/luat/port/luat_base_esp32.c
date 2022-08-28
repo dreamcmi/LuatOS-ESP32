@@ -51,8 +51,9 @@ static const luaL_Reg loadedlibs[] = {
     {LUA_STRLIBNAME, luaopen_string},   // string库,字符串操作
     {LUA_MATHLIBNAME, luaopen_math},    // math 数值计算
     {LUA_DBLIBNAME, luaopen_debug},     // debug库,已精简
+    {"utf8",        luaopen_utf8},     // utf8库,已改造
 #if defined(LUA_COMPAT_BITLIB)
-    {LUA_BITLIBNAME, luaopen_bit32}, // 不太可能启用
+    {LUA_BITLIBNAME, luaopen_bit32},
 #endif
 #ifdef LUAT_USE_DBG
 #ifndef LUAT_USE_SHELL
