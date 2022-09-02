@@ -59,3 +59,7 @@ int luat_adc_close(int pin)
         return -1;
     return 0;
 }
+
+int luat_adc_global_config(int tp, int val) {
+    return -1; // 暂时不支持配置, 放个空的函数在这里
+}
