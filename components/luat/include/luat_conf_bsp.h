@@ -65,6 +65,7 @@
 // #define LUAT_USE_LORA 1
 // #define LUAT_USE_MLX90640 1
 #define LUAT_USE_IOTAUTH 1
+// #define LUAT_USE_PROTOBUF
 
 // 性能测试
 // #define LUAT_USE_COREMARK 1

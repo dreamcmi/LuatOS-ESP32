@@ -219,6 +219,9 @@ static const luaL_Reg loadedlibs[] = {
 #ifdef LUAT_USE_IOTAUTH
     {"iotauth", luaopen_iotauth},
 #endif
+#ifdef LUAT_USE_PROTOBUF
+    {"protobuf", luaopen_protobuf},
+#endif
     {NULL, NULL}};
 
 // 按不同的rtconfig加载不同的库函数

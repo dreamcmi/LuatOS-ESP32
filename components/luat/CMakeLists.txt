@@ -59,6 +59,7 @@ idf_component_register(
                 ../../../LuatOS/components/crypto
                 ../../../LuatOS/components/iotauth
                 ../../../LuatOS/components/i2c-tools
+                ../../../LuatOS/components/serialization/protobuf
 
         INCLUDE_DIRS include 
                 ../../../LuatOS/lua/include 
@@ -101,6 +102,7 @@ idf_component_register(
                 ../../../LuatOS/components/mlx90640-library
                 ../../../LuatOS/components/iotauth
                 ../../../LuatOS/components/i2c-tools
+                ../../../LuatOS/components/serialization/protobuf
 
         REQUIRES 
                 lua 
